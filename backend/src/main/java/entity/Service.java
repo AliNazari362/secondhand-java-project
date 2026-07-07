@@ -85,7 +85,7 @@ public class Service extends Adv {
      */
     public Service() {
         super();
-        this.setAdvType(AdvType.SERVICE);
+//        this.setAdvType(AdvType.SERVICE);
         this.costOfPart = BigDecimal.ZERO;
     }
 

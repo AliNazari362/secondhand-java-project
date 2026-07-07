@@ -27,7 +27,8 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
             "(:keyword IS NULL OR LOWER(a.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND (:city IS NULL OR a.city = :city) " +
-            "AND (:status IS NULL OR a.status = :status)")
+            "AND (:status IS NULL OR a.status = :status)" +
+            "AND a.status != 'DELETED' AND a.status != 'REJECTED'")
     List<Adv> search(@Param("keyword") String keyword,
                      @Param("city") City city,
                      @Param("status") AdvStatus status);

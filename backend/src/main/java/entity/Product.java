@@ -111,7 +111,7 @@ public class Product extends Adv {
      */
     public Product() {
         super();
-        this.setAdvType(AdvType.PRODUCT);
+//        this.setAdvType(AdvType.PRODUCT);
         this.price = BigDecimal.ZERO;
     }
 

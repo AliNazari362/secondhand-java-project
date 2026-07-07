@@ -19,4 +19,7 @@ public interface ChatroomRepository extends JpaRepository<Chatroom, UUID> {
 
     @Query("SELECT c FROM Chatroom c WHERE c.adv.id = :advId AND c.id IN (SELECT r.id FROM User u JOIN u.rooms r WHERE u.id = :userId)")
     Optional<Chatroom> findByUserIdAndAdvId2(@Param("userId") UUID userId, @Param("advId") UUID advId);
+
+    @Query("SELECT c FROM Chatroom c WHERE c.userId = :userId OR c.adv.user.id = :userId")
+    List<Chatroom> findByParticipantId(@Param("userId") UUID userId);
 }
