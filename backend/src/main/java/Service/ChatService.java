@@ -89,7 +89,7 @@ public class ChatService {
 
         User sender = userService.findUserById(userId);
 
-        Message msg = new Message(request.text(), sender);
+        Message msg = new Message(request.text(), sender , room);
         room.addMessage(msg);
 
         Message saved = messageRepository.save(msg);

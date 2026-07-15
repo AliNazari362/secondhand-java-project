@@ -14,14 +14,18 @@ import java.util.UUID;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    List<Message> findByChatroomIdOrderByDateAsc(UUID chatroomId);
+    // ✅ استفاده از Query به‌جای Derived Query
+    @Query("SELECT m FROM Message m WHERE m.chatroom.id = :chatroomId ORDER BY m.date ASC")
+    List<Message> findByChatroomIdOrderByDateAsc(@Param("chatroomId") UUID chatroomId);
 
-    List<Message> findByChatroomIdOrderByDateDesc(UUID chatroomId);
+    @Query("SELECT m FROM Message m WHERE m.chatroom.id = :chatroomId ORDER BY m.date DESC")
+    List<Message> findByChatroomIdOrderByDateDesc(@Param("chatroomId") UUID chatroomId);
 
-    long countByChatroomIdAndSeenFalse(UUID chatroomId);
+    @Query("SELECT COUNT(m) FROM Message m WHERE m.chatroom.id = :chatroomId AND m.seen = false")
+    long countByChatroomIdAndSeenFalse(@Param("chatroomId") UUID chatroomId);
 
     @Modifying
     @Transactional
-    @Query("UPDATE Message m SET m.seen = true WHERE m.chatroomId = :chatroomId AND m.sender.id != :userId")
+    @Query("UPDATE Message m SET m.seen = true WHERE m.chatroom.id = :chatroomId AND m.sender.id != :userId")
     void markAllAsSeen(@Param("chatroomId") UUID chatroomId, @Param("userId") UUID userId);
 }

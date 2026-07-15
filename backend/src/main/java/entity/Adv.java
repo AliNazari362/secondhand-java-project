@@ -79,9 +79,11 @@ public abstract class Adv {
      * Arbitrary key-value attributes that describe the advertised item.
      * Examples: RAM=8GB, Color=Black, Engine=1600cc.
      * Owned exclusively by this advertisement; deleted when the advertisement is deleted.
+     *
+     * <p>This is the inverse side of the bidirectional relationship with {@link Option}.
+     * The owning side is {@link Option#adv}.</p>
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "adv_id", nullable = false)
+    @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Option> options = new ArrayList<>();
 
     /**
@@ -99,7 +101,7 @@ public abstract class Adv {
     @NotNull(message = "Advertisement owner must not be null")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_adv_user"))
+            foreignKey = @ForeignKey(name = "fk_adv_user"))
     private User user;
 
     /**
@@ -130,9 +132,11 @@ public abstract class Adv {
     /**
      * Images attached to this advertisement to visually represent the item or service.
      * Deleted automatically when the advertisement is removed.
+     *
+     * <p>This is the inverse side of the bidirectional relationship with {@link Image}.
+     * The owning side is {@link Image#adv}.</p>
      */
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "adv_id", nullable = false)
+    @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
 
     /**
@@ -271,22 +275,27 @@ public abstract class Adv {
 
     /**
      * Appends a key-value option attribute to this advertisement.
+     * Also sets the back-reference on the option.
      *
      * @param option the attribute to add; must not be null
      */
     public void addOption(Option option) {
         if (option != null && !this.options.contains(option)) {
             this.options.add(option);
+            option.setAdv(this);
         }
     }
 
     /**
      * Removes a key-value option attribute from this advertisement.
+     * Also clears the back-reference on the option.
      *
      * @param option the attribute to remove
      */
     public void removeOption(Option option) {
-        this.options.remove(option);
+        if (this.options.remove(option)) {
+            option.setAdv(null);
+        }
     }
 
     /**
@@ -314,22 +323,27 @@ public abstract class Adv {
 
     /**
      * Attaches an image to this advertisement.
+     * Also sets the back-reference on the image.
      *
      * @param image the image to attach; must not be null
      */
     public void addImage(Image image) {
         if (image != null && !this.images.contains(image)) {
             this.images.add(image);
+            image.setAdv(this);
         }
     }
 
     /**
      * Removes an image from this advertisement.
+     * Also clears the back-reference on the image.
      *
      * @param image the image to remove
      */
     public void removeImage(Image image) {
-        this.images.remove(image);
+        if (this.images.remove(image)) {
+            image.setAdv(null);
+        }
     }
 
     // -------------------------------------------------------------------------

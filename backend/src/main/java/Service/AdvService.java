@@ -64,7 +64,10 @@ public class AdvService {
 
         if (request.options() != null) {
             request.options().forEach(opt -> {
-                Option option = new Option(opt.option(), opt.value());
+                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                option.setOption(opt.option());
+                option.setValue(opt.value());
+                option.setAdv(product);        // تنظیم رابطه
                 product.addOption(option);
             });
         }
@@ -90,7 +93,10 @@ public class AdvService {
 
         if (request.options() != null) {
             request.options().forEach(opt -> {
-                Option option = new Option(opt.option(), opt.value());
+                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                option.setOption(opt.option());
+                option.setValue(opt.value());
+                option.setAdv(service);        // تنظیم رابطه
                 service.addOption(option);
             });
         }
@@ -101,10 +107,6 @@ public class AdvService {
 
     // ---------- Read ----------
 
-    /**
-     * جستجوی آگهی‌ها با قابلیت فیلتر بر اساس کلمه کلیدی، شهر و وضعیت.
-     * این متد جدید امکان فیلتر کردن بر اساس وضعیت‌های مختلف را فراهم می‌کند.
-     */
     public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status) {
         List<Adv> ads = advRepository.search(keyword, city, status);
         return ads.stream()
@@ -112,10 +114,6 @@ public class AdvService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * دریافت آگهی‌های فعال (وضعیت ACTIVE) – برای استفاده در صفحه اصلی.
-     * این متد از {@link #getAds} برای سادگی استفاده می‌کند.
-     */
     public List<AdvSummaryResponse> getActiveAds(String keyword, City city) {
         return getAds(keyword, city, AdvStatus.ACTIVE);
     }
@@ -155,7 +153,10 @@ public class AdvService {
         if (request.options() != null) {
             optionRepository.deleteByAdvId(advId);
             request.options().forEach(opt -> {
-                Option option = new Option(opt.option(), opt.value());
+                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                option.setOption(opt.option());
+                option.setValue(opt.value());
+                option.setAdv(product);        // تنظیم رابطه
                 product.addOption(option);
             });
         }
@@ -179,7 +180,10 @@ public class AdvService {
         if (request.options() != null) {
             optionRepository.deleteByAdvId(advId);
             request.options().forEach(opt -> {
-                Option option = new Option(opt.option(), opt.value());
+                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                option.setOption(opt.option());
+                option.setValue(opt.value());
+                option.setAdv(service);        // تنظیم رابطه
                 service.addOption(option);
             });
         }

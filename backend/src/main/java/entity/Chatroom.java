@@ -29,8 +29,8 @@ public class Chatroom {
             foreignKey = @ForeignKey(name = "fk_chatroom_adv"))
     private Adv adv;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom_id", nullable = false)
+    // ✅ اصلاح: استفاده از mappedBy به‌جای @JoinColumn
+    @OneToMany(mappedBy = "chatroom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("date ASC")
     private List<Message> messages = new ArrayList<>();
 
@@ -58,14 +58,18 @@ public class Chatroom {
         return userId;
     }
 
+    // ✅ اصلاح: تنظیم رابطه‌ی دوطرفه
     public void addMessage(Message message) {
         if (message != null && !this.messages.contains(message)) {
             this.messages.add(message);
+            message.setChatroom(this); // این خط را اضافه کنید
         }
     }
 
     public void removeMessage(Message message) {
-        this.messages.remove(message);
+        if (this.messages.remove(message)) {
+            message.setChatroom(null);
+        }
     }
 
     public long countUnreadMessages() {
