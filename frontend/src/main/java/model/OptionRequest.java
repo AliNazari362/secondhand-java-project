@@ -1,12 +1,12 @@
 package model;
 
-public class OptionDto {
+public class OptionRequest {
     private String option;
     private String value;
 
-    public OptionDto() {}
+    public OptionRequest() {}
 
-    public OptionDto(String option, String value) {
+    public OptionRequest(String option, String value) {
         this.option = option;
         this.value = value;
     }

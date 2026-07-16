@@ -2,15 +2,16 @@ package model;
 
 import java.util.UUID;
 
-public class ChatroomDto {
+public class ChatroomSummaryDto {
     private UUID id;
     private UUID advId;
     private String advTitle;
-    private String lastMessage;
-    private int unreadCount;
+    private int messageCount;
+    private long unreadCount;
 
-    public ChatroomDto() {}
+    public ChatroomSummaryDto() {}
 
+    // Getters & Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -20,9 +21,9 @@ public class ChatroomDto {
     public String getAdvTitle() { return advTitle; }
     public void setAdvTitle(String advTitle) { this.advTitle = advTitle; }
 
-    public String getLastMessage() { return lastMessage; }
-    public void setLastMessage(String lastMessage) { this.lastMessage = lastMessage; }
+    public int getMessageCount() { return messageCount; }
+    public void setMessageCount(int messageCount) { this.messageCount = messageCount; }
 
-    public int getUnreadCount() { return unreadCount; }
-    public void setUnreadCount(int unreadCount) { this.unreadCount = unreadCount; }
+    public long getUnreadCount() { return unreadCount; }
+    public void setUnreadCount(long unreadCount) { this.unreadCount = unreadCount; }
 }

@@ -1,6 +1,6 @@
 package model;
 
-import model.enums.UserRole;
+import model.enums.UserType;
 
 import java.util.UUID;
 
@@ -8,11 +8,11 @@ public class LoginResponse {
     private String token;
     private UUID userId;
     private String fullName;
-    private UserRole role;
+    private UserType role;  // در Backend به‌عنوان userType هم هست
 
     public LoginResponse() {}
 
-    public LoginResponse(String token, UUID userId, String fullName, UserRole role) {
+    public LoginResponse(String token, UUID userId, String fullName, UserType role) {
         this.token = token;
         this.userId = userId;
         this.fullName = fullName;
@@ -28,6 +28,6 @@ public class LoginResponse {
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
+    public UserType getRole() { return role; }
+    public void setRole(UserType role) { this.role = role; }
 }

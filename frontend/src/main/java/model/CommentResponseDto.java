@@ -2,15 +2,16 @@ package model;
 
 import java.time.LocalDateTime;
 
-public class CommentDto {
+public class CommentResponseDto {
     private Long id;
     private String text;
     private int rate;
-    private String userFullName;
+    private UserSummaryDto author;
     private LocalDateTime date;
 
-    public CommentDto() {}
+    public CommentResponseDto() {}
 
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -20,8 +21,8 @@ public class CommentDto {
     public int getRate() { return rate; }
     public void setRate(int rate) { this.rate = rate; }
 
-    public String getUserFullName() { return userFullName; }
-    public void setUserFullName(String userFullName) { this.userFullName = userFullName; }
+    public UserSummaryDto getAuthor() { return author; }
+    public void setAuthor(UserSummaryDto author) { this.author = author; }
 
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
