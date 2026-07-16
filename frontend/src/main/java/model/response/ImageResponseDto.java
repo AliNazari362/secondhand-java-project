@@ -1,4 +1,4 @@
-package model;
+package model.response;
 
 public class ImageResponseDto {
     private Long id;

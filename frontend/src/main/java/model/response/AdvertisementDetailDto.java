@@ -1,4 +1,4 @@
-package model;
+package model.response;
 
 import model.enums.AdvStatus;
 import model.enums.AdvType;

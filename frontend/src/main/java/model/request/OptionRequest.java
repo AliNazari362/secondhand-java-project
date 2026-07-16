@@ -1,20 +1,15 @@
-package model;
+package model.request;
 
-public class OptionResponseDto {
-    private Long id;
+public class OptionRequest {
     private String option;
     private String value;
 
-    public OptionResponseDto() {}
+    public OptionRequest() {}
 
-    public OptionResponseDto(Long id, String option, String value) {
-        this.id = id;
+    public OptionRequest(String option, String value) {
         this.option = option;
         this.value = value;
     }
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public String getOption() { return option; }
     public void setOption(String option) { this.option = option; }

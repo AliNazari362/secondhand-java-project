@@ -1,4 +1,4 @@
-package model;
+package model.request;
 
 import model.enums.Category;
 import model.enums.City;

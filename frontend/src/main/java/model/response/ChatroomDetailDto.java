@@ -1,15 +1,15 @@
-package model;
+package model.response;
 
+import java.util.List;
 import java.util.UUID;
 
-public class ChatroomSummaryDto {
+public class ChatroomDetailDto {
     private UUID id;
     private UUID advId;
     private String advTitle;
-    private int messageCount;
-    private long unreadCount;
+    private List<MessageResponseDto> messages;
 
-    public ChatroomSummaryDto() {}
+    public ChatroomDetailDto() {}
 
     // Getters & Setters
     public UUID getId() { return id; }
@@ -21,9 +21,6 @@ public class ChatroomSummaryDto {
     public String getAdvTitle() { return advTitle; }
     public void setAdvTitle(String advTitle) { this.advTitle = advTitle; }
 
-    public int getMessageCount() { return messageCount; }
-    public void setMessageCount(int messageCount) { this.messageCount = messageCount; }
-
-    public long getUnreadCount() { return unreadCount; }
-    public void setUnreadCount(long unreadCount) { this.unreadCount = unreadCount; }
+    public List<MessageResponseDto> getMessages() { return messages; }
+    public void setMessages(List<MessageResponseDto> messages) { this.messages = messages; }
 }
