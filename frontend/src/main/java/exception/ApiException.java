@@ -1,11 +1,9 @@
 package exception;
 
 /**
- * استثنای مربوط به خطاهای دریافتی از Backend.
- * شامل پیام خطا و کد وضعیت HTTP است.
+ * خطاهای مربوط به پاسخ‌های ناموفق از Backend (کدهای HTTP >= 400).
  */
 public class ApiException extends RuntimeException {
-
     private final int statusCode;
 
     public ApiException(String message, int statusCode) {
@@ -26,7 +24,7 @@ public class ApiException extends RuntimeException {
     public String toString() {
         return "ApiException{" +
                 "statusCode=" + statusCode +
-                ", message=" + getMessage() +
+                ", message='" + getMessage() + '\'' +
                 '}';
     }
 }
