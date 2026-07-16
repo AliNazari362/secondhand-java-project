@@ -1,12 +1,12 @@
 package Service;
 
-import dto.adv.AdvSummaryResponse;
-import dto.user.UserSummaryResponse;
-import entity.Adv;
-import entity.enums.AdvStatus;
-import entity.User;
-import entity.enums.UserStatus;
-import entity.enums.UserType;
+import DTO.adv.AdvSummaryResponse;
+import DTO.user.UserSummaryResponse;
+import Entity.Adv;
+import Entity.enums.AdvStatus;
+import Entity.User;
+import Entity.enums.UserStatus;
+import Entity.enums.UserType;
 import Repository.AdvRepository;
 import Repository.UserRepository;
 

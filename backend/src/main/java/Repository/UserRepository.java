@@ -1,8 +1,8 @@
 package Repository;
 
-import entity.User;
-import entity.enums.UserStatus;
-import entity.enums.UserType;
+import Entity.User;
+import Entity.enums.UserStatus;
+import Entity.enums.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

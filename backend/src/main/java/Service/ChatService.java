@@ -1,12 +1,12 @@
 package Service;
 
-import dto.chatroom.ChatroomSummaryResponse;
-import dto.chatroom.ChatroomDetailResponse;
-import dto.chatroom.ChatroomCreateRequest;
-import dto.message.MessageRequest;
-import dto.message.MessageResponse;
-import dto.user.UserSummaryResponse;
-import entity.*;
+import DTO.chatroom.ChatroomSummaryResponse;
+import DTO.chatroom.ChatroomDetailResponse;
+import DTO.chatroom.ChatroomCreateRequest;
+import DTO.message.MessageRequest;
+import DTO.message.MessageResponse;
+import DTO.user.UserSummaryResponse;
+import Entity.*;
 import Repository.ChatroomRepository;
 import Repository.MessageRepository;
 

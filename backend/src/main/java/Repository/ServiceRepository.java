@@ -1,7 +1,7 @@
 package Repository;
 
-import entity.Service;
-import entity.Service.ServiceType;
+import Entity.Service;
+import Entity.Service.ServiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,11 +1,11 @@
 package Service;
 
-import dto.comment.CommentRequest;
-import dto.comment.CommentResponse;
-import dto.user.UserSummaryResponse;
-import entity.Adv;
-import entity.Comment;
-import entity.User;
+import DTO.comment.CommentRequest;
+import DTO.comment.CommentResponse;
+import DTO.user.UserSummaryResponse;
+import Entity.Adv;
+import Entity.Comment;
+import Entity.User;
 import Repository.CommentRepository;
 
 import java.util.UUID;

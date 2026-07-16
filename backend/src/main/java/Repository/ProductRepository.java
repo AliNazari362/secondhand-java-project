@@ -1,7 +1,7 @@
 package Repository;
 
-import entity.Product;
-import entity.enums.Category;
+import Entity.Product;
+import Entity.enums.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

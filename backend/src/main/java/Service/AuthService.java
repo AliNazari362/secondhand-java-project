@@ -1,10 +1,10 @@
 package Service;
 
-import dto.user.UserRegisterRequest;
-import dto.user.UserDetailResponse;
-import entity.User;
-import entity.enums.UserStatus;
-import entity.enums.UserType;
+import DTO.user.UserRegisterRequest;
+import DTO.user.UserDetailResponse;
+import Entity.User;
+import Entity.enums.UserStatus;
+import Entity.enums.UserType;
 import Repository.UserRepository;
 
 public class AuthService {

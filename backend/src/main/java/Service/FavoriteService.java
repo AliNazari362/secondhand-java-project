@@ -1,10 +1,9 @@
 package Service;
 
-import dto.adv.AdvSummaryResponse;
-import entity.Adv;
-import entity.User;
-import Repository.AdvRepository;
-import entity.enums.AdvStatus;
+import DTO.adv.AdvSummaryResponse;
+import Entity.Adv;
+import Entity.User;
+import Entity.enums.AdvStatus;
 
 import java.util.List;
 import java.util.UUID;

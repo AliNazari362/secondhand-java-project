@@ -1,12 +1,12 @@
 package Service;   // پکیج را به حروف کوچک اصلاح کردم
 
-import dto.comment.CommentRequest;
-import dto.comment.CommentResponse;
-import dto.comment.CommentUpdateRequest;
-import dto.user.UserSummaryResponse;
-import entity.Adv;               // ← این import را اضافه کن
-import entity.Comment;
-import entity.User;
+import DTO.comment.CommentRequest;
+import DTO.comment.CommentResponse;
+import DTO.comment.CommentUpdateRequest;
+import DTO.user.UserSummaryResponse;
+import Entity.Adv;               // ← این import را اضافه کن
+import Entity.Comment;
+import Entity.User;
 import Repository.CommentRepository;   // ← پکیج را اصلاح کردم
 
 import java.util.List;

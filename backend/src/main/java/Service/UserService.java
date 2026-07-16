@@ -1,14 +1,20 @@
 package Service;
 
-import dto.user.UserDetailResponse;
-import dto.user.UserSummaryResponse;
-import dto.user.UserUpdateRequest;
-import dto.user.UserChangePasswordRequest;
-import entity.User;
-import entity.enums.UserStatus;
+import DTO.user.*;
+import Entity.User;
+import Entity.enums.UserStatus;
 import Repository.UserRepository;
+import Service.exceptions.UserNotFoundException;
+import org.springframework.validation.Validator;
 
+import javax.net.ssl.SSLSession;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -82,7 +88,7 @@ public class UserService {
 
     public User findUserById(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow((UserNotFoundException::new));
     }
 
     public void saveUser(User user) {

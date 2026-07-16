@@ -1,17 +1,16 @@
 package Service;
 
-import dto.adv.*;
-import dto.comment.CommentResponse;
-import dto.image.ImageResponse;
-import dto.option.OptionResponse;
-import dto.user.UserSummaryResponse;
-import entity.*;
-import entity.enums.AdvStatus;
-import entity.enums.AdvType;
-import entity.enums.City;
+import DTO.adv.*;
+import DTO.comment.CommentResponse;
+import DTO.image.ImageResponse;
+import DTO.option.OptionResponse;
+import DTO.user.UserSummaryResponse;
+import Entity.*;
+import Entity.enums.AdvStatus;
+import Entity.enums.AdvType;
+import Entity.enums.City;
 import Repository.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

@@ -1,9 +1,9 @@
 package Repository;
 
-import entity.Adv;
-import entity.enums.AdvStatus;
-import entity.enums.AdvType;
-import entity.enums.City;
+import Entity.Adv;
+import Entity.enums.AdvStatus;
+import Entity.enums.AdvType;
+import Entity.enums.City;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
