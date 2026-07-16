@@ -1,15 +1,16 @@
 package model;
 
+import java.time.LocalDateTime;
+
 public class CommentDto {
     private Long id;
     private String text;
     private int rate;
     private String userFullName;
-    private String date;
+    private LocalDateTime date;
 
     public CommentDto() {}
 
-    // ---------- Getters & Setters ----------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -22,6 +23,6 @@ public class CommentDto {
     public String getUserFullName() { return userFullName; }
     public void setUserFullName(String userFullName) { this.userFullName = userFullName; }
 
-    public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 }

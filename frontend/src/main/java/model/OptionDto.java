@@ -11,7 +11,6 @@ public class OptionDto {
         this.value = value;
     }
 
-    // ---------- Getters & Setters ----------
     public String getOption() { return option; }
     public void setOption(String option) { this.option = option; }
 

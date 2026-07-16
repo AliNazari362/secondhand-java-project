@@ -1,5 +1,8 @@
 package model;
 
+import model.enums.UserRole;
+import model.enums.UserStatus;
+
 import java.util.UUID;
 
 public class UserDto {
@@ -7,12 +10,12 @@ public class UserDto {
     private String fullName;
     private String email;
     private String phoneNumber;
-    private String userType;    // "USER" یا "ADMIN"
-    private String userStatus;  // "ACTIVE" یا "BANNED"
+    private UserRole userType;
+    private UserStatus userStatus;
 
     public UserDto() {}
 
-    public UserDto(UUID id, String fullName, String email, String phoneNumber, String userType, String userStatus) {
+    public UserDto(UUID id, String fullName, String email, String phoneNumber, UserRole userType, UserStatus userStatus) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -34,9 +37,9 @@ public class UserDto {
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public String getUserType() { return userType; }
-    public void setUserType(String userType) { this.userType = userType; }
+    public UserRole getUserType() { return userType; }
+    public void setUserType(UserRole userType) { this.userType = userType; }
 
-    public String getUserStatus() { return userStatus; }
-    public void setUserStatus(String userStatus) { this.userStatus = userStatus; }
+    public UserStatus getUserStatus() { return userStatus; }
+    public void setUserStatus(UserStatus userStatus) { this.userStatus = userStatus; }
 }

@@ -11,7 +11,6 @@ public class ChatroomDto {
 
     public ChatroomDto() {}
 
-    // ---------- Getters & Setters ----------
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

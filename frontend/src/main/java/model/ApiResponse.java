@@ -13,7 +13,6 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    // ---------- Getters & Setters ----------
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }
 

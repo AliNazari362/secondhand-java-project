@@ -1,5 +1,9 @@
 package model;
 
+import model.enums.AdvStatus;
+import model.enums.AdvType;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,11 +13,11 @@ public class AdvertisementDto {
     private String description;
     private long price;
     private String city;
-    private String status;       // PENDING, ACTIVE, REJECTED, SOLD, DELETED
-    private String advType;      // PRODUCT یا SERVICE
+    private AdvStatus status;
+    private AdvType advType;
     private UUID ownerId;
     private String ownerFullName;
-    private String creationDate;
+    private LocalDateTime creationDate;
     private String firstImagePath;
     private List<OptionDto> options;
     private List<CommentDto> comments;
@@ -36,11 +40,11 @@ public class AdvertisementDto {
     public String getCity() { return city; }
     public void setCity(String city) { this.city = city; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public AdvStatus getStatus() { return status; }
+    public void setStatus(AdvStatus status) { this.status = status; }
 
-    public String getAdvType() { return advType; }
-    public void setAdvType(String advType) { this.advType = advType; }
+    public AdvType getAdvType() { return advType; }
+    public void setAdvType(AdvType advType) { this.advType = advType; }
 
     public UUID getOwnerId() { return ownerId; }
     public void setOwnerId(UUID ownerId) { this.ownerId = ownerId; }
@@ -48,8 +52,8 @@ public class AdvertisementDto {
     public String getOwnerFullName() { return ownerFullName; }
     public void setOwnerFullName(String ownerFullName) { this.ownerFullName = ownerFullName; }
 
-    public String getCreationDate() { return creationDate; }
-    public void setCreationDate(String creationDate) { this.creationDate = creationDate; }
+    public LocalDateTime getCreationDate() { return creationDate; }
+    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
     public String getFirstImagePath() { return firstImagePath; }
     public void setFirstImagePath(String firstImagePath) { this.firstImagePath = firstImagePath; }
