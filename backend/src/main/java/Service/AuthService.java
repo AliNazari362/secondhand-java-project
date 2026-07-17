@@ -1,23 +1,30 @@
 package Service;
 
+import DTO.user.UserLoginRequest;
 import DTO.user.UserRegisterRequest;
 import DTO.user.UserDetailResponse;
 import Entity.User;
 import Entity.enums.UserStatus;
 import Entity.enums.UserType;
 import Repository.UserRepository;
+import SpecialException.AccountIsNotAccessibleException;
+import SpecialException.EmailAlreadyExistException;
+import SpecialException.IllegalEmailException;
+import SpecialException.PasswordIsNotCorrectException;
 
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public UserDetailResponse register(UserRegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistException("این ایمیل پیش از این در سیستم ثبت شده است");
         }
 
         User user = new User();
@@ -29,36 +36,25 @@ public class AuthService {
         user.setUserStatus(UserStatus.ACTIVE);
 
         User saved = userRepository.save(user);
-        return toUserDetailResponse(saved);
+        return userService.toUserDetailResponse(saved);
     }
 
-    public String login(String email, String password) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    public String login(UserLoginRequest request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new IllegalEmailException("ایمیل نامعتبر است"));
 
-        if (!PasswordUtil.verifyPassword(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+        if (!PasswordUtil.verifyPassword(request.password(), user.getPassword())) {
+            throw new PasswordIsNotCorrectException("رمز عبور اشتباه وارد شده است");
         }
 
         if (user.getUserStatus() == UserStatus.BANNED) {
-            throw new RuntimeException("Account is banned");
+            throw new AccountIsNotAccessibleException("حساب شما تعلیق شده است؛ اجازه ورود ندارید");
         }
 
         return JwtUtil.generateToken(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUserType().name()
-        );
-    }
-
-    private UserDetailResponse toUserDetailResponse(User user) {
-        return new UserDetailResponse(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                user.getUserType(),
-                user.getUserStatus()
         );
     }
 }

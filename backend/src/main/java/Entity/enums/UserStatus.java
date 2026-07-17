@@ -6,9 +6,18 @@ package Entity.enums;
  */
 public enum UserStatus {
 
-    /** The user's account is active and fully functional. */
+    /**
+     * The user's account is active and fully functional.
+     */
     ACTIVE,
 
-    /** The user's account has been banned by an admin; login and actions are blocked. */
-    BANNED
+    /**
+     * The user's account has been banned by an admin; login and actions are blocked.
+     */
+    BANNED,
+
+    /**
+     * The user's account is deleted by own.
+     */
+    DELETED
 }

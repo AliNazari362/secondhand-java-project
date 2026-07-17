@@ -4,19 +4,11 @@ import DTO.user.*;
 import Entity.User;
 import Entity.enums.UserStatus;
 import Repository.UserRepository;
-import Service.exceptions.UserNotFoundException;
-import org.springframework.validation.Validator;
+import SpecialException.EmailAlreadyExistException;
+import SpecialException.PasswordIsNotCorrectException;
+import SpecialException.UserNotFoundException;
 
-import javax.net.ssl.SSLSession;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class UserService {
 
@@ -39,7 +31,7 @@ public class UserService {
         }
         if (request.email() != null) {
             if (userRepository.existsByEmail(request.email()) && !user.getEmail().equals(request.email())) {
-                throw new RuntimeException("Email already taken");
+                throw new EmailAlreadyExistException("این ایمیل پیش از این در سیستم ثبت شده است");
             }
             user.setEmail(request.email());
         }
@@ -55,47 +47,29 @@ public class UserService {
         User user = findUserById(userId);
 
         if (!PasswordUtil.verifyPassword(request.currentPassword(), user.getPassword())) {
-            throw new RuntimeException("Current password is incorrect");
+            throw new PasswordIsNotCorrectException("رمز عبور فعلی شما نادرست وارد شده است");
         }
 
         user.setPassword(PasswordUtil.hashPassword(request.newPassword()));
         userRepository.save(user);
     }
 
-    public List<UserSummaryResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::toUserSummaryResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<UserSummaryResponse> getUsersByStatus(UserStatus status) {
-        return userRepository.findByUserStatus(status).stream()
-                .map(this::toUserSummaryResponse)
-                .collect(Collectors.toList());
-    }
-
-    public void banUser(UUID userId) {
+    public void deleteProfile(UUID userId) {
         User user = findUserById(userId);
-        user.setUserStatus(UserStatus.BANNED);
+        user.setUserStatus(UserStatus.DELETED);
         userRepository.save(user);
     }
 
-    public void unbanUser(UUID userId) {
-        User user = findUserById(userId);
-        user.setUserStatus(UserStatus.ACTIVE);
-        userRepository.save(user);
-    }
-
-    public User findUserById(UUID userId) {
+    public User findUserById(UUID userId) throws UserNotFoundException {
         return userRepository.findById(userId)
-                .orElseThrow((UserNotFoundException::new));
+                .orElseThrow(() -> new UserNotFoundException("کاربری با این مشخصات یافت نشد"));
     }
 
     public void saveUser(User user) {
         userRepository.save(user);
     }
 
-    private UserDetailResponse toUserDetailResponse(User user) {
+    public UserDetailResponse toUserDetailResponse(User user) {
         return new UserDetailResponse(
                 user.getId(),
                 user.getFullName(),
@@ -106,7 +80,7 @@ public class UserService {
         );
     }
 
-    private UserSummaryResponse toUserSummaryResponse(User user) {
+    public UserSummaryResponse toUserSummaryResponse(User user) {
         return new UserSummaryResponse(
                 user.getId(),
                 user.getFullName(),

@@ -31,7 +31,7 @@ import java.util.List;
  * @param price          asking price in Iranian Tomans; mandatory, must be &gt;= 0
  * @param options        list of key-value attribute pairs; optional
  */
-public record ProductCreateRequest(
+public record ProductCreateRequest (
 
         /** Advertisement headline shown in listings and search results; must not be blank. */
         @NotBlank(message = "Advertisement title must not be blank")

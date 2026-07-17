@@ -6,7 +6,6 @@ import Entity.Adv;
 import Entity.enums.AdvStatus;
 import Entity.User;
 import Entity.enums.UserStatus;
-import Entity.enums.UserType;
 import Repository.AdvRepository;
 import Repository.UserRepository;
 
@@ -19,58 +18,51 @@ public class AdminService {
     private final UserRepository userRepository;
     private final AdvService advService;
     private final AdvRepository advRepository;
-    private final UserService userService; // 🔥 این را اضافه کن
+    private final UserService userService;
 
     public AdminService(UserRepository userRepository,
                         AdvService advService,
                         AdvRepository advRepository,
-                        UserService userService) { // 🔥 پارامتر را اضافه کن
+                        UserService userService) {
         this.userRepository = userRepository;
         this.advService = advService;
         this.advRepository = advRepository;
         this.userService = userService;
     }
 
-    // 🔥 متد کمکی برای چک کردن ادمین
-    private void checkAdmin(UUID adminId) {
-        User admin = userService.findUserById(adminId);
-        if (admin.getUserType() != UserType.ADMIN) {
-            throw new RuntimeException("Admin access required");
-        }
-    }
-
-    // ---------- مدیریت کاربران ----------
     public List<UserSummaryResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::toUserSummaryResponse)
+                .map(userService::toUserSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserSummaryResponse> getUsersByStatus(UserStatus status) {
+        return userRepository.findByUserStatus(status).stream()
+                .map(userService::toUserSummaryResponse)
                 .collect(Collectors.toList());
     }
 
     public void banUser(UUID userId) {
-        User user = findUserById(userId);
+        User user = userService.findUserById(userId);
         user.setUserStatus(UserStatus.BANNED);
         userRepository.save(user);
     }
 
     public void unbanUser(UUID userId) {
-        User user = findUserById(userId);
+        User user = userService.findUserById(userId);
         user.setUserStatus(UserStatus.ACTIVE);
         userRepository.save(user);
     }
 
-    // ---------- مدیریت آگهی‌ها (ادمین) ----------
-    public void approveAdv(UUID advId, UUID adminId) { // 🔥 adminId اضافه شد
-        checkAdmin(adminId);
+    public void approveAdv(UUID advId) {
         advService.approveAdv(advId);
     }
 
-    public void rejectAdv(UUID advId, String reason, UUID adminId) { // 🔥 adminId اضافه شد
-        checkAdmin(adminId);
+    public void rejectAdv(UUID advId, String reason) {
         advService.rejectAdv(advId, reason);
     }
 
-    public void deleteAdv(UUID advId, UUID adminId) { // 🔥 adminId اضافه شد
-        checkAdmin(adminId);
+    public void deleteAdv(UUID advId) {
         Adv adv = advService.findAdvById(advId);
         adv.setStatus(AdvStatus.DELETED);
         advRepository.save(adv);
@@ -78,20 +70,5 @@ public class AdminService {
 
     public List<AdvSummaryResponse> getPendingAds() {
         return advService.getPendingAds();
-    }
-
-    // ---------- متدهای کمکی ----------
-    private User findUserById(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    private UserSummaryResponse toUserSummaryResponse(User user) {
-        return new UserSummaryResponse(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getUserType()
-        );
     }
 }
