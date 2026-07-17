@@ -12,14 +12,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.UUID;
+
 public class DashboardController {
-    private static VBox root;
+
+    private static ListView<String> adListView = new ListView<>();
 
     public static VBox getRoot() {
-        if (root == null) {
-            root = createRoot();
-        }
-        return root;
+        return createRoot();
     }
 
     private static VBox createRoot() {
@@ -49,9 +49,21 @@ public class DashboardController {
         newAdBtn.getStyleClass().add("primary-btn");
         newAdBtn.setOnAction(e -> SceneManager.showNewAdPage());
 
-        HBox rightBox = new HBox(10, newAdBtn, logoutBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
+        Button favBtn = new Button("❤️ علاقه‌مندی‌ها");
+        favBtn.getStyleClass().add("secondary-btn");
+        favBtn.setOnAction(e -> SceneManager.showFavoritesPage());
 
+        Button chatBtn = new Button("💬 پیام‌ها");
+        chatBtn.getStyleClass().add("secondary-btn");
+        chatBtn.setOnAction(e -> SceneManager.showChatListPage());
+
+        Button adminBtn = new Button("⚙️ مدیریت");
+        adminBtn.getStyleClass().add("danger-btn");
+        adminBtn.setVisible(SessionManager.isAdmin());
+        adminBtn.setOnAction(e -> SceneManager.showAdminPage());
+
+        HBox rightBox = new HBox(10, newAdBtn, favBtn, chatBtn, adminBtn, logoutBtn);
+        rightBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
         header.getChildren().addAll(title, userInfo, rightBox);
 
@@ -60,7 +72,6 @@ public class DashboardController {
         content.setPadding(new Insets(25));
         content.setAlignment(Pos.TOP_CENTER);
 
-        // کارت لیست
         VBox listCard = new VBox(10);
         listCard.getStyleClass().add("card");
         listCard.setPrefWidth(800);
@@ -68,28 +79,31 @@ public class DashboardController {
         Label listTitle = new Label("آگهی‌های فعال");
         listTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2d3748;");
 
-        ListView<String> adListView = new ListView<>();
         adListView.getStyleClass().add("list-view");
         adListView.setPrefHeight(400);
+        adListView.getItems().clear();
         adListView.getItems().addAll(
                 "لپ‌تاپ لنوو ThinkPad - ۱۸,۰۰۰,۰۰۰ تومان - تهران",
                 "خدمات برنامه‌نویسی وب - ۵۰۰,۰۰۰ تومان/ساعت - اصفهان",
                 "مبل هفت‌نفره - ۱۲,۰۰۰,۰۰۰ تومان - شیراز",
-                "آموزش زبان انگلیسی - ۲۰۰,۰۰۰ تومان/جلسه - مشهد"
+                "آموزش زبان انگلیسی - ۲۰۰,۰۰۰ تومان/جلسه - مشهد",
+                "پلی‌استیشن ۵ - ۲۵,۰۰۰,۰۰۰ تومان - کرج",
+                "دوچرخه کوهستان - ۸,۰۰۰,۰۰۰ تومان - تبریز"
         );
+
         adListView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                AlertUtil.showWarning("صفحه جزئیات آگهی در حال توسعه است.");
+                int index = adListView.getSelectionModel().getSelectedIndex();
+                if (index >= 0) {
+                    SceneManager.showAdDetailPage(UUID.randomUUID());
+                }
             }
         });
 
         listCard.getChildren().addAll(listTitle, adListView);
-
         content.getChildren().add(listCard);
 
-        // ---------- جمع‌آوری ----------
         mainBox.getChildren().addAll(header, content);
-
         mainBox.getStylesheets().add(DashboardController.class.getResource("/style.css").toExternalForm());
 
         return mainBox;

@@ -13,13 +13,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public class NewAdController {
-    private static VBox root;
 
     public static VBox getRoot() {
-        if (root == null) {
-            root = createRoot();
-        }
-        return root;
+        return createRoot();
     }
 
     private static VBox createRoot() {
@@ -82,22 +78,27 @@ public class NewAdController {
         typeCombo.setMaxWidth(Double.MAX_VALUE);
         typeCombo.getItems().addAll("محصول", "خدمات");
 
-        // دکمه‌ها
         HBox btnBox = new HBox(10);
         btnBox.setAlignment(Pos.CENTER);
 
         Button submitBtn = new Button("📤 ثبت آگهی");
         submitBtn.getStyleClass().add("success-btn");
+        submitBtn.setOnAction(e -> {
+            if (titleField.getText().trim().isEmpty() ||
+                    descArea.getText().trim().isEmpty() ||
+                    priceField.getText().trim().isEmpty() ||
+                    cityCombo.getValue() == null ||
+                    typeCombo.getValue() == null) {
+                AlertUtil.showError("لطفاً همه فیلدهای ضروری را پر کنید.");
+                return;
+            }
+            AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
+            SceneManager.showDashboardPage();
+        });
 
         Button cancelBtn = new Button("❌ انصراف");
         cancelBtn.getStyleClass().add("secondary-btn");
         cancelBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        submitBtn.setOnAction(e -> {
-            // TODO: بعداً به ApiClient متصل می‌شود
-            AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
-            SceneManager.showDashboardPage();
-        });
 
         btnBox.getChildren().addAll(submitBtn, cancelBtn);
 
@@ -105,7 +106,6 @@ public class NewAdController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-
         mainBox.getStylesheets().add(NewAdController.class.getResource("/style.css").toExternalForm());
 
         return mainBox;

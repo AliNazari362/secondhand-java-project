@@ -13,13 +13,9 @@ import javafx.scene.text.Text;
 import java.util.UUID;
 
 public class AdDetailController {
-    private static VBox root;
 
     public static VBox getRoot(UUID adId) {
-        if (root == null) {
-            root = createRoot(adId);
-        }
-        return root;
+        return createRoot(adId);
     }
 
     private static VBox createRoot(UUID adId) {
@@ -53,15 +49,12 @@ public class AdDetailController {
         card.getStyleClass().add("card");
         card.setPrefWidth(700);
 
-        // عنوان
         Text adTitle = new Text("لپ‌تاپ لنوو ThinkPad");
         adTitle.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: #1a202c;");
 
-        // وضعیت
         Label statusBadge = new Label("فعال");
         statusBadge.getStyleClass().addAll("status-badge", "status-active");
 
-        // اطلاعات
         VBox infoBox = new VBox(8);
         Label priceLabel = new Label("💰 قیمت: ۱۸,۰۰۰,۰۰۰ تومان");
         priceLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;");
@@ -76,7 +69,6 @@ public class AdDetailController {
         Text descText = new Text("لپ‌تاپ دست دوم در شرایط عالی. فقط یک سال استفاده شده. بدون خط و خش.");
         descText.setWrappingWidth(600);
 
-        // دکمه‌ها
         HBox btnBox = new HBox(10);
         btnBox.setAlignment(Pos.CENTER);
 
@@ -92,15 +84,20 @@ public class AdDetailController {
         rateBtn.getStyleClass().add("secondary-btn");
         rateBtn.setOnAction(e -> AlertUtil.showWarning("صفحه امتیازدهی در حال توسعه است."));
 
-        btnBox.getChildren().addAll(chatBtn, favBtn, rateBtn);
+        Button editBtn = new Button("✏️ ویرایش");
+        editBtn.getStyleClass().add("primary-btn");
+        editBtn.setOnAction(e -> SceneManager.showEditAdPage(adId));
 
-        // جمع‌آوری
+        Button deleteBtn = new Button("🗑️ حذف");
+        deleteBtn.getStyleClass().add("danger-btn");
+        deleteBtn.setOnAction(e -> AlertUtil.showSuccess("آگهی با موفقیت حذف شد!"));
+
+        btnBox.getChildren().addAll(chatBtn, favBtn, rateBtn, editBtn, deleteBtn);
         infoBox.getChildren().addAll(priceLabel, cityLabel, ownerLabel, dateLabel);
         card.getChildren().addAll(adTitle, statusBadge, infoBox, descTitle, descText, btnBox);
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-
         mainBox.getStylesheets().add(AdDetailController.class.getResource("/style.css").toExternalForm());
 
         return mainBox;

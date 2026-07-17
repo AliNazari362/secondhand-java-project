@@ -2,6 +2,7 @@ package controller;
 
 import utils.AlertUtil;
 import utils.SceneManager;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,13 +13,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public class RegisterController {
-    private static VBox root;
 
     public static VBox getRoot() {
-        if (root == null) {
-            root = createRoot();
-        }
-        return root;
+        return createRoot();
     }
 
     private static VBox createRoot() {
@@ -73,9 +70,8 @@ public class RegisterController {
                 return;
             }
 
-            // TODO: بعداً به ApiClient متصل می‌شود
             AlertUtil.showSuccess("ثبت‌نام موفق! حالا وارد شوید.");
-            SceneManager.showLoginPage();
+            Platform.runLater(() -> SceneManager.showLoginPage());
         });
 
         Hyperlink loginLink = new Hyperlink("قبلاً ثبت‌نام کرده‌اید؟ وارد شوید");
