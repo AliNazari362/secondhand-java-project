@@ -73,7 +73,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <!-- ✅ کلاس اصلی را به MainApplication تغییر دادم -->
-                    <mainClass>com.secondhand.frontend.MainApplication</mainClass>
+                    <mainClass>app.MainApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
