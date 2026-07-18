@@ -4,6 +4,8 @@ import DTO.adv.AdvSummaryResponse;
 import Entity.Adv;
 import Entity.User;
 import Entity.enums.AdvStatus;
+import SpecialException.AdvertisementIsNotAvailableException;
+import SpecialException.IllegalFavoriteException;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,11 +26,11 @@ public class FavoriteService {
         Adv adv = advService.findAdvById(advId);
 
         if (adv.getStatus() != AdvStatus.ACTIVE && adv.getStatus() != AdvStatus.SOLD) {
-            throw new RuntimeException("Advertisement is not available");
+            throw new AdvertisementIsNotAvailableException("آگهی در دسترس نیست");
         }
 
         if (user.getFavorites().contains(adv)) {
-            throw new RuntimeException("Already in favorites");
+            throw new IllegalFavoriteException("این علاقه مندی پیش از این ثبت شده است");
         }
 
         user.addFavorite(adv);
@@ -40,7 +42,7 @@ public class FavoriteService {
         Adv adv = advService.findAdvById(advId);
 
         if (!user.getFavorites().contains(adv)) {
-            throw new RuntimeException("Not in favorites");
+            throw new IllegalFavoriteException("این علاقه مندی از ابتدا برای شما ثبت نشده بود");
         }
 
         user.removeFavorite(adv);

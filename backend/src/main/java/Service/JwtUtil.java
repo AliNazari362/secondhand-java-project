@@ -1,5 +1,7 @@
 package Service;
 
+import SpecialException.IllegalTokenException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -77,7 +79,7 @@ public class JwtUtil {
     public static String getEmailFromToken(String token) {
         try {
             String[] parts = token.split("\\.");
-            if (parts.length != 3) {
+            if (validateToken(token)) {
                 throw new RuntimeException("Invalid token");
             }
 
@@ -97,11 +99,11 @@ public class JwtUtil {
     /**
      * استخراج userId از توکن
      */
-    public static String getUserIdFromToken(String token) {
+    public static UUID getUserIdFromToken(String token) {
         try {
             String[] parts = token.split("\\.");
-            if (parts.length != 3) {
-                throw new RuntimeException("Invalid token");
+            if (validateToken(token)) {
+                throw new IllegalTokenException("توکن نامعتبر است");
             }
 
             String payloadJson = new String(
@@ -109,14 +111,12 @@ public class JwtUtil {
                     StandardCharsets.UTF_8
             );
 
-            return extractValue(payloadJson, "userId");
+            return UUID.fromString(extractValue(payloadJson, "userId"));
 
         } catch (Exception e) {
             throw new RuntimeException("Error extracting userId from token", e);
         }
     }
-
-    // ---------- متدهای کمکی ----------
 
     private static String hmacSha256(String data, String key) {
         try {

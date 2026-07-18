@@ -9,7 +9,6 @@ import Service.AdminService;
 import Service.JwtUtil;
 import Service.UserService;
 import SpecialException.AdminPermissionException;
-import SpecialException.IllegalTokenException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -82,10 +81,7 @@ public class AdminController {
     }
 
     private void checkAdmin(String token) {
-        if (!JwtUtil.validateToken(token)) {
-            throw new IllegalTokenException("درخواست نامعتبر است");
-        }
-        User admin = userService.findUserById(UUID.fromString(JwtUtil.getUserIdFromToken(token)));
+        User admin = userService.findUserById(JwtUtil.getUserIdFromToken(token));
         if (admin.getUserType() != UserType.ADMIN) {
             throw new AdminPermissionException("شما دسترسی ادمین برای ورود به این بخش ندارید");
         }

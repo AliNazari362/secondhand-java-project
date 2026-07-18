@@ -9,6 +9,9 @@ import DTO.user.UserSummaryResponse;
 import Entity.*;
 import Repository.ChatroomRepository;
 import Repository.MessageRepository;
+import SpecialException.ChatroomNotFoundException;
+import SpecialException.IllegalOwnershipException;
+import SpecialException.NotParticipantException;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,12 +34,11 @@ public class ChatService {
         this.userService = userService;
     }
 
-    // ---------- شروع یا دریافت چت ----------
     public ChatroomDetailResponse startOrGetChat(ChatroomCreateRequest request, UUID userId) {
         Adv adv = advService.findAdvById(request.advId());
 
         if (adv.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You cannot chat about your own advertisement");
+            throw new IllegalOwnershipException("شما نمی توانید در آگهی خود، گفت و گویی آغاز کنید");
         }
 
         Chatroom existing = chatroomRepository
@@ -48,61 +50,47 @@ public class ChatService {
         }
 
         User buyer = userService.findUserById(userId);
-        User seller = adv.getUser(); // 🔥 فروشنده (صاحب آگهی)
+        User seller = adv.getUser();
         Chatroom newRoom = new Chatroom(adv);
 
-        // هر دو طرف به rooms اضافه می‌شوند
         buyer.addRoom(newRoom);
-        seller.addRoom(newRoom); // 🔥 این خط اضافه شد
+        seller.addRoom(newRoom);
 
         Chatroom saved = chatroomRepository.save(newRoom);
         return toChatroomDetailResponse(saved);
     }
 
-    // ---------- دریافت لیست چت‌های کاربر (هم خریدار و هم فروشنده) ----------
-    public List<ChatroomSummaryResponse> getUserChatrooms(UUID userId) {
+    public List<ChatroomSummaryResponse> getUserChatRooms(UUID userId) {
         List<Chatroom> rooms = chatroomRepository.findByParticipantId(userId);
         return rooms.stream()
                 .map(this::toChatroomSummaryResponse)
                 .collect(Collectors.toList());
     }
 
-    // ---------- دریافت جزئیات چت ----------
     public ChatroomDetailResponse getChatroomDetail(UUID chatroomId, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
-
-        if (!isParticipant(room, userId)) {
-            throw new RuntimeException("You are not a participant in this chatroom");
-        }
+        checkParticipant(room, userId);
 
         messageRepository.markAllAsSeen(chatroomId, userId);
         return toChatroomDetailResponse(room);
     }
 
-    // ---------- ارسال پیام ----------
     public MessageResponse sendMessage(UUID chatroomId, MessageRequest request, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
-
-        if (!isParticipant(room, userId)) {
-            throw new RuntimeException("You are not a participant in this chatroom");
-        }
+        checkParticipant(room, userId);
 
         User sender = userService.findUserById(userId);
 
-        Message msg = new Message(request.text(), sender , room);
+        Message msg = new Message(request.text(), sender, room);
         room.addMessage(msg);
 
         Message saved = messageRepository.save(msg);
         return toMessageResponse(saved);
     }
 
-    // ---------- دریافت پیام‌ها ----------
     public List<MessageResponse> getMessages(UUID chatroomId, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
-
-        if (!isParticipant(room, userId)) {
-            throw new RuntimeException("You are not a participant in this chatroom");
-        }
+        checkParticipant(room, userId);
 
         List<Message> messages = messageRepository.findByChatroomIdOrderByDateAsc(chatroomId);
         return messages.stream()
@@ -110,26 +98,24 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    // ---------- متدهای کمکی ----------
     private Chatroom findChatroomById(UUID chatroomId) {
         return chatroomRepository.findById(chatroomId)
-                .orElseThrow(() -> new RuntimeException("Chatroom not found"));
+                .orElseThrow(() -> new ChatroomNotFoundException("گفت و گو یافت نشد"));
     }
 
-    private boolean isParticipant(Chatroom room, UUID userId) {
-        // چک کردن خریدار
+    private void checkParticipant(Chatroom room, UUID userId) {
         if (room.getUserId() != null && room.getUserId().equals(userId)) {
-            return true;
+            return;
         }
-        // چک کردن فروشنده
+
         Adv adv = room.getAdv();
         if (adv != null && adv.getUser() != null && adv.getUser().getId().equals(userId)) {
-            return true;
+            return;
         }
-        return false;
+
+        throw new NotParticipantException("شما اجازه شرکت در این گفت و گو را ندارید");
     }
 
-    // ---------- Mapperها ----------
     private ChatroomSummaryResponse toChatroomSummaryResponse(Chatroom room) {
         return new ChatroomSummaryResponse(
                 room.getId(),

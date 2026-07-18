@@ -1,13 +1,15 @@
-package Service;   // پکیج را به حروف کوچک اصلاح کردم
+package Service;
 
 import DTO.comment.CommentRequest;
 import DTO.comment.CommentResponse;
 import DTO.comment.CommentUpdateRequest;
 import DTO.user.UserSummaryResponse;
-import Entity.Adv;               // ← این import را اضافه کن
+import Entity.Adv;
 import Entity.Comment;
 import Entity.User;
-import Repository.CommentRepository;   // ← پکیج را اصلاح کردم
+import Repository.CommentRepository;
+import SpecialException.CommentIsAlreadyExistException;
+import SpecialException.IllegalOwnershipException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +21,6 @@ public class CommentService {
     private final AdvService advService;
     private final UserService userService;
 
-    // سازنده دستی (بدون لومبوک و بدون Spring)
     public CommentService(CommentRepository commentRepository,
                           AdvService advService,
                           UserService userService) {
@@ -32,11 +33,11 @@ public class CommentService {
         Adv adv = advService.findAdvById(advId);
 
         if (adv.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You cannot comment on your own advertisement");
+            throw new IllegalOwnershipException("شما نمی توانید برای پست خود کامنت بگذارید");
         }
 
         if (commentRepository.existsByUserIdAndAdvId(userId, advId)) {
-            throw new RuntimeException("You have already commented on this advertisement");
+            throw new CommentIsAlreadyExistException("شما برای این پست نظر ثبت کرده اید");
         }
 
         User author = userService.findUserById(userId);
@@ -49,7 +50,7 @@ public class CommentService {
         Comment comment = findCommentById(commentId);
 
         if (!comment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You are not the author of this comment");
+            throw new IllegalOwnershipException("شما دسترسی برای ویرایش این نظر ندارید");
         }
 
         comment.setText(request.text());
@@ -62,7 +63,7 @@ public class CommentService {
         Comment comment = findCommentById(commentId);
 
         if (!comment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You are not the author of this comment");
+            throw new IllegalOwnershipException("شما دسترسی برای حذف این نظر ندارید");
         }
 
         commentRepository.delete(comment);
@@ -79,7 +80,7 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
     }
 
-    private CommentResponse toCommentResponse(Comment comment) {
+    public CommentResponse toCommentResponse(Comment comment) {
         User author = comment.getUser();
         return new CommentResponse(
                 comment.getId(),

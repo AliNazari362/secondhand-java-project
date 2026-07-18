@@ -11,7 +11,6 @@ import Entity.enums.AdvStatus;
 import Entity.enums.AdvType;
 import Entity.enums.City;
 import Repository.*;
-import SpecialException.AdvertisementIsAlreadySoldException;
 import SpecialException.AdvertisementIsNotAvailableException;
 import SpecialException.IllegalOwnershipException;
 
@@ -200,7 +199,7 @@ public class AdvService {
         Adv adv = findAdvById(advId);
         validateOwnership(adv, userId);
         if (adv.getStatus() != AdvStatus.ACTIVE) {
-            throw new AdvertisementIsAlreadySoldException("این آگهی هم اکنون فروخته و غیرفعال شده است!");
+            throw new AdvertisementIsNotAvailableException("این آگهی هم اکنون فروخته و غیرفعال شده است!");
         }
         adv.setStatus(AdvStatus.SOLD);
         advRepository.save(adv);
