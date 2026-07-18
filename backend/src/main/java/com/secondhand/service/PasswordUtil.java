@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
  * <p>
  * Passwords are stored as hexadecimal SHA-256 digests. This is a deterministic,
  * one-way hash with no salt; it is suitable for the current implementation but
- * consider migrating to a salted algorithm (e.g., BCrypt) for stronger security.
+ * consider migrating to a salted algorithm (e.g., Bcrypt) for stronger security.
  * </p>
  * <p>
  * All methods are static; this class is not intended to be instantiated.

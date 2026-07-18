@@ -25,16 +25,16 @@ import java.util.UUID;
  */
 public class JwtUtil {
 
+
     private static final String SECRET = "mySuperSecretKey123!@#";
     private static final String ALGORITHM = "HmacSHA256";
 
     /**
-     * تولید توکن JWT ساده با استفاده از JDK خالص
-     * ساختار: header.payload.signature
+     * ]
      *
      * <p>Generates a signed JWT token that expires after 24 hours. The token payload
      * contains the user's ID, email, role, issued-at timestamp, expiry timestamp,
-     * and a random JWT ID (jti) to prevent replay attacks.</p>
+     * and a random JWT ID (jti) to prevent replay attacks. Structure: header.payload.signature</p>
      *
      * @param userId the unique identifier of the user (UUID string representation)
      * @param email  the email address of the user
@@ -44,26 +44,25 @@ public class JwtUtil {
      */
     public static String generateToken(String userId, String email, String role) {
         try {
-            // 1. ساخت Header (Base64)
+            // Create Header (Base64)
             String header = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
             String encodedHeader = Base64.getUrlEncoder().withoutPadding()
                     .encodeToString(header.getBytes(StandardCharsets.UTF_8));
 
-            // 2. ساخت Payload (Base64)
+            // Create Payload (Base64)
             long now = System.currentTimeMillis();
-            long exp = now + 86400000; // 1 روز
+            long exp = now + (24 * 60 * 60 * 1000); // One Day
             String payload = String.format(
                     "{\"userId\":\"%s\",\"email\":\"%s\",\"role\":\"%s\",\"iat\":%d,\"exp\":%d,\"jti\":\"%s\"}",
-                    userId, email, role, now, exp, UUID.randomUUID().toString()
-            );
+                    userId, email, role, now, exp, UUID.randomUUID());
             String encodedPayload = Base64.getUrlEncoder().withoutPadding()
                     .encodeToString(payload.getBytes(StandardCharsets.UTF_8));
 
-            // 3. ساخت Signature با HMAC-SHA256
+            // Create Signature with HMAC-SHA256
             String dataToSign = encodedHeader + "." + encodedPayload;
-            String signature = hmacSha256(dataToSign, SECRET);
+            String signature = hmacSha256(dataToSign);
 
-            // 4. ترکیب نهایی
+            // Combination
             return encodedHeader + "." + encodedPayload + "." + signature;
 
         } catch (Exception e) {
@@ -72,40 +71,55 @@ public class JwtUtil {
     }
 
     /**
-     * اعتبارسنجی توکن
      *
      * <p>Validates a JWT token by checking that it consists of exactly three
      * dot-separated parts and that its HMAC-SHA256 signature matches the recomputed
      * signature over the header and payload.</p>
      *
      * @param token the JWT token string to validate
-     * @return {@code true} if the token is structurally valid and the signature is correct;
-     *         {@code false} if the token is malformed, tampered with, or causes a parsing error
+     * @throws IllegalTokenException if the token fails signature validation
      */
-    public static boolean validateToken(String token) {
+    public static void validateToken(String token) {
         try {
+
             String[] parts = token.split("\\.");
-            if (parts.length != 3) {
-                return false;
-            }
+            if (parts.length != 3) throw new IllegalTokenException("توکن نامعتبر است");
 
             String header = parts[0];
             String payload = parts[1];
             String signature = parts[2];
 
-            // بازسازی امضا و مقایسه
+            // recreate signature
             String dataToSign = header + "." + payload;
-            String expectedSignature = hmacSha256(dataToSign, SECRET);
+            String expectedSignature = hmacSha256(dataToSign);
 
-            return signature.equals(expectedSignature);
+            if (!signature.equals(expectedSignature)) {
+                throw new IllegalTokenException("توکن نامعتبر است");
+            }
 
+            if (getExpireDateFromToken(token) < System.currentTimeMillis()) {
+                throw new IllegalTokenException("توکن منقضی شده است");
+            }
         } catch (Exception e) {
-            return false;
+            throw new RuntimeException("فرآیند دریافت توکن به مشکل خورده است");
+        }
+    }
+
+    private static long getExpireDateFromToken(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            String payloadJson = new String(
+                    Base64.getUrlDecoder().decode(parts[1]),
+                    StandardCharsets.UTF_8
+            );
+
+            return Long.parseLong(extractValue(payloadJson, "exp"));
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
 
     /**
-     * استخراج email از توکن
      *
      * <p>Validates the token signature first, then extracts the {@code email} claim
      * from the Base64Url-decoded payload JSON. Validation is performed outside the
@@ -114,30 +128,29 @@ public class JwtUtil {
      * @param token the JWT token string from which to extract the email
      * @return the email address embedded in the token payload
      * @throws IllegalTokenException if the token fails signature validation
-     * @throws RuntimeException      if the email claim cannot be located in the payload
+     * @throws RuntimeException      if the userId claim cannot be located, is not a valid UUID,
      *                               or any other parsing error occurs
      */
     public static String getEmailFromToken(String token) {
-        if (!validateToken(token)) {
-            throw new IllegalTokenException("توکن نامعتبر است");
-        }
         try {
+            validateToken(token);
             String[] parts = token.split("\\.");
             String payloadJson = new String(
                     Base64.getUrlDecoder().decode(parts[1]),
                     StandardCharsets.UTF_8
             );
 
-            // استخراج email از JSON (ساده، بدون کتابخانه)
+            // extract email from payload
             return extractValue(payloadJson, "email");
 
+        } catch (IllegalTokenException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error extracting email from token", e);
+            throw new RuntimeException("فرآیند دریافت توکن به مشکل خورده است");
         }
     }
 
     /**
-     * استخراج userId از توکن
      *
      * <p>Validates the token signature first, then extracts the {@code userId} claim
      * from the Base64Url-decoded payload JSON and parses it as a {@link UUID}.
@@ -151,10 +164,8 @@ public class JwtUtil {
      *                               or any other parsing error occurs
      */
     public static UUID getUserIdFromToken(String token) {
-        if (!validateToken(token)) {
-            throw new IllegalTokenException("توکن نامعتبر است");
-        }
         try {
+            validateToken(token);
             String[] parts = token.split("\\.");
             String payloadJson = new String(
                     Base64.getUrlDecoder().decode(parts[1]),
@@ -163,8 +174,10 @@ public class JwtUtil {
 
             return UUID.fromString(extractValue(payloadJson, "userId"));
 
+        } catch (IllegalTokenException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error extracting userId from token", e);
+            throw new RuntimeException("فرآیند دریافت توکن به مشکل خورده است");
         }
     }
 
@@ -173,17 +186,15 @@ public class JwtUtil {
      * and returns the result as a Base64Url-encoded string (without padding).
      *
      * @param data the input string to sign
-     * @param key  the secret key used for HMAC computation
      * @return the Base64Url-encoded (no-padding) HMAC-SHA256 signature
      * @throws RuntimeException if the HMAC algorithm is unavailable or the key is invalid
      */
-    private static String hmacSha256(String data, String key) {
+    private static String hmacSha256(String data) {
         try {
             Mac mac = Mac.getInstance(ALGORITHM);
             SecretKeySpec secretKeySpec = new SecretKeySpec(
-                    key.getBytes(StandardCharsets.UTF_8),
-                    ALGORITHM
-            );
+                    SECRET.getBytes(StandardCharsets.UTF_8),
+                    ALGORITHM);
             mac.init(secretKeySpec);
             byte[] result = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
@@ -205,7 +216,7 @@ public class JwtUtil {
      * @throws RuntimeException if the key is not present in the JSON or the JSON is malformed
      */
     private static String extractValue(String json, String key) {
-        // جستجوی ساده در JSON (بدون کتابخانه)
+        // Search in JSON library
         String searchKey = "\"" + key + "\":\"";
         int startIndex = json.indexOf(searchKey);
         if (startIndex == -1) {
