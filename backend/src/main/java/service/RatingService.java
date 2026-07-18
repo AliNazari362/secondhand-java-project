@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import dto.comment.CommentRequest;
 import dto.comment.CommentResponse;
@@ -7,9 +7,13 @@ import entity.Adv;
 import entity.Comment;
 import entity.User;
 import Repository.CommentRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Service
+@Transactional
 public class RatingService {
 
     private final CommentRepository commentRepository;

@@ -1,7 +1,8 @@
-package Service;
+package service;
 
 import dto.adv.AdvSummaryResponse;
 import dto.user.UserSummaryResponse;
+import dto.user.UserChangePasswordRequest;
 import entity.Adv;
 import entity.enums.AdvStatus;
 import entity.User;
@@ -9,29 +10,32 @@ import entity.enums.UserStatus;
 import entity.enums.UserType;
 import Repository.AdvRepository;
 import Repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
+@Transactional
 public class AdminService {
 
     private final UserRepository userRepository;
     private final AdvService advService;
     private final AdvRepository advRepository;
-    private final UserService userService; // 🔥 این را اضافه کن
+    private final UserService userService;
 
     public AdminService(UserRepository userRepository,
                         AdvService advService,
                         AdvRepository advRepository,
-                        UserService userService) { // 🔥 پارامتر را اضافه کن
+                        UserService userService) {
         this.userRepository = userRepository;
         this.advService = advService;
         this.advRepository = advRepository;
         this.userService = userService;
     }
 
-    // 🔥 متد کمکی برای چک کردن ادمین
     private void checkAdmin(UUID adminId) {
         User admin = userService.findUserById(adminId);
         if (admin.getUserType() != UserType.ADMIN) {
@@ -42,6 +46,12 @@ public class AdminService {
     // ---------- مدیریت کاربران ----------
     public List<UserSummaryResponse> getAllUsers() {
         return userRepository.findAll().stream()
+                .map(this::toUserSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserSummaryResponse> getUsersByStatus(UserStatus status) {
+        return userRepository.findByUserStatus(status).stream()
                 .map(this::toUserSummaryResponse)
                 .collect(Collectors.toList());
     }
@@ -58,18 +68,22 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    // ---------- مدیریت آگهی‌ها (ادمین) ----------
-    public void approveAdv(UUID advId, UUID adminId) { // 🔥 adminId اضافه شد
+    public void changePassword(UUID userId, UserChangePasswordRequest request) {
+        userService.changePassword(userId, request);
+    }
+
+    // ---------- مدیریت آگهی‌ها ----------
+    public void approveAdv(UUID advId, UUID adminId) {
         checkAdmin(adminId);
         advService.approveAdv(advId);
     }
 
-    public void rejectAdv(UUID advId, String reason, UUID adminId) { // 🔥 adminId اضافه شد
+    public void rejectAdv(UUID advId, String reason, UUID adminId) {
         checkAdmin(adminId);
         advService.rejectAdv(advId, reason);
     }
 
-    public void deleteAdv(UUID advId, UUID adminId) { // 🔥 adminId اضافه شد
+    public void deleteAdv(UUID advId, UUID adminId) {
         checkAdmin(adminId);
         Adv adv = advService.findAdvById(advId);
         adv.setStatus(AdvStatus.DELETED);
@@ -80,7 +94,6 @@ public class AdminService {
         return advService.getPendingAds();
     }
 
-    // ---------- متدهای کمکی ----------
     private User findUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

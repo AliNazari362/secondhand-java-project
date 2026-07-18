@@ -1,7 +1,7 @@
 package dto.adv;
 
 import dto.option.OptionRequest;
-import entity.Service.ServiceType;
+import entity.ServiceObj.ServiceType;
 import entity.enums.City;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -46,7 +46,7 @@ public record ServiceCreateRequest(
         String address,
 
         /** Free-text sub-category of the service (e.g., "Plumbing", "Web Design", "Tutoring"). */
-        @Size(max = 150, message = "Service category must not exceed 150 characters")
+        @Size(max = 150, message = "ServiceObj category must not exceed 150 characters")
         String specialCategory,
 
         /** Price per billing unit in Iranian Tomans; must be zero or positive. */

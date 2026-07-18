@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import dto.user.UserDetailResponse;
 import dto.user.UserSummaryResponse;
@@ -7,11 +7,13 @@ import dto.user.UserChangePasswordRequest;
 import entity.User;
 import entity.enums.UserStatus;
 import Repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
 public class UserService {
 
     private final UserRepository userRepository;

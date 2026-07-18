@@ -1,25 +1,28 @@
-package Service;   // پکیج را به حروف کوچک اصلاح کردم
+package service;
 
 import dto.comment.CommentRequest;
 import dto.comment.CommentResponse;
 import dto.comment.CommentUpdateRequest;
 import dto.user.UserSummaryResponse;
-import entity.Adv;               // ← این import را اضافه کن
+import entity.Adv;
 import entity.Comment;
 import entity.User;
-import Repository.CommentRepository;   // ← پکیج را اصلاح کردم
+import Repository.CommentRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
+@Transactional
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final AdvService advService;
     private final UserService userService;
 
-    // سازنده دستی (بدون لومبوک و بدون Spring)
     public CommentService(CommentRepository commentRepository,
                           AdvService advService,
                           UserService userService) {

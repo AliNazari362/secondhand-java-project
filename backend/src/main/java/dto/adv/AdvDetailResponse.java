@@ -88,7 +88,7 @@ public record AdvDetailResponse(
         /** Product-specific detail fields; non-null only when advType == PRODUCT. */
         ProductDetailResponse productDetail,
 
-        /** Service-specific detail fields; non-null only when advType == SERVICE. */
+        /** ServiceObj-specific detail fields; non-null only when advType == SERVICE. */
         ServiceDetailResponse serviceDetail
 
 ) {}

@@ -178,11 +178,12 @@ public abstract class Adv {
 
     /**
      * JPA-required no-argument constructor.
-     * Assigns a UUID and sets default status to PENDING.
+     * Assigns a UUID, sets default status to PENDING, and initialises version to 0L.
      */
     protected Adv() {
         this.id = UUID.randomUUID();
         this.status = AdvStatus.PENDING;
+        this.version = 0L; // ✅ مقداردهی اولیه version
     }
 
     /**

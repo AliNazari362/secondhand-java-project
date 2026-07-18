@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import dto.chatroom.ChatroomSummaryResponse;
 import dto.chatroom.ChatroomDetailResponse;
@@ -9,11 +9,15 @@ import dto.user.UserSummaryResponse;
 import entity.*;
 import Repository.ChatroomRepository;
 import Repository.MessageRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
+@Transactional
 public class ChatService {
 
     private final ChatroomRepository chatroomRepository;
@@ -31,7 +35,6 @@ public class ChatService {
         this.userService = userService;
     }
 
-    // ---------- شروع یا دریافت چت ----------
     public ChatroomDetailResponse startOrGetChat(ChatroomCreateRequest request, UUID userId) {
         Adv adv = advService.findAdvById(request.advId());
 
@@ -48,18 +51,16 @@ public class ChatService {
         }
 
         User buyer = userService.findUserById(userId);
-        User seller = adv.getUser(); // 🔥 فروشنده (صاحب آگهی)
+        User seller = adv.getUser();
         Chatroom newRoom = new Chatroom(adv);
 
-        // هر دو طرف به rooms اضافه می‌شوند
         buyer.addRoom(newRoom);
-        seller.addRoom(newRoom); // 🔥 این خط اضافه شد
+        seller.addRoom(newRoom);
 
         Chatroom saved = chatroomRepository.save(newRoom);
         return toChatroomDetailResponse(saved);
     }
 
-    // ---------- دریافت لیست چت‌های کاربر (هم خریدار و هم فروشنده) ----------
     public List<ChatroomSummaryResponse> getUserChatrooms(UUID userId) {
         List<Chatroom> rooms = chatroomRepository.findByParticipantId(userId);
         return rooms.stream()
@@ -67,7 +68,6 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    // ---------- دریافت جزئیات چت ----------
     public ChatroomDetailResponse getChatroomDetail(UUID chatroomId, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
 
@@ -79,7 +79,6 @@ public class ChatService {
         return toChatroomDetailResponse(room);
     }
 
-    // ---------- ارسال پیام ----------
     public MessageResponse sendMessage(UUID chatroomId, MessageRequest request, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
 
@@ -89,14 +88,13 @@ public class ChatService {
 
         User sender = userService.findUserById(userId);
 
-        Message msg = new Message(request.text(), sender , room);
+        Message msg = new Message(request.text(), sender, room);
         room.addMessage(msg);
 
         Message saved = messageRepository.save(msg);
         return toMessageResponse(saved);
     }
 
-    // ---------- دریافت پیام‌ها ----------
     public List<MessageResponse> getMessages(UUID chatroomId, UUID userId) {
         Chatroom room = findChatroomById(chatroomId);
 
@@ -110,18 +108,15 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    // ---------- متدهای کمکی ----------
     private Chatroom findChatroomById(UUID chatroomId) {
         return chatroomRepository.findById(chatroomId)
                 .orElseThrow(() -> new RuntimeException("Chatroom not found"));
     }
 
     private boolean isParticipant(Chatroom room, UUID userId) {
-        // چک کردن خریدار
         if (room.getUserId() != null && room.getUserId().equals(userId)) {
             return true;
         }
-        // چک کردن فروشنده
         Adv adv = room.getAdv();
         if (adv != null && adv.getUser() != null && adv.getUser().getId().equals(userId)) {
             return true;
@@ -129,7 +124,6 @@ public class ChatService {
         return false;
     }
 
-    // ---------- Mapperها ----------
     private ChatroomSummaryResponse toChatroomSummaryResponse(Chatroom room) {
         return new ChatroomSummaryResponse(
                 room.getId(),

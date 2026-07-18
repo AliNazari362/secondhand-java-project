@@ -1,7 +1,7 @@
 package Repository;
 
-import entity.Service;
-import entity.Service.ServiceType;
+import entity.ServiceObj;
+import entity.ServiceObj.ServiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Service, UUID> {
+public interface ServiceRepository extends JpaRepository<ServiceObj, UUID> {
 
-    List<Service> findBySpecialCategory(String specialCategory);
+    List<ServiceObj> findBySpecialCategory(String specialCategory);
 
-    List<Service> findByTypeOfPart(ServiceType typeOfPart);
+    List<ServiceObj> findByTypeOfPart(ServiceType typeOfPart);
 
-    List<Service> findByCostOfPartBetween(BigDecimal min, BigDecimal max);
+    List<ServiceObj> findByCostOfPartBetween(BigDecimal min, BigDecimal max);
 }

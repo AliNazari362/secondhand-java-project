@@ -1,15 +1,18 @@
-package Service;
+package service;
 
 import dto.adv.AdvSummaryResponse;
 import entity.Adv;
 import entity.User;
-import Repository.AdvRepository;
 import entity.enums.AdvStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
+@Transactional
 public class FavoriteService {
 
     private final UserService userService;

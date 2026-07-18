@@ -1,12 +1,16 @@
-package Service;
+package service;
 
+import dto.user.LoginResponse;
 import dto.user.UserRegisterRequest;
 import dto.user.UserDetailResponse;
 import entity.User;
 import entity.enums.UserStatus;
 import entity.enums.UserType;
 import Repository.UserRepository;
+import exception.AuthenticationException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -32,22 +36,29 @@ public class AuthService {
         return toUserDetailResponse(saved);
     }
 
-    public String login(String email, String password) {
+    public LoginResponse login(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(AuthenticationException::new);
 
         if (!PasswordUtil.verifyPassword(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new AuthenticationException();
         }
 
         if (user.getUserStatus() == UserStatus.BANNED) {
-            throw new RuntimeException("Account is banned");
+            throw new AuthenticationException("Account is banned");
         }
 
-        return JwtUtil.generateToken(
+        String token = JwtUtil.generateToken(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUserType().name()
+        );
+
+        return new LoginResponse(
+                token,
+                user.getId(),
+                user.getFullName(),
+                user.getUserType()
         );
     }
 

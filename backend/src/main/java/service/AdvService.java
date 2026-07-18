@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import dto.adv.*;
 import dto.comment.CommentResponse;
@@ -10,36 +10,33 @@ import entity.enums.AdvStatus;
 import entity.enums.AdvType;
 import entity.enums.City;
 import Repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Service
+@Transactional
 public class AdvService {
 
     private final AdvRepository advRepository;
     private final ProductRepository productRepository;
-    private final ServiceRepository serviceRepository;
+    private final ServiceRepository serviceRepository; // ✅ این همان repository برای ServiceObj است
     private final UserService userService;
-    private final CommentRepository commentRepository;
     private final OptionRepository optionRepository;
-    private final ImageRepository imageRepository;
 
     public AdvService(AdvRepository advRepository,
                       ProductRepository productRepository,
                       ServiceRepository serviceRepository,
                       UserService userService,
-                      CommentRepository commentRepository,
-                      OptionRepository optionRepository,
-                      ImageRepository imageRepository) {
+                      OptionRepository optionRepository) {
         this.advRepository = advRepository;
         this.productRepository = productRepository;
         this.serviceRepository = serviceRepository;
         this.userService = userService;
-        this.commentRepository = commentRepository;
         this.optionRepository = optionRepository;
-        this.imageRepository = imageRepository;
     }
 
     // ---------- Create ----------
@@ -64,10 +61,10 @@ public class AdvService {
 
         if (request.options() != null) {
             request.options().forEach(opt -> {
-                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                Option option = new Option();
                 option.setOption(opt.option());
                 option.setValue(opt.value());
-                option.setAdv(product);        // تنظیم رابطه
+                option.setAdv(product);
                 product.addOption(option);
             });
         }
@@ -79,29 +76,30 @@ public class AdvService {
     public AdvDetailResponse createService(ServiceCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
 
-        Service service = new Service();
-        service.setFullName(request.fullName());
-        service.setDescription(request.description());
-        service.setCity(request.city());
-        service.setAddress(request.address());
-        service.setUser(user);
-        service.setSpecialCategory(request.specialCategory());
-        service.setCostOfPart(request.costOfPart());
-        service.setTypeOfPart(request.typeOfPart());
-        service.setAdvType(AdvType.SERVICE);
-        service.setStatus(AdvStatus.PENDING);
+        // ✅ استفاده از ServiceObj به‌جای Service
+        ServiceObj serviceEntity = new ServiceObj();
+        serviceEntity.setFullName(request.fullName());
+        serviceEntity.setDescription(request.description());
+        serviceEntity.setCity(request.city());
+        serviceEntity.setAddress(request.address());
+        serviceEntity.setUser(user);
+        serviceEntity.setSpecialCategory(request.specialCategory());
+        serviceEntity.setCostOfPart(request.costOfPart());
+        serviceEntity.setTypeOfPart(request.typeOfPart());
+        serviceEntity.setAdvType(AdvType.SERVICE);
+        serviceEntity.setStatus(AdvStatus.PENDING);
 
         if (request.options() != null) {
             request.options().forEach(opt -> {
-                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                Option option = new Option();
                 option.setOption(opt.option());
                 option.setValue(opt.value());
-                option.setAdv(service);        // تنظیم رابطه
-                service.addOption(option);
+                option.setAdv(serviceEntity);
+                serviceEntity.addOption(option);
             });
         }
 
-        Service saved = serviceRepository.save(service);
+        ServiceObj saved = serviceRepository.save(serviceEntity);
         return toAdvDetailResponse(saved);
     }
 
@@ -153,10 +151,10 @@ public class AdvService {
         if (request.options() != null) {
             optionRepository.deleteByAdvId(advId);
             request.options().forEach(opt -> {
-                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                Option option = new Option();
                 option.setOption(opt.option());
                 option.setValue(opt.value());
-                option.setAdv(product);        // تنظیم رابطه
+                option.setAdv(product);
                 product.addOption(option);
             });
         }
@@ -166,29 +164,30 @@ public class AdvService {
     }
 
     public AdvDetailResponse updateService(UUID advId, ServiceUpdateRequest request, UUID userId) {
-        Service service = (Service) findAdvById(advId);
-        validateOwnership(service, userId);
+        // ✅ استفاده از ServiceObj
+        ServiceObj serviceEntity = (ServiceObj) findAdvById(advId);
+        validateOwnership(serviceEntity, userId);
 
-        if (request.fullName() != null) service.setFullName(request.fullName());
-        if (request.description() != null) service.setDescription(request.description());
-        if (request.city() != null) service.setCity(request.city());
-        if (request.address() != null) service.setAddress(request.address());
-        if (request.specialCategory() != null) service.setSpecialCategory(request.specialCategory());
-        if (request.costOfPart() != null) service.setCostOfPart(request.costOfPart());
-        if (request.typeOfPart() != null) service.setTypeOfPart(request.typeOfPart());
+        if (request.fullName() != null) serviceEntity.setFullName(request.fullName());
+        if (request.description() != null) serviceEntity.setDescription(request.description());
+        if (request.city() != null) serviceEntity.setCity(request.city());
+        if (request.address() != null) serviceEntity.setAddress(request.address());
+        if (request.specialCategory() != null) serviceEntity.setSpecialCategory(request.specialCategory());
+        if (request.costOfPart() != null) serviceEntity.setCostOfPart(request.costOfPart());
+        if (request.typeOfPart() != null) serviceEntity.setTypeOfPart(request.typeOfPart());
 
         if (request.options() != null) {
             optionRepository.deleteByAdvId(advId);
             request.options().forEach(opt -> {
-                Option option = new Option();  // ✅ سازنده‌ی بدون پارامتر
+                Option option = new Option();
                 option.setOption(opt.option());
                 option.setValue(opt.value());
-                option.setAdv(service);        // تنظیم رابطه
-                service.addOption(option);
+                option.setAdv(serviceEntity);
+                serviceEntity.addOption(option);
             });
         }
 
-        Service updated = serviceRepository.save(service);
+        ServiceObj updated = serviceRepository.save(serviceEntity);
         return toAdvDetailResponse(updated);
     }
 
@@ -306,8 +305,7 @@ public class AdvService {
         ProductDetailResponse productDetail = null;
         ServiceDetailResponse serviceDetail = null;
 
-        if (adv.getAdvType() == AdvType.PRODUCT && adv instanceof Product) {
-            Product p = (Product) adv;
+        if (adv.getAdvType() == AdvType.PRODUCT && adv instanceof Product p) {
             productDetail = new ProductDetailResponse(
                     p.getStateOfProduct(),
                     p.getBrand(),
@@ -316,8 +314,7 @@ public class AdvService {
                     p.getCategory(),
                     p.getPrice()
             );
-        } else if (adv.getAdvType() == AdvType.SERVICE && adv instanceof Service) {
-            Service s = (Service) adv;
+        } else if (adv.getAdvType() == AdvType.SERVICE && adv instanceof ServiceObj s) {
             serviceDetail = new ServiceDetailResponse(
                     s.getSpecialCategory(),
                     s.getCostOfPart(),

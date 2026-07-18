@@ -1,6 +1,6 @@
 package dto.adv;
 
-import entity.Service.ServiceType;
+import entity.ServiceObj.ServiceType;
 
 import java.math.BigDecimal;
 

@@ -31,7 +31,6 @@ public class Option {
     @Column(name = "val_name", nullable = false, length = 500)
     private String value;
 
-    // ✅ رابطه‌ی ManyToOne با Adv (سمت owning)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "adv_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_option_adv"))
@@ -56,7 +55,11 @@ public class Option {
     public void setValue(String value) { this.value = value; }
 
     public Adv getAdv() { return adv; }
-    public void setAdv(Adv adv) { this.adv = adv; }
+
+    // ✅ این متد را اضافه کنید
+    public void setAdv(Adv adv) {
+        this.adv = adv;
+    }
 
     // ---------- equals & hashCode ----------
     @Override
