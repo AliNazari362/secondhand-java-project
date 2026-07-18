@@ -33,40 +33,40 @@ import java.util.List;
 public record ProductUpdateRequest(
 
         /** New advertisement headline; leave null to keep the current value. */
-        @Size(max = 255, message = "Advertisement title must not exceed 255 characters")
+        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
         /** New free-text description; leave null to keep the current value. */
-        @Size(max = 5000, message = "Description must not exceed 5000 characters")
+        @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
         /** New city location; leave null to keep the current value. */
         City city,
 
         /** New detailed address; leave null to keep the current value. */
-        @Size(max = 500, message = "Address must not exceed 500 characters")
+        @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
         /** New physical condition of the product; leave null to keep the current value. */
         ProductState stateOfProduct,
 
         /** New brand name; leave null to keep the current value. */
-        @Size(max = 100, message = "Brand must not exceed 100 characters")
+        @Size(max = 100, message = "نام برند نباید از ۱۰۰ کاراکتر بیشتر باشد")
         String brand,
 
         /** New model name or number; leave null to keep the current value. */
-        @Size(max = 150, message = "Model must not exceed 150 characters")
+        @Size(max = 150, message = "نام مدل نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String model,
 
         /** New manufacturer name; leave null to keep the current value. */
-        @Size(max = 150, message = "Manufacturer name must not exceed 150 characters")
+        @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String constructor,
 
         /** New product category; leave null to keep the current value. */
         Category category,
 
         /** New asking price in Iranian Tomans; must be zero or positive. Leave null to keep current. */
-        @PositiveOrZero(message = "Price must be zero or positive")
+        @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
         BigDecimal price,
 
         /** Replacement list of key-value attributes; leave null to keep the current options. */

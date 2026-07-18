@@ -18,11 +18,11 @@ import jakarta.validation.constraints.Size;
 public record AdvStatusUpdateRequest(
 
         /** The target lifecycle status to transition the advertisement into. */
-        @NotNull(message = "Status must not be null")
+        @NotNull(message = "وضعیت آگهی نمی‌تواند خالی باشد")
         AdvStatus status,
 
         /** Admin-written explanation for the rejection; recommended when status is REJECTED. */
-        @Size(max = 2000, message = "Rejection explanation must not exceed 2000 characters")
+        @Size(max = 2000, message = "توضیحات رد آگهی نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
         String rejectionExplanation
 
 ) {}

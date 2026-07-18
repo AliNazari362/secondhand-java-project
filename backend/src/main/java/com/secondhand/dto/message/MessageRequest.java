@@ -14,8 +14,8 @@ import jakarta.validation.constraints.Size;
 public record MessageRequest(
 
         /** The body of the message; must not be blank and must not exceed 5000 characters. */
-        @NotBlank(message = "Message text must not be blank")
-        @Size(max = 5000, message = "Message text must not exceed 5000 characters")
+        @NotBlank(message = "متن پیام نمی‌تواند خالی باشد")
+        @Size(max = 5000, message = "متن پیام نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String text
 
 ) {}

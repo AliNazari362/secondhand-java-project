@@ -20,25 +20,25 @@ import jakarta.validation.constraints.Size;
 public record UserRegisterRequest(
 
         /** Display name that will be shown on the user's advertisements and comments. */
-        @NotBlank(message = "Full name must not be blank")
-        @Size(max = 150, message = "Full name must not exceed 150 characters")
+        @NotBlank(message = "نام کامل نمی‌تواند خالی باشد")
+        @Size(max = 150, message = "نام کامل نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String fullName,
 
         /** Email address used as the login identifier; must be unique in the system. */
-        @NotBlank(message = "Email must not be blank")
-        @Email(message = "Email must be a valid email address")
-        @Size(max = 254, message = "Email must not exceed 254 characters")
+        @NotBlank(message = "ایمیل نمی‌تواند خالی باشد")
+        @Email(message = "ایمیل وارد شده معتبر نیست")
+        @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
         String email,
 
         /** Raw plaintext password chosen by the user; minimum 8 characters. */
-        @NotBlank(message = "Password must not be blank")
-        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
+        @NotBlank(message = "رمز عبور نمی‌تواند خالی باشد")
+        @Size(min = 8, max = 72, message = "رمز عبور باید بین ۸ تا ۷۲ کاراکتر باشد")
         String password,
 
         /** Optional mobile phone number in E.164-compatible format. */
         @Pattern(
                 regexp = "^\\+?[0-9]{7,15}$",
-                message = "Phone number must contain 7 to 15 digits, optionally prefixed with +"
+                message = "شماره تلفن باید ۷ تا ۱۵ رقم باشد و می‌تواند با + شروع شود"
         )
         String phoneNumber
 

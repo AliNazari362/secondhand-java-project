@@ -53,7 +53,7 @@ public abstract class Adv {
      * Lifecycle status of the advertisement (PENDING, ACTIVE, REJECTED, SOLD, DELETED).
      * Defaults to PENDING upon creation; transitions are driven by admin and owner actions.
      */
-    @NotNull(message = "Advertisement status must not be null")
+    @NotNull(message = "وضعیت آگهی نمی‌تواند خالی باشد")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 10)
     private AdvStatus status;
@@ -62,7 +62,7 @@ public abstract class Adv {
      * Discriminator indicating whether this is a PRODUCT or SERVICE advertisement.
      * Set once at construction and never modified (immutable business concept).
      */
-    @NotNull(message = "Advertisement type must not be null")
+    @NotNull(message = "نوع آگهی نمی‌تواند خالی باشد")
     @Enumerated(EnumType.STRING)
     @Column(name = "adv_type", nullable = false, updatable = false, length = 10)
     private AdvType advType;
@@ -71,7 +71,7 @@ public abstract class Adv {
      * Free-text description of the advertisement written by its owner.
      * Provides details that do not fit into the structured fields.
      */
-    @Size(max = 5000, message = "Description must not exceed 5000 characters")
+    @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -90,7 +90,7 @@ public abstract class Adv {
      * Human-readable explanation provided by an admin when an advertisement is rejected.
      * Null unless the advertisement has been transitioned to REJECTED status.
      */
-    @Size(max = 2000, message = "Rejection explanation must not exceed 2000 characters")
+    @Size(max = 2000, message = "توضیحات رد آگهی نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
     @Column(name = "rejection_explanation", columnDefinition = "TEXT")
     private String rejectionExplanation;
 
@@ -98,7 +98,7 @@ public abstract class Adv {
      * The user who created and owns this advertisement.
      * Every advertisement must have an owner; the association is mandatory.
      */
-    @NotNull(message = "Advertisement owner must not be null")
+    @NotNull(message = "مالک آگهی نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_adv_user"))
@@ -143,8 +143,8 @@ public abstract class Adv {
      * Title/headline of the advertisement as entered by its owner.
      * Shown in listing views and search results; must be descriptive and non-empty.
      */
-    @NotBlank(message = "Advertisement title must not be blank")
-    @Size(max = 255, message = "Advertisement title must not exceed 255 characters")
+    @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
+        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
@@ -160,7 +160,7 @@ public abstract class Adv {
      * Optional detailed street address for the advertisement location.
      * Provides more precision than the city field alone; entered by the owner.
      */
-    @Size(max = 500, message = "Address must not exceed 500 characters")
+    @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 

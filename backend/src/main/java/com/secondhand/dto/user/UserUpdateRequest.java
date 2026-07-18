@@ -17,18 +17,18 @@ import jakarta.validation.constraints.Size;
 public record UserUpdateRequest(
 
         /** New display name; leave null to keep the current value. */
-        @Size(max = 150, message = "Full name must not exceed 150 characters")
+        @Size(max = 150, message = "نام کامل نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String fullName,
 
         /** New email address; must be unique in the system. Leave null to keep the current value. */
-        @Email(message = "Email must be a valid email address")
-        @Size(max = 254, message = "Email must not exceed 254 characters")
+        @Email(message = "ایمیل وارد شده معتبر نیست")
+        @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
         String email,
 
         /** New phone number in E.164-compatible format. Leave null to keep the current value. */
         @Pattern(
                 regexp = "^\\+?[0-9]{7,15}$",
-                message = "Phone number must contain 7 to 15 digits, optionally prefixed with +"
+                message = "شماره تلفن باید ۷ تا ۱۵ رقم باشد و می‌تواند با + شروع شود"
         )
         String phoneNumber
 

@@ -30,28 +30,28 @@ import java.util.List;
 public record ServiceCreateRequest(
 
         /** Advertisement headline shown in listings and search results; must not be blank. */
-        @NotBlank(message = "Advertisement title must not be blank")
-        @Size(max = 255, message = "Advertisement title must not exceed 255 characters")
+        @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
+                @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
         /** Free-text description of the com.secondhand.service offered; optional but recommended. */
-        @Size(max = 5000, message = "Description must not exceed 5000 characters")
+        @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
         /** City where the com.secondhand.service is offered; used for geographic filtering. */
         City city,
 
         /** Optional detailed address or com.secondhand.service area; provides more precision than city alone. */
-        @Size(max = 500, message = "Address must not exceed 500 characters")
+        @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
         /** Free-text sub-category of the com.secondhand.service (e.g., "Plumbing", "Web Design", "Tutoring"). */
-        @Size(max = 150, message = "Service category must not exceed 150 characters")
+        @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String specialCategory,
 
         /** Price per billing unit in Iranian Tomans; must be zero or positive. */
-        @NotNull(message = "Cost of part must not be null")
-        @DecimalMin(value = "0.0", inclusive = true, message = "Cost of part must be zero or positive")
+        @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
+        @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
         BigDecimal costOfPart,
 
         /** Billing period/unit that defines how costOfPart is applied to the client. */

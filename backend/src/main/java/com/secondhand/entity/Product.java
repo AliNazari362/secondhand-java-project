@@ -63,7 +63,7 @@ public class Product extends Adv {
      * Brand name of the product (e.g., Samsung, Apple, Sony).
      * Used for brand-specific search and filtering in the marketplace.
      */
-    @Size(max = 100, message = "Brand must not exceed 100 characters")
+    @Size(max = 100, message = "نام برند نباید از ۱۰۰ کاراکتر بیشتر باشد")
     @Column(name = "brand", length = 100)
     private String brand;
 
@@ -71,7 +71,7 @@ public class Product extends Adv {
      * Model name or number of the product (e.g., Galaxy S21, iPhone 13 Pro).
      * Provides further identification precision beyond the brand alone.
      */
-    @Size(max = 150, message = "Model must not exceed 150 characters")
+    @Size(max = 150, message = "نام مدل نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "model", length = 150)
     private String model;
 
@@ -79,7 +79,7 @@ public class Product extends Adv {
      * Name of the manufacturing company that produced the physical item.
      * May differ from the brand (e.g., OEM manufacturer vs. retail brand label).
      */
-    @Size(max = 150, message = "Manufacturer name must not exceed 150 characters")
+    @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "constructor", length = 150)
     private String constructor;
 
@@ -88,8 +88,8 @@ public class Product extends Adv {
      * Stored as BigDecimal to guarantee monetary precision.
      * A value of zero indicates either a free item or that the price is negotiable on request.
      */
-    @NotNull(message = "Price must not be null")
-    @PositiveOrZero(message = "Price must be zero or positive")
+    @NotNull(message = "قیمت نمی‌تواند خالی باشد")
+        @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
     @Column(name = "price", nullable = false, precision = 15, scale = 0)
     private BigDecimal price = BigDecimal.ZERO;
 

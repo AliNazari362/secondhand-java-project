@@ -34,42 +34,42 @@ import java.util.List;
 public record ProductCreateRequest (
 
         /** Advertisement headline shown in listings and search results; must not be blank. */
-        @NotBlank(message = "Advertisement title must not be blank")
-        @Size(max = 255, message = "Advertisement title must not exceed 255 characters")
+        @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
+                @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
         /** Free-text description of the product; optional but recommended. */
-        @Size(max = 5000, message = "Description must not exceed 5000 characters")
+        @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
         /** City where the product is located; used for geographic filtering. */
         City city,
 
         /** Optional detailed street address; provides more precision than city alone. */
-        @Size(max = 500, message = "Address must not exceed 500 characters")
+        @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
         /** Physical condition of the product (NEW, LIKE_NEW, GOOD, FAIR, DAMAGED, REFURBISHED). */
         ProductState stateOfProduct,
 
         /** Brand name of the product (e.g., Samsung, Apple). */
-        @Size(max = 100, message = "Brand must not exceed 100 characters")
+        @Size(max = 100, message = "نام برند نباید از ۱۰۰ کاراکتر بیشتر باشد")
         String brand,
 
         /** Model name or number of the product (e.g., Galaxy S21). */
-        @Size(max = 150, message = "Model must not exceed 150 characters")
+        @Size(max = 150, message = "نام مدل نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String model,
 
         /** Name of the manufacturing company that produced the item. */
-        @Size(max = 150, message = "Manufacturer name must not exceed 150 characters")
+        @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String constructor,
 
         /** Top-level category that classifies the type of product. */
         Category category,
 
         /** Asking price in Iranian Tomans; must be zero or positive. */
-        @NotNull(message = "Price must not be null")
-        @PositiveOrZero(message = "Price must be zero or positive")
+        @NotNull(message = "قیمت نمی‌تواند خالی باشد")
+        @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
         BigDecimal price,
 
         /** Optional list of additional key-value attributes (e.g., RAM=8GB, Color=Black). */

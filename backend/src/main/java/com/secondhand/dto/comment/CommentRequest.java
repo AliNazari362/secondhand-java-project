@@ -17,13 +17,13 @@ import jakarta.validation.constraints.Size;
 public record CommentRequest(
 
         /** The body of the comment written by the user; must not be blank. */
-        @NotBlank(message = "Comment text must not be blank")
-        @Size(max = 2000, message = "Comment text must not exceed 2000 characters")
+        @NotBlank(message = "متن نظر نمی‌تواند خالی باشد")
+        @Size(max = 2000, message = "متن نظر نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
         String text,
 
         /** Star rating on a 1 (worst) to 5 (best) scale. */
-        @Min(value = 1, message = "Rating must be at least 1")
-        @Max(value = 5, message = "Rating must be at most 5")
+        @Min(value = 1, message = "امتیاز حداقل باید ۱ باشد")
+        @Max(value = 5, message = "امتیاز حداکثر می‌تواند ۵ باشد")
         int rate
 
 ) {}

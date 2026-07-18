@@ -12,17 +12,59 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Spring Data JPA repository for {@link Adv} entities.
+ *
+ * <p>Provides standard CRUD operations inherited from {@link JpaRepository} as well as
+ * custom query methods for filtering advertisements by status, city, type, owner, and
+ * a full-text keyword search.</p>
+ */
 @Repository
 public interface AdvRepository extends JpaRepository<Adv, UUID> {
 
+    /**
+     * Returns all advertisements with the given lifecycle status.
+     *
+     * @param status the {@link AdvStatus} to filter by (e.g., PENDING, ACTIVE)
+     * @return list of matching advertisements; empty list if none found
+     */
     List<Adv> findByStatus(AdvStatus status);
 
+    /**
+     * Returns all advertisements located in the specified city.
+     *
+     * @param city the {@link City} to filter by
+     * @return list of matching advertisements; empty list if none found
+     */
     List<Adv> findByCity(City city);
 
+    /**
+     * Returns all advertisements of the given type (PRODUCT or SERVICE).
+     *
+     * @param advType the {@link AdvType} discriminator to filter by
+     * @return list of matching advertisements; empty list if none found
+     */
     List<Adv> findByAdvType(AdvType advType);
 
+    /**
+     * Returns all advertisements posted by the user with the given ID.
+     *
+     * @param userId the UUID of the advertisement owner
+     * @return list of advertisements belonging to that user; empty list if none found
+     */
     List<Adv> findByUserId(UUID userId);
 
+    /**
+     * Searches advertisements by keyword, city, and status, excluding DELETED and REJECTED ones.
+     *
+     * <p>All parameters are optional. When a parameter is {@code null} it is ignored,
+     * making this a flexible multi-criteria search query.</p>
+     *
+     * @param keyword optional text to match against the title or description (case-insensitive)
+     * @param city    optional city to restrict results to
+     * @param status  optional lifecycle status to restrict results to
+     * @return list of matching advertisements; empty list if none found
+     */
     @Query("SELECT a FROM Adv a WHERE " +
             "(:keyword IS NULL OR LOWER(a.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +

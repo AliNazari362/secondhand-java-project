@@ -45,8 +45,8 @@ public class Comment {
      * The textual body of the comment written by the user.
      * Must not be blank; limited to 2000 characters to prevent abuse.
      */
-    @NotBlank(message = "Comment text must not be blank")
-    @Size(max = 2000, message = "Comment text must not exceed 2000 characters")
+    @NotBlank(message = "متن نظر نمی‌تواند خالی باشد")
+        @Size(max = 2000, message = "متن نظر نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
     @Column(name = "text", columnDefinition = "TEXT", nullable = false)
     private String text;
 
@@ -54,8 +54,8 @@ public class Comment {
      * Numeric star rating given by the commenter, on a scale from 1 (worst) to 5 (best).
      * Contributes to the advertisement's overall average rating score.
      */
-    @Min(value = 1, message = "Rating must be at least 1")
-    @Max(value = 5, message = "Rating must be at most 5")
+    @Min(value = 1, message = "امتیاز حداقل باید ۱ باشد")
+        @Max(value = 5, message = "امتیاز حداکثر می‌تواند ۵ باشد")
     @Column(name = "rate", nullable = false)
     private int rate;
 
@@ -63,7 +63,7 @@ public class Comment {
      * The user who wrote this comment.
      * Every comment must have an author; the association is mandatory.
      */
-    @NotNull(message = "Comment author must not be null")
+    @NotNull(message = "نویسنده نظر نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
                 foreignKey = @ForeignKey(name = "fk_comment_user"))
@@ -81,7 +81,7 @@ public class Comment {
      * The advertisement that this comment belongs to.
      * Every comment targets exactly one advertisement.
      */
-    @NotNull(message = "Comment target advertisement must not be null")
+    @NotNull(message = "آگهی مرتبط با نظر نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "adv_id", nullable = false,
                 foreignKey = @ForeignKey(name = "fk_comment_adv"))

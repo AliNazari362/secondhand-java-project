@@ -29,26 +29,26 @@ import java.util.List;
 public record ServiceUpdateRequest(
 
         /** New advertisement headline; leave null to keep the current value. */
-        @Size(max = 255, message = "Advertisement title must not exceed 255 characters")
+        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
         /** New free-text description; leave null to keep the current value. */
-        @Size(max = 5000, message = "Description must not exceed 5000 characters")
+        @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
         /** New city location; leave null to keep the current value. */
         City city,
 
         /** New detailed address; leave null to keep the current value. */
-        @Size(max = 500, message = "Address must not exceed 500 characters")
+        @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
         /** New free-text sub-category; leave null to keep the current value. */
-        @Size(max = 150, message = "Service category must not exceed 150 characters")
+        @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String specialCategory,
 
         /** New price per billing unit in Iranian Tomans; must be zero or positive. Leave null to keep current. */
-        @DecimalMin(value = "0.0", inclusive = true, message = "Cost of part must be zero or positive")
+        @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
         BigDecimal costOfPart,
 
         /** New billing period/unit; leave null to keep the current value. */

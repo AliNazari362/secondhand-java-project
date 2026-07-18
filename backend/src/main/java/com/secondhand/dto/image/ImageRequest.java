@@ -14,8 +14,8 @@ import jakarta.validation.constraints.Size;
 public record ImageRequest(
 
         /** Relative path or storage key for the image file; must not be blank. */
-        @NotBlank(message = "Image path must not be blank")
-        @Size(max = 500, message = "Image path must not exceed 500 characters")
+        @NotBlank(message = "مسیر تصویر نمی‌تواند خالی باشد")
+        @Size(max = 500, message = "مسیر تصویر نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String path
 
 ) {}

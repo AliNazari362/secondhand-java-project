@@ -15,7 +15,7 @@ import java.util.UUID;
 public record ChatroomCreateRequest(
 
         /** Identifier of the advertisement for which this chatroom is being opened. */
-        @NotNull(message = "Advertisement ID must not be null")
+        @NotNull(message = "شناسه آگهی نمی‌تواند خالی باشد")
         UUID advId
 
 ) {}

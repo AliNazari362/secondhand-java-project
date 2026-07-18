@@ -53,7 +53,7 @@ public class Service extends Adv {
      * Free-text sub-category for the com.secondhand.service (e.g., "Plumbing", "Web Design", "Tutoring").
      * More granular than the platform-level category; defined by the com.secondhand.service provider.
      */
-    @Size(max = 150, message = "Service category must not exceed 150 characters")
+    @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "special_category", length = 150)
     private String specialCategory;
 
@@ -62,8 +62,8 @@ public class Service extends Adv {
      * Stored as BigDecimal to guarantee monetary precision.
      * Must be zero or positive (zero may indicate negotiable pricing).
      */
-    @NotNull(message = "Cost of part must not be null")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Cost of part must be zero or positive")
+    @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
+        @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
     @Column(name = "cost_of_part", nullable = false, precision = 15, scale = 2)
     private BigDecimal costOfPart = BigDecimal.ZERO;
 

@@ -10,6 +10,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
 
+/**
+ * Utility class for generating, validating, and parsing JSON Web Tokens (JWTs).
+ * <p>
+ * Implements a minimal, dependency-free JWT mechanism using pure JDK cryptography
+ * (HMAC-SHA256). Tokens follow the standard {@code header.payload.signature} structure
+ * where each part is Base64Url-encoded (without padding).
+ * </p>
+ * <p>
+ * Generated tokens are valid for 24 hours and contain the following claims:
+ * {@code userId}, {@code email}, {@code role}, {@code iat} (issued-at),
+ * {@code exp} (expiry), and {@code jti} (unique token ID).
+ * </p>
+ */
 public class JwtUtil {
 
     private static final String SECRET = "mySuperSecretKey123!@#";
@@ -18,6 +31,16 @@ public class JwtUtil {
     /**
      * تولید توکن JWT ساده با استفاده از JDK خالص
      * ساختار: header.payload.signature
+     *
+     * <p>Generates a signed JWT token that expires after 24 hours. The token payload
+     * contains the user's ID, email, role, issued-at timestamp, expiry timestamp,
+     * and a random JWT ID (jti) to prevent replay attacks.</p>
+     *
+     * @param userId the unique identifier of the user (UUID string representation)
+     * @param email  the email address of the user
+     * @param role   the user's authority/role name (e.g., {@code "USER"}, {@code "ADMIN"})
+     * @return a Base64Url-encoded JWT string in {@code header.payload.signature} format
+     * @throws RuntimeException if an unexpected cryptographic error occurs during signing
      */
     public static String generateToken(String userId, String email, String role) {
         try {
@@ -50,6 +73,14 @@ public class JwtUtil {
 
     /**
      * اعتبارسنجی توکن
+     *
+     * <p>Validates a JWT token by checking that it consists of exactly three
+     * dot-separated parts and that its HMAC-SHA256 signature matches the recomputed
+     * signature over the header and payload.</p>
+     *
+     * @param token the JWT token string to validate
+     * @return {@code true} if the token is structurally valid and the signature is correct;
+     *         {@code false} if the token is malformed, tampered with, or causes a parsing error
      */
     public static boolean validateToken(String token) {
         try {
@@ -75,14 +106,23 @@ public class JwtUtil {
 
     /**
      * استخراج email از توکن
+     *
+     * <p>Validates the token signature first, then extracts the {@code email} claim
+     * from the Base64Url-decoded payload JSON. Validation is performed outside the
+     * parsing try-catch to ensure {@link IllegalTokenException} is never swallowed.</p>
+     *
+     * @param token the JWT token string from which to extract the email
+     * @return the email address embedded in the token payload
+     * @throws IllegalTokenException if the token fails signature validation
+     * @throws RuntimeException      if the email claim cannot be located in the payload
+     *                               or any other parsing error occurs
      */
     public static String getEmailFromToken(String token) {
+        if (!validateToken(token)) {
+            throw new IllegalTokenException("توکن نامعتبر است");
+        }
         try {
             String[] parts = token.split("\\.");
-            if (validateToken(token)) {
-                throw new RuntimeException("Invalid token");
-            }
-
             String payloadJson = new String(
                     Base64.getUrlDecoder().decode(parts[1]),
                     StandardCharsets.UTF_8
@@ -98,14 +138,24 @@ public class JwtUtil {
 
     /**
      * استخراج userId از توکن
+     *
+     * <p>Validates the token signature first, then extracts the {@code userId} claim
+     * from the Base64Url-decoded payload JSON and parses it as a {@link UUID}.
+     * Validation is performed outside the parsing try-catch to ensure
+     * {@link IllegalTokenException} is never swallowed.</p>
+     *
+     * @param token the JWT token string from which to extract the user ID
+     * @return the {@link UUID} of the user embedded in the token payload
+     * @throws IllegalTokenException if the token fails signature validation
+     * @throws RuntimeException      if the userId claim cannot be located, is not a valid UUID,
+     *                               or any other parsing error occurs
      */
     public static UUID getUserIdFromToken(String token) {
+        if (!validateToken(token)) {
+            throw new IllegalTokenException("توکن نامعتبر است");
+        }
         try {
             String[] parts = token.split("\\.");
-            if (validateToken(token)) {
-                throw new IllegalTokenException("توکن نامعتبر است");
-            }
-
             String payloadJson = new String(
                     Base64.getUrlDecoder().decode(parts[1]),
                     StandardCharsets.UTF_8
@@ -118,6 +168,15 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Computes an HMAC-SHA256 signature for the given data using the specified secret key,
+     * and returns the result as a Base64Url-encoded string (without padding).
+     *
+     * @param data the input string to sign
+     * @param key  the secret key used for HMAC computation
+     * @return the Base64Url-encoded (no-padding) HMAC-SHA256 signature
+     * @throws RuntimeException if the HMAC algorithm is unavailable or the key is invalid
+     */
     private static String hmacSha256(String data, String key) {
         try {
             Mac mac = Mac.getInstance(ALGORITHM);
@@ -133,6 +192,18 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Extracts a string value associated with the given key from a simple JSON object string.
+     * <p>
+     * This is a minimal, library-free JSON field extractor that only supports top-level
+     * string values. It does not handle nested objects, arrays, or escaped quotes inside values.
+     * </p>
+     *
+     * @param json the JSON string to search within (e.g., a decoded JWT payload)
+     * @param key  the JSON key whose string value should be returned
+     * @return the string value associated with the given key
+     * @throws RuntimeException if the key is not present in the JSON or the JSON is malformed
+     */
     private static String extractValue(String json, String key) {
         // جستجوی ساده در JSON (بدون کتابخانه)
         String searchKey = "\"" + key + "\":\"";

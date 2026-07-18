@@ -17,14 +17,14 @@ import jakarta.validation.constraints.Size;
 public record UserLoginRequest(
 
         /** Email address used as the login identifier; must be unique in the system. */
-        @NotBlank(message = "Email must not be blank")
-        @Email(message = "Email must be a valid email address")
-        @Size(max = 254, message = "Email must not exceed 254 characters")
+        @NotBlank(message = "ایمیل نمی‌تواند خالی باشد")
+        @Email(message = "ایمیل وارد شده معتبر نیست")
+        @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
         String email,
 
         /** Raw plaintext password chosen by the user; minimum 8 characters. */
-        @NotBlank(message = "Password must not be blank")
-        @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
+        @NotBlank(message = "رمز عبور نمی‌تواند خالی باشد")
+        @Size(min = 8, max = 72, message = "رمز عبور باید بین ۸ تا ۷۲ کاراکتر باشد")
         String password
 
 ) {}

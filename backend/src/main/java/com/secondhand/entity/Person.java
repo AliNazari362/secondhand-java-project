@@ -44,8 +44,8 @@ public abstract class Person {
      * BCrypt-hashed password used for authentication.
      * Never stored or transmitted in plain text.
      */
-    @NotBlank(message = "Password must not be blank")
-    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
+    @NotBlank(message = "رمز عبور نمی‌تواند خالی باشد")
+        @Size(min = 8, max = 255, message = "رمز عبور باید بین ۸ تا ۲۵۵ کاراکتر باشد")
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
@@ -53,9 +53,9 @@ public abstract class Person {
      * Email address used as the unique login credential.
      * Must be unique across all persons in the system.
      */
-    @NotBlank(message = "Email must not be blank")
-    @Email(message = "Email must be a valid email address")
-    @Size(max = 254, message = "Email must not exceed 254 characters")
+    @NotBlank(message = "ایمیل نمی‌تواند خالی باشد")
+        @Email(message = "ایمیل وارد شده معتبر نیست")
+        @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
     @Column(name = "email", nullable = false, unique = true, length = 254)
     private String email;
 
@@ -65,7 +65,7 @@ public abstract class Person {
      */
     @Pattern(
             regexp = "^\\+?[0-9]{7,15}$",
-            message = "Phone number must contain 7 to 15 digits, optionally prefixed with +"
+            message = "شماره تلفن باید ۷ تا ۱۵ رقم باشد و می‌تواند با + شروع شود"
     )
     @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
@@ -74,7 +74,7 @@ public abstract class Person {
      * Role of this person in the platform (USER or ADMIN).
      * Controls access to administrative features.
      */
-    @NotNull(message = "User type must not be null")
+    @NotNull(message = "نوع کاربر نمی‌تواند خالی باشد")
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false, length = 10)
     private UserType userType;

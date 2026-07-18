@@ -39,7 +39,7 @@ public class User extends Person {
      * Current account status (ACTIVE or BANNED).
      * A banned user cannot log in or interact with the platform.
      */
-    @NotNull(message = "User status must not be null")
+    @NotNull(message = "وضعیت حساب کاربری نمی‌تواند خالی باشد")
     @Enumerated(EnumType.STRING)
     @Column(name = "user_status", nullable = false, length = 10)
     private UserStatus userStatus;
@@ -48,8 +48,8 @@ public class User extends Person {
      * Display name of the user shown on advertisements and comments.
      * Not unique; used for human-readable identification only.
      */
-    @NotBlank(message = "Full name must not be blank")
-    @Size(max = 150, message = "Full name must not exceed 150 characters")
+    @NotBlank(message = "نام کامل نمی‌تواند خالی باشد")
+        @Size(max = 150, message = "نام کامل نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 

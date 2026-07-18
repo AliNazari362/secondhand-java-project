@@ -9,6 +9,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Represents a single message sent within a {@link Chatroom}.
+ *
+ * <p>Messages form the conversational history between a buyer and a seller.
+ * Each message records its text, the sender, the timestamp of creation, and
+ * whether it has been seen by the recipient.</p>
+ */
 @Entity
 @Table(
         name = "messages",
@@ -21,39 +28,75 @@ import java.util.Objects;
 )
 public class Message {
 
+    /**
+     * Surrogate primary key for this message.
+     * Uses database-generated identity since messages do not require a business key.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @NotBlank(message = "Message text must not be blank")
-    @Size(max = 5000, message = "Message text must not exceed 5000 characters")
+    /**
+     * The textual content of the message written by the sender.
+     * Must not be blank and is limited to 5000 characters.
+     */
+    @NotBlank(message = "متن پیام نمی‌تواند خالی باشد")
+    @Size(max = 5000, message = "متن پیام نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
     @Column(name = "text", columnDefinition = "TEXT", nullable = false)
     private String text;
 
-    @NotNull(message = "Message sender must not be null")
+    /**
+     * The user who sent this message.
+     * Every message must have a sender; the association is mandatory.
+     */
+    @NotNull(message = "فرستنده پیام نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "sender_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_message_sender"))
     private User sender;
 
+    /**
+     * Timestamp of when this message was created.
+     * Set automatically by Hibernate; immutable after creation.
+     */
     @CreationTimestamp
     @Column(name = "date", nullable = false, updatable = false)
     private LocalDateTime date;
 
+    /**
+     * Flag indicating whether the recipient has read this message.
+     * Defaults to {@code false} at creation; set to {@code true} via {@link #markAsSeen()}.
+     */
     @Column(name = "seen", nullable = false)
     private boolean seen;
 
+    /**
+     * The chatroom this message belongs to.
+     * This is the owning side of the {@code Message ↔ Chatroom} relationship;
+     * the foreign key {@code chatroom_id} lives in the {@code messages} table.
+     */
     // ✅ فقط این رابطه – هیچ فیلد جداگانه‌ای برای chatroom_id وجود ندارد
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "chatroom_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_message_chatroom"))
     private Chatroom chatroom;
 
+    /**
+     * JPA-required no-argument constructor.
+     * Initialises {@code seen} to {@code false}.
+     */
     public Message() {
         this.seen = false;
     }
 
+    /**
+     * Convenience constructor for creating a fully initialised message.
+     *
+     * @param text     the textual content of the message
+     * @param sender   the user who sends the message
+     * @param chatroom the chatroom this message belongs to
+     */
     public Message(String text, User sender, Chatroom chatroom) {
         this();
         this.text = text;
