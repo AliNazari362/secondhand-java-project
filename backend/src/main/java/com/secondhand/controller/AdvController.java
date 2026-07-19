@@ -1,12 +1,12 @@
 package com.secondhand.controller;
 
-
 import com.secondhand.dto.adv.*;
 import com.secondhand.entity.enums.City;
 import com.secondhand.exception.BadRequestException;
 import com.secondhand.service.AdvService;
 import com.secondhand.service.JwtUtil;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -89,7 +89,8 @@ public class AdvController {
      * @return the {@link AdvDetailResponse} of the newly created product advertisement
      */
     @PostMapping("create-product")
-    public AdvDetailResponse createProduct(@RequestHeader("Authorization") String token, @Valid @RequestBody ProductCreateRequest request) {
+    public AdvDetailResponse createProduct(@RequestHeader("Authorization") String token,
+                                           @Valid @RequestBody ProductCreateRequest request) {
         return advService.createProduct(request, JwtUtil.getUserIdFromToken(token));
     }
 
@@ -101,7 +102,8 @@ public class AdvController {
      * @return the {@link AdvDetailResponse} of the newly created service advertisement
      */
     @PostMapping("create-service")
-    public AdvDetailResponse createService(@RequestHeader("Authorization") String token, @Valid @RequestBody ServiceCreateRequest request) {
+    public AdvDetailResponse createService(@RequestHeader("Authorization") String token,
+                                           @Valid @RequestBody ServiceCreateRequest request) {
         return advService.createService(request, JwtUtil.getUserIdFromToken(token));
     }
 
@@ -114,7 +116,9 @@ public class AdvController {
      * @return the updated {@link AdvDetailResponse}
      */
     @PutMapping("{advId}/update-product")
-    public AdvDetailResponse updateProduct(@PathVariable UUID advId, @RequestHeader("Authorization") String token, @Valid @RequestBody ProductUpdateRequest request) {
+    public AdvDetailResponse updateProduct(@PathVariable UUID advId,
+                                           @RequestHeader("Authorization") String token,
+                                           @Valid @RequestBody ProductUpdateRequest request) {
         return advService.updateProduct(advId, request, JwtUtil.getUserIdFromToken(token));
     }
 
@@ -127,7 +131,9 @@ public class AdvController {
      * @return the updated {@link AdvDetailResponse}
      */
     @PutMapping("{advId}/update-service")
-    public AdvDetailResponse updateService(@PathVariable UUID advId, @RequestHeader("Authorization") String token, @Valid @RequestBody ServiceUpdateRequest request) {
+    public AdvDetailResponse updateService(@PathVariable UUID advId,
+                                           @RequestHeader("Authorization") String token,
+                                           @Valid @RequestBody ServiceUpdateRequest request) {
         return advService.updateService(advId, request, JwtUtil.getUserIdFromToken(token));
     }
 
@@ -136,10 +142,13 @@ public class AdvController {
      *
      * @param advId the UUID of the advertisement to mark as sold
      * @param token the JWT bearer token from the {@code Authorization} request header
+     * @return a success message indicating the advertisement has been marked as sold
      */
     @PutMapping("{advId}/mark-as-sold")
-    public void markAsSold(@PathVariable UUID advId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> markAsSold(@PathVariable UUID advId,
+                                             @RequestHeader("Authorization") String token) {
         advService.markAsSold(advId, JwtUtil.getUserIdFromToken(token));
+        return ResponseEntity.ok("وضعیت آگهی با موفقیت به فروخته‌شده تغییر کرد");
     }
 
     /**
@@ -147,9 +156,12 @@ public class AdvController {
      *
      * @param advId the UUID of the advertisement to delete
      * @param token the JWT bearer token from the {@code Authorization} request header
+     * @return a success message indicating the advertisement has been deleted
      */
     @DeleteMapping("{advId}/delete-adv")
-    public void deleteAdv(@PathVariable UUID advId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> deleteAdv(@PathVariable UUID advId,
+                                            @RequestHeader("Authorization") String token) {
         advService.deleteAdv(advId, JwtUtil.getUserIdFromToken(token));
+        return ResponseEntity.ok("آگهی با موفقیت حذف شد");
     }
 }

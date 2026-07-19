@@ -9,6 +9,7 @@ import com.secondhand.exception.ForbiddenException;
 import com.secondhand.service.AdminService;
 import com.secondhand.service.JwtUtil;
 import com.secondhand.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,7 +61,8 @@ public class AdminController {
      * @return a list of {@link UserSummaryResponse} objects with the specified status
      */
     @GetMapping("get-users-by-status/{status}")
-    public List<UserSummaryResponse> getUsersByStatus(@PathVariable UserStatus status, @RequestHeader("Authorization") String token) {
+    public List<UserSummaryResponse> getUsersByStatus(@PathVariable UserStatus status,
+                                                      @RequestHeader("Authorization") String token) {
         checkAdmin(token);
         return adminService.getUsersByStatus(status);
     }
@@ -70,11 +72,14 @@ public class AdminController {
      *
      * @param userId the UUID of the user to ban
      * @param token  the JWT bearer token from the {@code Authorization} request header (admin required)
+     * @return a success message indicating the user has been banned
      */
     @PutMapping("ban-user/{userId}")
-    public void banUser(@PathVariable UUID userId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> banUser(@PathVariable UUID userId,
+                                          @RequestHeader("Authorization") String token) {
         checkAdmin(token);
         adminService.banUser(userId);
+        return ResponseEntity.ok("کاربر با موفقیت بن شد");
     }
 
     /**
@@ -82,11 +87,14 @@ public class AdminController {
      *
      * @param userId the UUID of the user to unban
      * @param token  the JWT bearer token from the {@code Authorization} request header (admin required)
+     * @return a success message indicating the user has been unbanned
      */
     @PutMapping("unban-user/{userId}")
-    public void unbanUser(@PathVariable UUID userId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> unbanUser(@PathVariable UUID userId,
+                                            @RequestHeader("Authorization") String token) {
         checkAdmin(token);
         adminService.unbanUser(userId);
+        return ResponseEntity.ok("کاربر با موفقیت آن‌بن شد");
     }
 
     /**
@@ -106,11 +114,14 @@ public class AdminController {
      *
      * @param advId the UUID of the advertisement to approve
      * @param token the JWT bearer token from the {@code Authorization} request header (admin required)
+     * @return a success message indicating the advertisement has been approved
      */
     @PutMapping("approve-adv/{advId}")
-    public void approveAdv(@PathVariable UUID advId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> approveAdv(@PathVariable UUID advId,
+                                             @RequestHeader("Authorization") String token) {
         checkAdmin(token);
         adminService.approveAdv(advId);
+        return ResponseEntity.ok("آگهی با موفقیت تأیید شد");
     }
 
     /**
@@ -119,11 +130,15 @@ public class AdminController {
      * @param advId  the UUID of the advertisement to reject
      * @param token  the JWT bearer token from the {@code Authorization} request header (admin required)
      * @param reason a plain-text explanation for why the advertisement was rejected
+     * @return a success message indicating the advertisement has been rejected
      */
     @PutMapping("reject-adv/{advId}")
-    public void rejectAdv(@PathVariable UUID advId, @RequestHeader("Authorization") String token, @RequestBody String reason) {
+    public ResponseEntity<String> rejectAdv(@PathVariable UUID advId,
+                                            @RequestHeader("Authorization") String token,
+                                            @RequestBody String reason) {
         checkAdmin(token);
         adminService.rejectAdv(advId, reason);
+        return ResponseEntity.ok("آگهی با موفقیت رد شد");
     }
 
     /**
@@ -131,11 +146,14 @@ public class AdminController {
      *
      * @param advId the UUID of the advertisement to delete
      * @param token the JWT bearer token from the {@code Authorization} request header (admin required)
+     * @return a success message indicating the advertisement has been deleted
      */
     @PutMapping("delete-adv/{advId}")
-    public void deleteAdv(@PathVariable UUID advId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> deleteAdv(@PathVariable UUID advId,
+                                            @RequestHeader("Authorization") String token) {
         checkAdmin(token);
         adminService.deleteAdv(advId);
+        return ResponseEntity.ok("آگهی با موفقیت حذف شد");
     }
 
     /**

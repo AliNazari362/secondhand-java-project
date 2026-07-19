@@ -1,5 +1,6 @@
 package com.secondhand.controller;
 
+import com.secondhand.dto.user.LoginResponse;
 import com.secondhand.dto.user.UserDetailResponse;
 import com.secondhand.dto.user.UserLoginRequest;
 import com.secondhand.dto.user.UserRegisterRequest;
@@ -40,13 +41,13 @@ public class AuthController {
     }
 
     /**
-     * Authenticates a user and returns a JWT token upon successful login.
+     * Authenticates a user and returns a JWT token along with user profile information.
      *
      * @param loginRequest the validated request body containing the user's credentials
-     * @return a JWT token string to be used in subsequent authenticated requests
+     * @return a {@link LoginResponse} containing the JWT token, user ID, full name, and role
      */
     @PostMapping("login")
-    public String login(@Valid @RequestBody UserLoginRequest loginRequest) {
+    public LoginResponse login(@Valid @RequestBody UserLoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 }

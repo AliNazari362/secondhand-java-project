@@ -18,6 +18,9 @@ import java.util.UUID;
  * <p>Provides standard CRUD operations inherited from {@link JpaRepository} as well as
  * custom query methods for filtering advertisements by status, city, type, owner, and
  * a full-text keyword search.</p>
+ *
+ * <p>The repository uses JPQL with Hibernate and is compatible with SQLite via the
+ * {@code hibernate-community-dialects} library.</p>
  */
 @Repository
 public interface AdvRepository extends JpaRepository<Adv, UUID> {
@@ -60,6 +63,9 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
      * <p>All parameters are optional. When a parameter is {@code null} it is ignored,
      * making this a flexible multi-criteria search query.</p>
      *
+     * <p><strong>Note on compatibility:</strong> The query uses {@code CONCAT} instead of
+     * the pipe operator ({@code ||}) to ensure full compatibility with SQLite and JPQL.</p>
+     *
      * @param keyword optional text to match against the title or description (case-insensitive)
      * @param city    optional city to restrict results to
      * @param status  optional lifecycle status to restrict results to
@@ -69,7 +75,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
             "(:keyword IS NULL OR LOWER(a.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND (:city IS NULL OR a.city = :city) " +
-            "AND (:status IS NULL OR a.status = :status)" +
+            "AND (:status IS NULL OR a.status = :status) " +  // ✅ فاصله‌ی صحیح قبل از AND بعدی
             "AND a.status != 'DELETED' AND a.status != 'REJECTED'")
     List<Adv> search(@Param("keyword") String keyword,
                      @Param("city") City city,

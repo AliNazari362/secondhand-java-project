@@ -89,7 +89,7 @@ public class Product extends Adv {
      * A value of zero indicates either a free item or that the price is negotiable on request.
      */
     @NotNull(message = "قیمت نمی‌تواند خالی باشد")
-        @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
+    @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
     @Column(name = "price", nullable = false, precision = 15, scale = 0)
     private BigDecimal price = BigDecimal.ZERO;
 
@@ -111,7 +111,7 @@ public class Product extends Adv {
      */
     public Product() {
         super();
-//        this.setAdvType(AdvType.PRODUCT);
+        this.setAdvType(AdvType.PRODUCT); // ✅ فعال شد
         this.price = BigDecimal.ZERO;
     }
 

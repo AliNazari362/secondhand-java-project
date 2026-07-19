@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Abstract base com.secondhand.entity for all advertisements posted on the secondhand marketplace platform.
+ * Abstract base entity for all advertisements posted on the secondhand marketplace platform.
  *
  * <p>Concrete subtypes are {@link Product} (physical goods) and {@link Service} (offered services).
  * A JOINED inheritance strategy is used so that each subtype table only contains its own
@@ -130,7 +130,7 @@ public abstract class Adv {
     private List<Comment> comments = new ArrayList<>();
 
     /**
-     * Images attached to this advertisement to visually represent the item or com.secondhand.service.
+     * Images attached to this advertisement to visually represent the item or service.
      * Deleted automatically when the advertisement is removed.
      *
      * <p>This is the inverse side of the bidirectional relationship with {@link Image}.
@@ -144,12 +144,12 @@ public abstract class Adv {
      * Shown in listing views and search results; must be descriptive and non-empty.
      */
     @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
-        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
+    @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
     /**
-     * City where the advertised item or com.secondhand.service is located.
+     * City where the advertised item or service is located.
      * Used for geographic filtering of search results.
      */
     @Enumerated(EnumType.STRING)
@@ -178,11 +178,12 @@ public abstract class Adv {
 
     /**
      * JPA-required no-argument constructor.
-     * Assigns a UUID and sets default status to PENDING.
+     * Assigns a UUID, sets default status to PENDING, and initialises the version to 0L.
      */
     protected Adv() {
         this.id = UUID.randomUUID();
         this.status = AdvStatus.PENDING;
+        this.version = 0L; // ✅ مقداردهی اولیه برای جلوگیری از خطای uninitialized version
     }
 
     /**
@@ -192,7 +193,7 @@ public abstract class Adv {
      * @param advType     PRODUCT or SERVICE discriminator
      * @param user        the owner posting the advertisement
      * @param fullName    advertisement headline shown in listings
-     * @param city        city where the item or com.secondhand.service is located
+     * @param city        city where the item or service is located
      */
     protected Adv(String description, AdvType advType, User user, String fullName, City city) {
         this();

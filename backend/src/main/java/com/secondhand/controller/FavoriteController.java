@@ -1,9 +1,9 @@
 package com.secondhand.controller;
 
-
 import com.secondhand.dto.adv.AdvSummaryResponse;
 import com.secondhand.service.FavoriteService;
 import com.secondhand.service.JwtUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,10 +47,13 @@ public class FavoriteController {
      *
      * @param token the JWT bearer token from the {@code Authorization} request header
      * @param advId the UUID of the advertisement to add to favorites
+     * @return a success message indicating the advertisement has been added to favorites
      */
     @PostMapping("add-favorite")
-    public void addFavorite(@RequestHeader("Authorization") String token, @RequestBody UUID advId) {
+    public ResponseEntity<String> addFavorite(@RequestHeader("Authorization") String token,
+                                              @RequestBody UUID advId) {
         favoriteService.addFavorite(JwtUtil.getUserIdFromToken(token), advId);
+        return ResponseEntity.ok("آگهی با موفقیت به علاقه‌مندی‌ها اضافه شد");
     }
 
     /**
@@ -58,9 +61,12 @@ public class FavoriteController {
      *
      * @param token the JWT bearer token from the {@code Authorization} request header
      * @param advId the UUID of the advertisement to remove from favorites
+     * @return a success message indicating the advertisement has been removed from favorites
      */
     @DeleteMapping("delete-favorite")
-    public void removeFavorite(@RequestHeader("Authorization") String token, @RequestBody UUID advId) {
+    public ResponseEntity<String> removeFavorite(@RequestHeader("Authorization") String token,
+                                                 @RequestBody UUID advId) {
         favoriteService.removeFavorite(JwtUtil.getUserIdFromToken(token), advId);
+        return ResponseEntity.ok("آگهی با موفقیت از علاقه‌مندی‌ها حذف شد");
     }
 }

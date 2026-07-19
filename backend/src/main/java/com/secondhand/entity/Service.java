@@ -10,13 +10,13 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
- * Represents a com.secondhand.service-offering advertisement posted on the secondhand marketplace.
+ * Represents a service-offering advertisement posted on the secondhand marketplace.
  *
  * <p>Extends {@link Adv} via the JOINED inheritance strategy. All shared advertisement
- * columns live in the {@code advertisements} table; the com.secondhand.service-specific columns live
+ * columns live in the {@code advertisements} table; the service-specific columns live
  * in the {@code services} table and are joined by the primary key.</p>
  *
- * <p>A com.secondhand.service has a free-text category, a billing unit ({@link ServiceType}), and the
+ * <p>A service has a free-text category, a billing unit ({@link ServiceType}), and the
  * cost per that unit. For example: "Plumbing — 500,000 Tomans per HOUR".</p>
  */
 @Entity
@@ -31,7 +31,7 @@ import java.math.BigDecimal;
 public class Service extends Adv {
 
     /**
-     * Billing period / pricing unit for a com.secondhand.service offering.
+     * Billing period / pricing unit for a service offering.
      * Defines how the {@code costOfPart} field should be interpreted by the buyer.
      */
     public enum ServiceType {
@@ -45,13 +45,13 @@ public class Service extends Adv {
         MONTHLY,
         /** Price applies per year / annual contract. */
         ANNUAL,
-        /** A single fixed price for the entire com.secondhand.service, regardless of duration. */
+        /** A single fixed price for the entire service, regardless of duration. */
         FIXED
     }
 
     /**
-     * Free-text sub-category for the com.secondhand.service (e.g., "Plumbing", "Web Design", "Tutoring").
-     * More granular than the platform-level category; defined by the com.secondhand.service provider.
+     * Free-text sub-category for the service (e.g., "Plumbing", "Web Design", "Tutoring").
+     * More granular than the platform-level category; defined by the service provider.
      */
     @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "special_category", length = 150)
@@ -63,12 +63,12 @@ public class Service extends Adv {
      * Must be zero or positive (zero may indicate negotiable pricing).
      */
     @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
-        @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
+    @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
     @Column(name = "cost_of_part", nullable = false, precision = 15, scale = 2)
     private BigDecimal costOfPart = BigDecimal.ZERO;
 
     /**
-     * Billing unit for the com.secondhand.service (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, or FIXED).
+     * Billing unit for the service (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, or FIXED).
      * Together with {@link #costOfPart} it communicates the pricing model to potential clients.
      */
     @Enumerated(EnumType.STRING)
@@ -85,18 +85,18 @@ public class Service extends Adv {
      */
     public Service() {
         super();
-//        this.setAdvType(AdvType.SERVICE);
+        this.setAdvType(AdvType.SERVICE); // ✅ فعال شد
         this.costOfPart = BigDecimal.ZERO;
     }
 
     /**
-     * Convenience constructor for creating a fully initialised com.secondhand.service advertisement.
+     * Convenience constructor for creating a fully initialised service advertisement.
      *
-     * @param description     free-text description of the com.secondhand.service
+     * @param description     free-text description of the service
      * @param user            the owner/provider posting the advertisement
      * @param fullName        advertisement headline shown in listings
-     * @param city            city where the com.secondhand.service is offered
-     * @param specialCategory free-text sub-category of the com.secondhand.service
+     * @param city            city where the service is offered
+     * @param specialCategory free-text sub-category of the service
      * @param costOfPart      price per billing unit in Iranian Tomans
      * @param typeOfPart      billing period / pricing unit
      */
