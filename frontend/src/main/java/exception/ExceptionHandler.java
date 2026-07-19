@@ -1,5 +1,7 @@
 package exception;
 
+import model.response.ErrorResponseDto;
+import service.ApiClient;
 import utils.AlertUtil;
 
 /**
@@ -12,9 +14,9 @@ public class ExceptionHandler {
      * تشخیص نوع استثنا و نمایش پیام مناسب.
      */
     public static void handle(Exception e) {
-        if (e instanceof ApiException) {
-            ApiException apiEx = (ApiException) e;
-            AlertUtil.showError("خطای سرور (" + apiEx.getStatusCode() + "): " + apiEx.getMessage());
+        if (e instanceof ApiException apiEx) {
+            ErrorResponseDto error = ApiClient.fromJson(apiEx.getMessage(), ErrorResponseDto.class);
+            AlertUtil.showError("خطا: " + error.getMessage());
         } else if (e instanceof AuthenticationException) {
             AlertUtil.showError("خطای احراز هویت: " + e.getMessage());
         } else if (e instanceof BusinessException) {
@@ -22,6 +24,7 @@ public class ExceptionHandler {
         } else {
             AlertUtil.showError("خطای ناشناخته: " + e.getMessage());
         }
+
         // چاپ خطا برای دیباگ (اختیاری)
         e.printStackTrace();
     }

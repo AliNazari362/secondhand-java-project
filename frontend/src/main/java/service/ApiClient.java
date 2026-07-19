@@ -98,8 +98,7 @@ public class ApiClient {
         // اگر خطای HTTP برگشت، استثنا پرتاب کن
         if (response.statusCode() >= 400) {
             throw new ApiException(
-                    "خطای سرور: " + response.statusCode() + " - " + response.body(),
-                    response.statusCode()
+                   response.body(), response.statusCode()
             );
         }
 
