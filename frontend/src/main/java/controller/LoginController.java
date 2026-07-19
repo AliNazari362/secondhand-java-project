@@ -1,6 +1,10 @@
 package controller;
 
 import exception.ExceptionHandler;
+import model.enums.UserType;
+import model.request.LoginRequest;
+import model.response.LoginResponse;
+import service.ApiClient;
 import service.SessionManager;
 import utils.AlertUtil;
 import utils.SceneManager;
@@ -12,6 +16,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.util.Objects;
 
 public class LoginController {
 
@@ -57,17 +63,21 @@ public class LoginController {
             }
 
             try {
-                if ("admin@email.com".equals(email) && "admin123".equals(password)) {
-                    SessionManager.setSession("mock-token-admin", java.util.UUID.randomUUID(), "مدیر سیستم", "ADMIN");
-                    AlertUtil.showSuccess("ورود موفق! خوش آمدید مدیر سیستم");
-                    SceneManager.showDashboardPage();
-                } else if ("user@email.com".equals(email) && "user123".equals(password)) {
-                    SessionManager.setSession("mock-token-user", java.util.UUID.randomUUID(), "کاربر عادی", "USER");
-                    AlertUtil.showSuccess("ورود موفق! خوش آمدید");
-                    SceneManager.showDashboardPage();
-                } else {
-                    AlertUtil.showError("نام کاربری یا رمز عبور اشتباه است.");
-                }
+                LoginRequest loginRequest = new LoginRequest(email, password);
+                String response = ApiClient.post("/auth/login", loginRequest);
+                System.out.println(response);
+                LoginResponse loginResponse = ApiClient.fromJson(response, LoginResponse.class);
+
+                // TODO config login response
+                SessionManager.setSession(
+                        loginResponse.getToken(),
+                        loginResponse.getUserId(),
+                        loginResponse.getFullName(),
+                        UserType.USER.name()
+                );
+
+                AlertUtil.showSuccess("ورود موفق! " + SessionManager.getFullName() + " خوش آمدید");
+                SceneManager.showDashboardPage();
             } catch (Exception ex) {
                 ExceptionHandler.handle(ex);
             }
@@ -85,7 +95,7 @@ public class LoginController {
         card.getChildren().addAll(logo, title, subtitle, emailField, passwordField, loginBtn, registerLink);
         mainBox.getChildren().add(card);
 
-        mainBox.getStylesheets().add(LoginController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(LoginController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

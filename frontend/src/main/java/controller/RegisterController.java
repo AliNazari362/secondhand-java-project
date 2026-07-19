@@ -1,5 +1,9 @@
 package controller;
 
+import exception.ExceptionHandler;
+import model.request.UserRegisterRequest;
+import model.response.UserDto;
+import service.ApiClient;
 import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.application.Platform;
@@ -11,6 +15,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.util.Objects;
 
 public class RegisterController {
 
@@ -60,6 +66,7 @@ public class RegisterController {
             String fullName = fullNameField.getText().trim();
             String email = emailField.getText().trim();
             String password = passwordField.getText().trim();
+            String phoneNumber = phoneField.getText().trim();
 
             if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 AlertUtil.showError("لطفاً همه فیلدهای ضروری را پر کنید.");
@@ -70,8 +77,15 @@ public class RegisterController {
                 return;
             }
 
-            AlertUtil.showSuccess("ثبت‌نام موفق! حالا وارد شوید.");
-            Platform.runLater(() -> SceneManager.showLoginPage());
+            try {
+                UserRegisterRequest request = new UserRegisterRequest(fullName, email, password, phoneNumber);
+                String response = ApiClient.post("/auth/register", request);
+                UserDto userDto = ApiClient.fromJson(response, UserDto.class);
+                AlertUtil.showSuccess("ثبت نام موفق " + userDto.getFullName() + " عزیز حالا وارد شوید");
+                Platform.runLater(SceneManager::showLoginPage);
+            } catch (Exception ex) {
+                ExceptionHandler.handle(ex);
+            }
         });
 
         Hyperlink loginLink = new Hyperlink("قبلاً ثبت‌نام کرده‌اید؟ وارد شوید");
@@ -86,7 +100,7 @@ public class RegisterController {
         card.getChildren().addAll(logo, title, subtitle, fullNameField, emailField, passwordField, phoneField, registerBtn, loginLink);
         mainBox.getChildren().add(card);
 
-        mainBox.getStylesheets().add(RegisterController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(RegisterController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }
