@@ -1,5 +1,10 @@
 package controller;
 
+import exception.ExceptionHandler;
+import model.enums.*;
+import model.request.*;
+import model.response.AdvertisementDetailDto;
+import service.ApiClient;
 import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.geometry.Insets;
@@ -12,6 +17,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EditAdController {
@@ -26,21 +33,7 @@ public class EditAdController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("✏️ ویرایش آگهی");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "✏️ ویرایش آگهی");
 
         // ---------- فرم ----------
         VBox content = new VBox(15);
@@ -51,55 +44,84 @@ public class EditAdController {
         card.getStyleClass().add("card");
         card.setPrefWidth(700);
 
-        Text subtitle = new Text("ویرایش اطلاعات آگهی");
-        subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;");
+        try {
+            String response = ApiClient.get("/advs/" + adId);
+            AdvertisementDetailDto adv = ApiClient.fromJson(response, AdvertisementDetailDto.class);
 
-        TextField titleField = new TextField("لپ‌تاپ لنوو ThinkPad");
-        titleField.getStyleClass().add("input-field");
+            Text subtitle = new Text("ویرایش اطلاعات آگهی");
+            subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;");
 
-        TextArea descArea = new TextArea("لپ‌تاپ دست دوم در شرایط عالی. فقط یک سال استفاده شده.");
-        descArea.getStyleClass().add("text-area-field");
-        descArea.setPrefHeight(120);
-        descArea.setWrapText(true);
+            TextField titleField = new TextField(adv.getFullName());
+            titleField.getStyleClass().add("input-field");
 
-        TextField priceField = new TextField("۱۸,۰۰۰,۰۰۰");
-        priceField.getStyleClass().add("input-field");
+            TextArea descArea = new TextArea(adv.getDescription());
+            descArea.getStyleClass().add("text-area-field");
+            descArea.setPrefHeight(120);
+            descArea.setWrapText(true);
 
-        ComboBox<String> cityCombo = new ComboBox<>();
-        cityCombo.setPromptText("شهر");
-        cityCombo.getStyleClass().add("input-field");
-        cityCombo.setMaxWidth(Double.MAX_VALUE);
-        cityCombo.getItems().addAll("تهران", "اصفهان", "شیراز", "مشهد", "تبریز", "اهواز", "کرمان", "رشت", "یزد", "قم", "کرج");
-        cityCombo.setValue("تهران");
+            // TODO ecpicail seciotns must created
+//            TextField priceField = new TextField(adv.get);
+//            priceField.getStyleClass().add("input-field");
 
-        ComboBox<String> typeCombo = new ComboBox<>();
-        typeCombo.setPromptText("نوع آگهی");
-        typeCombo.getStyleClass().add("input-field");
-        typeCombo.setMaxWidth(Double.MAX_VALUE);
-        typeCombo.getItems().addAll("محصول", "خدمات");
-        typeCombo.setValue("محصول");
+            ComboBox<String> cityCombo = new ComboBox<>();
+            cityCombo.setPromptText("شهر");
+            cityCombo.getStyleClass().add("input-field");
+            cityCombo.setMaxWidth(Double.MAX_VALUE);
+            cityCombo.getItems().addAll("تهران", "اصفهان", "شیراز", "مشهد", "تبریز", "اهواز", "کرمان", "رشت", "یزد", "قم", "کرج");
+            cityCombo.setValue("تهران");
 
-        HBox btnBox = new HBox(10);
-        btnBox.setAlignment(Pos.CENTER);
+            HBox btnBox = new HBox(10);
+            btnBox.setAlignment(Pos.CENTER);
 
-        Button updateBtn = new Button("💾 ذخیره تغییرات");
-        updateBtn.getStyleClass().add("success-btn");
-        updateBtn.setOnAction(e -> {
-            AlertUtil.showSuccess("آگهی با موفقیت ویرایش شد!");
-            SceneManager.showDashboardPage();
-        });
+            Button updateBtn = new Button("💾 ذخیره تغییرات");
+            updateBtn.getStyleClass().add("success-btn");
+            updateBtn.setOnAction(e -> {
+                try {
+                    // TODO enums must be labels.
+                    City city = City.valueOf(cityCombo.getValue());
 
-        Button cancelBtn = new Button("❌ انصراف");
-        cancelBtn.getStyleClass().add("secondary-btn");
-        cancelBtn.setOnAction(e -> SceneManager.showDashboardPage());
+                    if (adv.getAdvType() == AdvType.PRODUCT) {
+                        ProductUpdateRequest request = new ProductUpdateRequest();
+                        request.setFullName(titleField.getText());
+                        request.setDescription(descArea.getText());
+                        request.setCity(city);
+                        // TODO category and state must be set
+                        request.setCategory(Category.ELECTRONICS);
+                        request.setStateOfProduct(ProductState.NEW);
 
-        btnBox.getChildren().addAll(updateBtn, cancelBtn);
+                        ApiClient.post("/advs/create-product", request);
+                    } else {
+                        ServiceUpdateRequest request = new ServiceUpdateRequest();
+                        request.setFullName(titleField.getText());
+                        request.setDescription(descArea.getText());
+                        request.setCity(city);
+                        // TODO category and state must be set
+                        request.setTypeOfPart(ServiceType.FIXED);
+                        request.setSpecialCategory("عمومی");
 
-        card.getChildren().addAll(subtitle, titleField, descArea, priceField, cityCombo, typeCombo, btnBox);
+                        ApiClient.post("/advs/create-service", request);
+                    }
+                    AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
+                    SceneManager.showDashboardPage();
+                } catch (Exception ex) {
+                    ExceptionHandler.handle(ex);
+                }
+                AlertUtil.showSuccess("آگهی با موفقیت ویرایش شد!");
+                SceneManager.showDashboardPage();
+            });
+
+            Button cancelBtn = PublicElements.createCancelBtn();
+
+            btnBox.getChildren().addAll(updateBtn, cancelBtn);
+
+            card.getChildren().addAll(subtitle, titleField, descArea, cityCombo, btnBox);
+        } catch (Exception ex) {
+            ExceptionHandler.handle(ex);
+        }
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(EditAdController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(EditAdController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

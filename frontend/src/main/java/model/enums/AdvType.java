@@ -1,6 +1,18 @@
 package model.enums;
 
 public enum AdvType {
-    PRODUCT,
-    SERVICE
+    PRODUCT {
+        @Override
+        public String getLabel() {
+            return "محصول";
+        }
+    },
+    SERVICE {
+        @Override
+        public String getLabel() {
+            return "خدمت";
+        }
+    };
+
+    public abstract String getLabel();
 }

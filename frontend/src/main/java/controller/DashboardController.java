@@ -1,7 +1,8 @@
 package controller;
 
+import javafx.scene.control.ListCell;
+import model.response.AdvertisementSummaryDto;
 import service.SessionManager;
-import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,11 +13,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.util.UUID;
+import java.util.Objects;
 
 public class DashboardController {
 
-    private static ListView<String> adListView = new ListView<>();
+    private static final ListView<AdvertisementSummaryDto> adListView = new ListView<>();
 
     public static VBox getRoot() {
         return createRoot();
@@ -28,14 +29,12 @@ public class DashboardController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
+        PublicElements.createBaseHeader(header);
 
         Text title = new Text("📋 لیست آگهی‌ها");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
 
-        Text userInfo = new Text("خوش آمدید، " + SessionManager.getFullName());
+        Text userInfo = new Text(SessionManager.getFullName() + " عزیز خوش آمدید");
         userInfo.setStyle("-fx-font-size: 14px; -fx-fill: #718096;");
 
         Button logoutBtn = new Button("🚪 خروج");
@@ -57,12 +56,15 @@ public class DashboardController {
         chatBtn.getStyleClass().add("secondary-btn");
         chatBtn.setOnAction(e -> SceneManager.showChatListPage());
 
-        Button adminBtn = new Button("⚙️ مدیریت");
-        adminBtn.getStyleClass().add("danger-btn");
-        adminBtn.setVisible(SessionManager.isAdmin());
-        adminBtn.setOnAction(e -> SceneManager.showAdminPage());
+        HBox rightBox = new HBox(10, newAdBtn, favBtn, chatBtn, logoutBtn);
+        if (SessionManager.getRole().equals("ADMIN")) {
+            Button adminBtn = new Button("⚙️ مدیریت");
+            adminBtn.getStyleClass().add("danger-btn");
+            adminBtn.setVisible(SessionManager.isAdmin());
+            adminBtn.setOnAction(e -> SceneManager.showAdminPage());
+            rightBox.getChildren().add(adminBtn);
+        }
 
-        HBox rightBox = new HBox(10, newAdBtn, favBtn, chatBtn, adminBtn, logoutBtn);
         rightBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
         header.getChildren().addAll(title, userInfo, rightBox);
@@ -81,22 +83,34 @@ public class DashboardController {
 
         adListView.getStyleClass().add("list-view");
         adListView.setPrefHeight(400);
-        adListView.getItems().clear();
-        adListView.getItems().addAll(
-                "لپ‌تاپ لنوو ThinkPad - ۱۸,۰۰۰,۰۰۰ تومان - تهران",
-                "خدمات برنامه‌نویسی وب - ۵۰۰,۰۰۰ تومان/ساعت - اصفهان",
-                "مبل هفت‌نفره - ۱۲,۰۰۰,۰۰۰ تومان - شیراز",
-                "آموزش زبان انگلیسی - ۲۰۰,۰۰۰ تومان/جلسه - مشهد",
-                "پلی‌استیشن ۵ - ۲۵,۰۰۰,۰۰۰ تومان - کرج",
-                "دوچرخه کوهستان - ۸,۰۰۰,۰۰۰ تومان - تبریز"
-        );
+        adListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(AdvertisementSummaryDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label titleLabel = new Label(item.getFullName());
+                    titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+                    Label infoLabel = new Label(
+                            item.getCity() + " - " + item.getOwnerFullName() + " - " + item.getStatus()
+                    );
+                    infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #718096;");
+
+                    cellBox.getChildren().addAll(titleLabel, infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
+
 
         adListView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                int index = adListView.getSelectionModel().getSelectedIndex();
-                if (index >= 0) {
-                    SceneManager.showAdDetailPage(UUID.randomUUID());
-                }
+                AdvertisementSummaryDto adv = adListView.getSelectionModel().getSelectedItem();
+                if (adv != null) SceneManager.showAdDetailPage(adv.getId());
             }
         });
 
@@ -104,7 +118,7 @@ public class DashboardController {
         content.getChildren().add(listCard);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(DashboardController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(DashboardController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

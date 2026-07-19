@@ -1,5 +1,10 @@
 package controller;
 
+import exception.ExceptionHandler;
+import model.enums.*;
+import model.request.ProductCreateRequest;
+import model.request.ServiceCreateRequest;
+import service.ApiClient;
 import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.geometry.Insets;
@@ -11,6 +16,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 public class NewAdController {
 
@@ -24,21 +32,7 @@ public class NewAdController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("📝 ثبت آگهی جدید");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "📝 ثبت آگهی جدید");
 
         // ---------- فرم ----------
         VBox content = new VBox(15);
@@ -92,13 +86,44 @@ public class NewAdController {
                 AlertUtil.showError("لطفاً همه فیلدهای ضروری را پر کنید.");
                 return;
             }
-            AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
-            SceneManager.showDashboardPage();
+            try {
+                BigDecimal price = new BigDecimal(priceField.getText());
+                // TODO enums must be labels.
+                City city = City.valueOf(cityCombo.getValue());
+                AdvType advType = AdvType.valueOf(typeCombo.getValue());
+
+                if (advType == AdvType.PRODUCT) {
+                    ProductCreateRequest request = new ProductCreateRequest();
+                    request.setFullName(titleField.getText());
+                    request.setDescription(descArea.getText());
+                    request.setCity(city);
+                    request.setPrice(price);
+                    // TODO category and state must be set
+                    request.setCategory(Category.ELECTRONICS);
+                    request.setStateOfProduct(ProductState.NEW);
+
+                    ApiClient.post("/advs/create-product", request);
+                } else {
+                    ServiceCreateRequest request = new ServiceCreateRequest();
+                    request.setFullName(titleField.getText());
+                    request.setDescription(descArea.getText());
+                    request.setCity(city);
+                    request.setCostOfPart(price);
+                    // TODO category and state must be set
+                    request.setTypeOfPart(ServiceType.FIXED);
+                    request.setSpecialCategory("عمومی");
+
+                    ApiClient.post("/advs/create-service", request);
+                }
+                AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
+                SceneManager.showDashboardPage();
+            } catch (Exception ex) {
+                ExceptionHandler.handle(ex);
+            }
         });
 
-        Button cancelBtn = new Button("❌ انصراف");
-        cancelBtn.getStyleClass().add("secondary-btn");
-        cancelBtn.setOnAction(e -> SceneManager.showDashboardPage());
+
+        Button cancelBtn = PublicElements.createCancelBtn();
 
         btnBox.getChildren().addAll(submitBtn, cancelBtn);
 
@@ -106,7 +131,7 @@ public class NewAdController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(NewAdController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(NewAdController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }
