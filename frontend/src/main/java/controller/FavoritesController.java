@@ -1,15 +1,16 @@
 package controller;
 
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import model.response.AdvertisementSummaryDto;
 import utils.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
-import java.util.UUID;
+import java.util.Objects;
 
 public class FavoritesController {
 
@@ -23,21 +24,7 @@ public class FavoritesController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("❤️ علاقه‌مندی‌ها");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "علاقه مندی ها");
 
         // ---------- محتوا ----------
         VBox content = new VBox(15);
@@ -48,18 +35,37 @@ public class FavoritesController {
         card.getStyleClass().add("card");
         card.setPrefWidth(700);
 
-        ListView<String> favoritesListView = new ListView<>();
+        ListView<AdvertisementSummaryDto> favoritesListView = new ListView<>();
         favoritesListView.getStyleClass().add("list-view");
         favoritesListView.setPrefHeight(400);
-        favoritesListView.getItems().clear();
-        favoritesListView.getItems().addAll(
-                "لپ‌تاپ لنوو ThinkPad - ۱۸,۰۰۰,۰۰۰ تومان - تهران",
-                "مبل هفت‌نفره - ۱۲,۰۰۰,۰۰۰ تومان - شیراز",
-                "پلی‌استیشن ۵ - ۲۵,۰۰۰,۰۰۰ تومان - کرج"
-        );
+        favoritesListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(AdvertisementSummaryDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label titleLabel = new Label(item.getFullName());
+                    titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+                    Label infoLabel = new Label(
+                            item.getCity() + " - " + item.getOwnerFullName() + " - " + item.getStatus()
+                    );
+                    infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #718096;");
+
+                    cellBox.getChildren().addAll(titleLabel, infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
+
+
         favoritesListView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                SceneManager.showAdDetailPage(UUID.randomUUID());
+                AdvertisementSummaryDto adv = favoritesListView.getSelectionModel().getSelectedItem();
+                if (adv != null) SceneManager.showAdDetailPage(adv.getId());
             }
         });
 
@@ -67,7 +73,7 @@ public class FavoritesController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(FavoritesController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(FavoritesController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

@@ -1,15 +1,16 @@
 package controller;
 
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import model.response.ChatroomSummaryDto;
 import utils.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
-import java.util.UUID;
+import java.util.Objects;
 
 public class ChatListController {
 
@@ -23,21 +24,7 @@ public class ChatListController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("💬 گفت‌وگوها");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "لیست چت ها");
 
         // ---------- محتوا ----------
         VBox content = new VBox(15);
@@ -48,18 +35,31 @@ public class ChatListController {
         card.getStyleClass().add("card");
         card.setPrefWidth(700);
 
-        ListView<String> chatListView = new ListView<>();
+        ListView<ChatroomSummaryDto> chatListView = new ListView<>();
         chatListView.getStyleClass().add("list-view");
         chatListView.setPrefHeight(400);
-        chatListView.getItems().clear();
-        chatListView.getItems().addAll(
-                "لپ‌تاپ لنوو - علی رضایی - آخرین پیام: سلام قیمت چنده؟",
-                "مبل هفت‌نفره - احمد محمدی - آخرین پیام: موجود است؟",
-                "خدمات برنامه‌نویسی - سارا کریمی - آخرین پیام: بله انجام می‌دم"
-        );
+        chatListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(ChatroomSummaryDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label infoLabel = new Label(item.getAdvTitle());
+                    infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #718096;");
+                    cellBox.getChildren().addAll(infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
+
+
         chatListView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                SceneManager.showChatRoomPage(UUID.randomUUID());
+                ChatroomSummaryDto chatroom = chatListView.getSelectionModel().getSelectedItem();
+                if (chatroom != null) SceneManager.showAdDetailPage(chatroom.getId());
             }
         });
 
@@ -67,7 +67,7 @@ public class ChatListController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(ChatListController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(ChatListController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

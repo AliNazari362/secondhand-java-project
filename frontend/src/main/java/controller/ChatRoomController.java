@@ -1,16 +1,18 @@
 package controller;
 
+import exception.ExceptionHandler;
+import javafx.scene.control.*;
+import model.request.MessageRequest;
+import model.response.MessageResponseDto;
+import service.ApiClient;
 import utils.AlertUtil;
-import utils.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class ChatRoomController {
@@ -25,21 +27,7 @@ public class ChatRoomController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("💬 گفت‌وگو");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showChatListPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "گفت و گو");
 
         // ---------- محتوا ----------
         VBox content = new VBox(15);
@@ -53,16 +41,28 @@ public class ChatRoomController {
         Text chatTitle = new Text("لپ‌تاپ لنوو ThinkPad");
         chatTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;");
 
-        ListView<String> messageListView = new ListView<>();
+        ListView<MessageResponseDto> messageListView = new ListView<>();
         messageListView.getStyleClass().add("list-view");
         messageListView.setPrefHeight(350);
-        messageListView.getItems().clear();
-        messageListView.getItems().addAll(
-                "علی رضایی: سلام، قیمت لپ‌تاپ قابل مذاکره است؟",
-                "شما: سلام، بله کمی قابل مذاکره است.",
-                "علی رضایی: چند ماه از خریدش می‌گذره؟",
-                "شما: حدود ۸ ماه"
-        );
+        messageListView.getStyleClass().add("list-view");
+        messageListView.setPrefHeight(400);
+        messageListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(MessageResponseDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label infoLabel = new Label(item.getSender() + ":" + item.getText());
+                    infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #718096;");
+
+                    cellBox.getChildren().addAll(infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
 
         HBox sendBox = new HBox(10);
         sendBox.setAlignment(Pos.CENTER);
@@ -80,8 +80,13 @@ public class ChatRoomController {
                 AlertUtil.showWarning("لطفاً پیام بنویسید.");
                 return;
             }
-            messageListView.getItems().add("شما: " + text);
-            messageField.clear();
+            try {
+                MessageRequest request = new MessageRequest(text);
+                ApiClient.post("/chats/" + chatroomId + "/send-meassges/", request);
+            } catch (Exception ex) {
+                ExceptionHandler.handle(ex);
+            }
+            // TODO need to restart this section with local Loding...
             AlertUtil.showSuccess("پیام ارسال شد!");
         });
 
@@ -91,7 +96,7 @@ public class ChatRoomController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(ChatRoomController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(ChatRoomController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }

@@ -1,16 +1,17 @@
 package controller;
 
-import utils.SceneManager;
+import exception.ExceptionHandler;
+import javafx.scene.control.*;
+import model.response.AdvertisementSummaryDto;
+import model.response.UserSummaryDto;
+import service.ApiClient;
+import utils.AlertUtil;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+
+import java.util.Objects;
 
 public class AdminController {
 
@@ -24,21 +25,7 @@ public class AdminController {
 
         // ---------- هدر ----------
         HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("⚙️ پنل مدیریت");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
+        PublicElements.createHeader(header, "پنل مدیریت");
 
         // ---------- محتوا ----------
         VBox content = new VBox(15);
@@ -57,21 +44,59 @@ public class AdminController {
         VBox pendingBox = new VBox(10);
         pendingBox.setPadding(new Insets(15));
 
-        ListView<String> pendingListView = new ListView<>();
+        ListView<AdvertisementSummaryDto> pendingListView = new ListView<>();
         pendingListView.getStyleClass().add("list-view");
         pendingListView.setPrefHeight(350);
-        pendingListView.getItems().clear();
-        pendingListView.getItems().addAll(
-                "لپ‌تاپ اچ‌پی - ۱۵,۰۰۰,۰۰۰ تومان - تهران - منتظر بررسی",
-                "خدمات طراحی سایت - ۳۰۰,۰۰۰ تومان - اصفهان - منتظر بررسی"
-        );
+        pendingListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(AdvertisementSummaryDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label titleLabel = new Label(item.getFullName());
+                    Label infoLabel = new Label(item.getCity() + " - " + item.getOwnerFullName() + " - منتظر بررسی");
+                    cellBox.getChildren().addAll(titleLabel, infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
+
 
         HBox pendingBtnBox = new HBox(10);
         pendingBtnBox.setAlignment(Pos.CENTER);
+
         Button approveBtn = new Button("✅ تأیید");
         approveBtn.getStyleClass().add("success-btn");
+        approveBtn.setOnAction(e -> {
+            AdvertisementSummaryDto selected = pendingListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                try {
+                    ApiClient.put("/admin/approve-adv/" + selected.getId(), "");
+                    AlertUtil.showSuccess("آگهی تأیید شد!");
+                } catch (Exception ex) {
+                    ExceptionHandler.handle(ex);
+                }
+            }
+        });
+
         Button rejectBtn = new Button("❌ رد");
         rejectBtn.getStyleClass().add("danger-btn");
+        rejectBtn.setOnAction(e -> {
+            AdvertisementSummaryDto selected = pendingListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                try {
+                    // TODO add rejection explanation
+                    ApiClient.put("/admin/reject-adv/" + selected.getId(), "دلیل رد");
+                    AlertUtil.showSuccess("آگهی رد شد!");
+                } catch (Exception ex) {
+                    ExceptionHandler.handle(ex);
+                }
+            }
+        });
+
         pendingBtnBox.getChildren().addAll(approveBtn, rejectBtn);
 
         pendingBox.getChildren().addAll(pendingListView, pendingBtnBox);
@@ -82,22 +107,55 @@ public class AdminController {
         VBox usersBox = new VBox(10);
         usersBox.setPadding(new Insets(15));
 
-        ListView<String> usersListView = new ListView<>();
+        ListView<UserSummaryDto> usersListView = new ListView<>();
         usersListView.getStyleClass().add("list-view");
         usersListView.setPrefHeight(350);
-        usersListView.getItems().clear();
-        usersListView.getItems().addAll(
-                "علی رضایی - کاربر عادی",
-                "مدیر سیستم - ادمین",
-                "احمد محمدی - کاربر عادی"
-        );
+        usersListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(UserSummaryDto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    VBox cellBox = new VBox(3);
+                    Label infoLabel = new Label(item.getFullName());
+                    cellBox.getChildren().addAll(infoLabel);
+                    setGraphic(cellBox);
+                }
+            }
+        });
 
         HBox usersBtnBox = new HBox(10);
         usersBtnBox.setAlignment(Pos.CENTER);
+
         Button banBtn = new Button("⛔ بن");
         banBtn.getStyleClass().add("danger-btn");
+        banBtn.setOnMouseClicked(e -> {
+            UserSummaryDto selected = usersListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                try {
+                    ApiClient.put("/admin/ban-user/" + selected.getId(), null);
+                    AlertUtil.showSuccess("یوزر بن شد!");
+                } catch (Exception ex) {
+                    ExceptionHandler.handle(ex);
+                }
+            }
+        });
+
         Button unbanBtn = new Button("✅ آن‌بن");
         unbanBtn.getStyleClass().add("success-btn");
+        unbanBtn.setOnMouseClicked(e -> {
+            UserSummaryDto selected = usersListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                try {
+                    ApiClient.put("/admin/unban-user/" + selected.getId(), null);
+                    AlertUtil.showSuccess("یوزر آن بن شد!");
+                } catch (Exception ex) {
+                    ExceptionHandler.handle(ex);
+                }
+            }
+        });
         usersBtnBox.getChildren().addAll(banBtn, unbanBtn);
 
         usersBox.getChildren().addAll(usersListView, usersBtnBox);
@@ -109,7 +167,7 @@ public class AdminController {
         content.getChildren().add(card);
 
         mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(AdminController.class.getResource("/style.css").toExternalForm());
+        mainBox.getStylesheets().add(Objects.requireNonNull(AdminController.class.getResource("/style.css")).toExternalForm());
 
         return mainBox;
     }
