@@ -1,21 +1,22 @@
 package app;
 
-import utils.SceneManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import utils.SceneManager;
+import atlantafx.base.theme.PrimerLight;
+import javafx.application.Application;
 
-/**
- * کلاس اصلی برنامه JavaFX.
- * نقطه ورود برنامه از اینجا شروع می‌شود.
- */
+
 public class MainApplication extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        // مقداردهی اولیه SceneManager با Stage اصلی
-        SceneManager.init(primaryStage);
+    public void start(Stage stage) {
 
-        // نمایش صفحه ورود به عنوان اولین صفحه
+        Application.setUserAgentStylesheet(
+                new PrimerLight().getUserAgentStylesheet()
+        );
+
+        SceneManager.init(stage);
         SceneManager.showLoginPage();
     }
 

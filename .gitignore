@@ -81,3 +81,8 @@ postgres-data/
 # Generated Files
 ############################################
 dependency-reduced-pom.xml
+
+
+############################################
+dir2txt
+.venv
