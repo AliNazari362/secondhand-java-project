@@ -8,19 +8,19 @@ import utils.SessionManager;
 
 public class AuthService {
 
-    private final ApiClient api = ApiClient.getInstance();
+    private static final ApiClient api = ApiClient.getInstance();
 
-    public LoginResponse login(LoginRequest request) throws Exception {
+    public static LoginResponse login(LoginRequest request) throws Exception {
         String response = api.post("/auth/login", request);
         return api.fromJson(response, LoginResponse.class);
     }
 
-    public UserDto register(UserRegisterRequest request) throws Exception {
+    public static UserDto register(UserRegisterRequest request) throws Exception {
         String response = api.post("/auth/register", request);
         return api.fromJson(response, UserDto.class);
     }
 
-    public void logout() {
+    public static void logout() {
         SessionManager.clear();
     }
 }
