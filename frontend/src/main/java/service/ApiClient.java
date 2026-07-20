@@ -3,6 +3,7 @@ package service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import exception.ApiException;
+import utils.SessionManager;
 
 import java.net.URI;
 import java.net.http.HttpClient;
