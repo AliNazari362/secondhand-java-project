@@ -2,7 +2,6 @@ package com.secondhand.dto.adv;
 
 import com.secondhand.dto.option.OptionRequest;
 import com.secondhand.entity.Product.ProductState;
-import com.secondhand.entity.enums.Category;
 import com.secondhand.entity.enums.City;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -15,7 +14,7 @@ import java.util.List;
  * Request DTO for updating an existing product advertisement.
  *
  * <p>Submitted via PUT /api/advertisements/products/{id}. All fields are optional;
- * only non-null fields provided by the client should be applied by the com.secondhand.service layer
+ * only non-null fields provided by the client should be applied by the service layer
  * (partial update semantics).</p>
  *
  * @param fullName       updated headline; null means no change
@@ -26,12 +25,11 @@ import java.util.List;
  * @param brand          updated brand; null means no change
  * @param model          updated model; null means no change
  * @param constructor    updated manufacturer; null means no change
- * @param category       updated category; null means no change
+ * @param categoryId     updated category ID; null means no change
  * @param price          updated price; null means no change
  * @param options        replacement list of key-value attributes; null means no change
  */
 public record ProductUpdateRequest(
-
         /** New advertisement headline; leave null to keep the current value. */
         @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
@@ -62,8 +60,8 @@ public record ProductUpdateRequest(
         @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String constructor,
 
-        /** New product category; leave null to keep the current value. */
-        Category category,
+        /** New category ID; leave null to keep the current value. */
+        Long categoryId,  // <-- جدید (جایگزین Category category)
 
         /** New asking price in Iranian Tomans; must be zero or positive. Leave null to keep current. */
         @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
@@ -72,5 +70,4 @@ public record ProductUpdateRequest(
         /** Replacement list of key-value attributes; leave null to keep the current options. */
         @Valid
         List<OptionRequest> options
-
 ) {}

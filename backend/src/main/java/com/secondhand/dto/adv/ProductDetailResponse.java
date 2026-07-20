@@ -1,14 +1,12 @@
 package com.secondhand.dto.adv;
 
 import com.secondhand.entity.Product.ProductState;
-import com.secondhand.entity.enums.Category;
-
 import java.math.BigDecimal;
 
 /**
  * Embedded response DTO carrying the product-specific fields of a product advertisement.
  *
- * <p>Nested inside {@link AdvDetailResponse#productDetail()} when the advertisement
+ * <p>Nested inside {@link AdvDetailResponse}
  * type is PRODUCT. This approach avoids creating a separate product detail endpoint
  * while keeping the DTO graph free of inheritance and circular references.</p>
  *
@@ -16,11 +14,10 @@ import java.math.BigDecimal;
  * @param brand          brand name of the product
  * @param model          model name or number of the product
  * @param constructor    manufacturer name of the product
- * @param category       top-level product category
+ * @param categoryName   name of the product category (derived from the new {@link com.secondhand.entity.Category} entity)
  * @param price          asking price in Iranian Tomans
  */
 public record ProductDetailResponse(
-
         /** Physical condition of the product (NEW, LIKE_NEW, GOOD, FAIR, DAMAGED, REFURBISHED). */
         ProductState stateOfProduct,
 
@@ -33,10 +30,9 @@ public record ProductDetailResponse(
         /** Name of the manufacturing company that produced the item. */
         String constructor,
 
-        /** Top-level category that classifies the type of product. */
-        Category category,
+        /** Top-level category name that classifies the type of product. */
+        String categoryName,  // <-- تغییر: به جای Category category
 
         /** Asking price in Iranian Tomans; zero indicates free or price-on-request. */
         BigDecimal price
-
 ) {}

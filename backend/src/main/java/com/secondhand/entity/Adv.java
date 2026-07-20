@@ -30,11 +30,12 @@ import java.util.UUID;
 @Table(
         name = "advertisements",
         indexes = {
-                @Index(name = "idx_adv_user_id",  columnList = "user_id"),
-                @Index(name = "idx_adv_status",   columnList = "status"),
+                @Index(name = "idx_adv_user_id", columnList = "user_id"),
+                @Index(name = "idx_adv_status", columnList = "status"),
                 @Index(name = "idx_adv_adv_type", columnList = "adv_type"),
-                @Index(name = "idx_adv_city",     columnList = "city"),
-                @Index(name = "idx_adv_creation", columnList = "creation_date")
+                @Index(name = "idx_adv_city", columnList = "city"),
+                @Index(name = "idx_adv_creation", columnList = "creation_date"),
+                @Index(name = "idx_adv_category", columnList = "category_id") // <-- ایندکس جدید برای دسته‌بندی
         }
 )
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -81,7 +82,7 @@ public abstract class Adv {
      * Owned exclusively by this advertisement; deleted when the advertisement is deleted.
      *
      * <p>This is the inverse side of the bidirectional relationship with {@link Option}.
-     * The owning side is {@link Option#adv}.</p>
+     * The owning side is {@link Option}
      */
     @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Option> options = new ArrayList<>();
@@ -134,7 +135,7 @@ public abstract class Adv {
      * Deleted automatically when the advertisement is removed.
      *
      * <p>This is the inverse side of the bidirectional relationship with {@link Image}.
-     * The owning side is {@link Image#adv}.</p>
+     * The owning side is {@link Image}
      */
     @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
@@ -164,6 +165,18 @@ public abstract class Adv {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
+    // ------------------- فیلد جدید اضافه‌شده -------------------
+    /**
+     * The category that classifies this advertisement.
+     * Helps users filter and browse advertisements by type and sub-type.
+     * This is a Many-to-One relationship because one category can have
+     * many advertisements.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_adv_category"))
+    private Category category;
+    // ---------------------------------------------------------
+
     /**
      * Optimistic-locking version column to prevent lost-update concurrency issues.
      * Incremented by Hibernate on every update; concurrent updates on the same version fail fast.
@@ -172,10 +185,6 @@ public abstract class Adv {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
-
     /**
      * JPA-required no-argument constructor.
      * Assigns a UUID, sets default status to PENDING, and initialises the version to 0L.
@@ -183,7 +192,7 @@ public abstract class Adv {
     protected Adv() {
         this.id = UUID.randomUUID();
         this.status = AdvStatus.PENDING;
-        this.version = 0L; // ✅ مقداردهی اولیه برای جلوگیری از خطای uninitialized version
+        this.version = 0L;
     }
 
     /**
@@ -204,75 +213,131 @@ public abstract class Adv {
         this.city = city;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
+    public UUID getId() {
+        return id;
+    }
 
-    public UUID getId() { return id; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public void setId(UUID id) { this.id = id; }
+    public AdvStatus getStatus() {
+        return status;
+    }
 
-    public AdvStatus getStatus() { return status; }
+    public void setStatus(AdvStatus status) {
+        this.status = status;
+    }
 
-    public void setStatus(AdvStatus status) { this.status = status; }
+    public AdvType getAdvType() {
+        return advType;
+    }
 
-    public AdvType getAdvType() { return advType; }
+    public void setAdvType(AdvType advType) {
+        this.advType = advType;
+    }
 
-    public void setAdvType(AdvType advType) { this.advType = advType; }
+    public String getDescription() {
+        return description;
+    }
 
-    public String getDescription() { return description; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public void setDescription(String description) { this.description = description; }
+    public List<Option> getOptions() {
+        return options;
+    }
 
-    public List<Option> getOptions() { return options; }
+    public void setOptions(List<Option> options) {
+        this.options = options;
+    }
 
-    public void setOptions(List<Option> options) { this.options = options; }
-
-    public String getRejectionExplanation() { return rejectionExplanation; }
+    public String getRejectionExplanation() {
+        return rejectionExplanation;
+    }
 
     public void setRejectionExplanation(String rejectionExplanation) {
         this.rejectionExplanation = rejectionExplanation;
     }
 
-    public User getUser() { return user; }
+    public User getUser() {
+        return user;
+    }
 
-    public void setUser(User user) { this.user = user; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public LocalDateTime getCreationDate() { return creationDate; }
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
 
-    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
 
-    public LocalDateTime getLastModifiedDate() { return lastModifiedDate; }
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
 
     public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public List<Comment> getComments() { return comments; }
+    public List<Comment> getComments() {
+        return comments;
+    }
 
-    public void setComments(List<Comment> comments) { this.comments = comments; }
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
-    public List<Image> getImages() { return images; }
+    public List<Image> getImages() {
+        return images;
+    }
 
-    public void setImages(List<Image> images) { this.images = images; }
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
 
-    public String getFullName() { return fullName; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public City getCity() { return city; }
+    public City getCity() {
+        return city;
+    }
 
-    public void setCity(City city) { this.city = city; }
+    public void setCity(City city) {
+        this.city = city;
+    }
 
-    public String getAddress() { return address; }
+    public String getAddress() {
+        return address;
+    }
 
-    public void setAddress(String address) { this.address = address; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-    public Long getVersion() { return version; }
+    // ------------------- Getter و Setter جدید -------------------
+    public Category getCategory() {
+        return category;
+    }
 
-    // -------------------------------------------------------------------------
-    // Helper methods — always synchronise both sides of bidirectional relationships
-    // -------------------------------------------------------------------------
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    // ---------------------------------------------------------
+
+    public Long getVersion() {
+        return version;
+    }
 
     /**
      * Appends a key-value option attribute to this advertisement.
@@ -346,11 +411,6 @@ public abstract class Adv {
             image.setAdv(null);
         }
     }
-
-    // -------------------------------------------------------------------------
-    // equals / hashCode — based on surrogate UUID key
-    // UUID is assigned in the no-arg constructor so it is available before flush.
-    // -------------------------------------------------------------------------
 
     @Override
     public boolean equals(Object o) {

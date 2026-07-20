@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
  * These images are automatically persisted and associated with the advertisement.
  * The images are returned in the advertisement detail responses.</p>
  *
+ * <p><strong>Category Support:</strong> Advertisements are now classified using
+ * the new {@link Category} entity. The client provides a {@code categoryId} in
+ * create/update requests, which is resolved to a {@link Category} instance.</p>
+ *
  * <p><strong>Ownership Validation:</strong> All mutating operations enforce that
  * the requesting user is the owner of the advertisement. This is validated using
  * the {@link #validateOwnership(Adv, UUID)} method.</p>
@@ -46,6 +50,7 @@ import java.util.stream.Collectors;
  * @see Service
  * @see Image
  * @see Option
+ * @see Category
  */
 @org.springframework.stereotype.Service
 public class AdvService {
@@ -55,34 +60,38 @@ public class AdvService {
     private final ServiceRepository serviceRepository;
     private final UserService userService;
     private final OptionRepository optionRepository;
+    private final CategoryRepository categoryRepository; // <-- وابستگی جدید
 
     /**
      * Constructs an {@code AdvService} with all required repository and service dependencies.
      *
-     * @param advRepository     the repository for base {@link Adv} entities
-     * @param productRepository the repository for {@link Product} advertisements
-     * @param serviceRepository the repository for {@link Service} advertisements
-     * @param userService       the service used for user lookups and persistence
-     * @param optionRepository  the repository for managing advertisement {@link Option} entities
+     * @param advRepository      the repository for base {@link Adv} entities
+     * @param productRepository  the repository for {@link Product} advertisements
+     * @param serviceRepository  the repository for {@link Service} advertisements
+     * @param userService        the service used for user lookups and persistence
+     * @param optionRepository   the repository for managing advertisement {@link Option} entities
+     * @param categoryRepository the repository for managing {@link Category} entities
      */
     public AdvService(AdvRepository advRepository,
                       ProductRepository productRepository,
                       ServiceRepository serviceRepository,
                       UserService userService,
-                      OptionRepository optionRepository) {
+                      OptionRepository optionRepository,
+                      CategoryRepository categoryRepository) { // <-- پارامتر جدید
         this.advRepository = advRepository;
         this.productRepository = productRepository;
         this.serviceRepository = serviceRepository;
         this.userService = userService;
         this.optionRepository = optionRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     /**
      * Populates the base fields common to all advertisement types on a new {@link Adv} instance.
      *
      * <p>Sets the full name, description, city, address, owner, initial status ({@link AdvStatus#PENDING}),
-     * advertisement type, and any provided custom options. This method is used internally by
-     * {@link #createProduct} and {@link #createService} to avoid code duplication.</p>
+     * advertisement type, category, and any provided custom options. This method is used internally by
+     * {@link #createProduct(ProductCreateRequest, UUID)} and {@link #createService(ServiceCreateRequest, UUID)}.</p>
      *
      * @param adv         the advertisement entity to populate (must not be {@code null})
      * @param fullName    the display name/title of the advertisement
@@ -91,11 +100,14 @@ public class AdvService {
      * @param address     the specific address for the advertisement
      * @param user        the owner of the advertisement
      * @param advType     the type of advertisement ({@link AdvType#PRODUCT} or {@link AdvType#SERVICE})
+     * @param categoryId  the ID of the category to assign to this advertisement (can be {@code null})
      * @param options     an optional list of key-value options; may be {@code null}
+     * @throws ResourceNotFoundException if {@code categoryId} is provided but no category exists with that ID
      */
     private void createAdv(
             Adv adv, String fullName, String description,
             City city, String address, User user, AdvType advType,
+            Long categoryId, // <-- پارامتر جدید
             List<OptionRequest> options) {
 
         adv.setFullName(fullName);
@@ -105,6 +117,13 @@ public class AdvService {
         adv.setUser(user);
         adv.setStatus(AdvStatus.PENDING);
         adv.setAdvType(advType);
+
+        // تنظیم دسته‌بندی اگر categoryId ارسال شده باشد
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException("دسته‌بندی با این شناسه یافت نشد"));
+            adv.setCategory(category);
+        }
 
         if (options != null) {
             options.forEach(opt -> {
@@ -124,35 +143,33 @@ public class AdvService {
      * <ol>
      *   <li>Finds the user by ID (extracted from the JWT token).</li>
      *   <li>Creates a {@link Product} entity and populates its fields using {@link #createAdv}.</li>
-     *   <li>Sets product-specific fields (condition, brand, model, constructor, category, price).</li>
+     *   <li>Sets product-specific fields (condition, brand, model, constructor, price).</li>
      *   <li>Processes and attaches any images provided in the request.</li>
      *   <li>Persists the product and returns its full details.</li>
      * </ol>
      *
      * @param request the product creation data including title, description, location,
-     *                price, condition, brand, model, constructor, category, options, and images
+     *                price, condition, brand, model, constructor, categoryId, options, and images
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created product advertisement
      * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createProduct(ProductCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
-
         Product product = new Product();
-
         createAdv(product,
                 request.fullName(), request.description(),
                 request.city(), request.address(),
-                user, AdvType.PRODUCT, request.options());
+                user, AdvType.PRODUCT,
+                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.options());
 
         product.setStateOfProduct(request.stateOfProduct());
         product.setBrand(request.brand());
         product.setModel(request.model());
         product.setConstructor(request.constructor());
-        product.setCategory(request.category());
         product.setPrice(request.price());
 
-        // ✅ Attach images if provided
         if (request.images() != null) {
             request.images().forEach(imgReq -> {
                 Image image = new Image(imgReq.path(), product);
@@ -167,30 +184,29 @@ public class AdvService {
     /**
      * Creates and persists a new {@link Service} advertisement.
      *
-     * <p>This method is similar to {@link #createProduct} but uses the {@link Service} entity
+     * <p>This method is similar to {@link #createProduct(ProductCreateRequest, UUID)}
      * and populates service-specific fields (specialCategory, costOfPart, typeOfPart).</p>
      *
      * @param request the service creation data including title, description, location,
-     *                special category, cost of part, type of part, options, and images
+     *                special category, cost of part, type of part, categoryId, options, and images
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created service advertisement
      * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createService(ServiceCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
-
         Service service = new Service();
-
         createAdv(service,
                 request.fullName(), request.description(),
                 request.city(), request.address(),
-                user, AdvType.SERVICE, request.options());
+                user, AdvType.SERVICE,
+                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.options());
 
         service.setSpecialCategory(request.specialCategory());
         service.setCostOfPart(request.costOfPart());
         service.setTypeOfPart(request.typeOfPart());
 
-        // ✅ Attach images if provided
         if (request.images() != null) {
             request.images().forEach(imgReq -> {
                 Image image = new Image(imgReq.path(), service);
@@ -205,15 +221,16 @@ public class AdvService {
     /**
      * Searches for advertisements matching the given filters.
      *
-     * @param keyword an optional keyword to match against advertisement titles/descriptions;
-     *                may be {@code null} to skip keyword filtering
-     * @param city    an optional city filter; may be {@code null} to include all cities
-     * @param status  an optional status filter; may be {@code null} to include all statuses
+     * @param keyword    an optional keyword to match against advertisement titles/descriptions;
+     *                   may be {@code null} to skip keyword filtering
+     * @param city       an optional city filter; may be {@code null} to include all cities
+     * @param status     an optional status filter; may be {@code null} to include all statuses
+     * @param categoryId an optional category ID filter; may be {@code null} to include all categories
      * @return a list of {@link AdvSummaryResponse} objects matching the given criteria;
      *         never {@code null}, may be empty
      */
-    public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status) {
-        List<Adv> ads = advRepository.search(keyword, city, status);
+    public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status, Long categoryId) {
+        List<Adv> ads = advRepository.search(keyword, city, status, categoryId); // <-- ارسال categoryId به ریپازیتوری
         return ads.stream()
                 .map(this::toAdvSummaryResponse)
                 .collect(Collectors.toList());
@@ -222,21 +239,22 @@ public class AdvService {
     /**
      * Returns all currently active advertisements matching the given filters.
      *
-     * <p>This is a convenience method that delegates to {@link #getAds} with
-     * {@link AdvStatus#ACTIVE} as the status filter.</p>
+     * <p>This is a convenience method that delegates to {@link #getAds(String, City, AdvStatus, Long)}
+     * with {@link AdvStatus#ACTIVE} as the status.</p>
      *
-     * @param keyword an optional keyword filter; may be {@code null}
-     * @param city    an optional city filter; may be {@code null}
+     * @param keyword    an optional keyword filter; may be {@code null}
+     * @param city       an optional city filter; may be {@code null}
+     * @param categoryId an optional category ID filter; may be {@code null}
      * @return a list of active {@link AdvSummaryResponse} objects; never {@code null}, may be empty
      */
-    public List<AdvSummaryResponse> getActiveAds(String keyword, City city) {
-        return getAds(keyword, city, AdvStatus.ACTIVE);
+    public List<AdvSummaryResponse> getActiveAds(String keyword, City city, Long categoryId) {
+        return getAds(keyword, city, AdvStatus.ACTIVE, categoryId);
     }
 
     /**
      * Returns the full detail of a publicly accessible advertisement.
      *
-     * <p>Only advertisements in {@link AdvStatus#ACTIVE} or {@link AdvStatus#SOLD} status
+     * <p>Only advertisements in {@link AdvStatus#ACTIVE} or {@link AdvStatus#SOLD}
      * are accessible through this endpoint. Other statuses (e.g., PENDING, REJECTED, DELETED)
      * are considered not publicly available.</p>
      *
@@ -280,18 +298,29 @@ public class AdvService {
      * @param city        the new city; {@code null} means no change
      * @param address     the new address; {@code null} means no change
      * @param userId      the UUID of the requesting user (used for ownership validation)
+     * @param categoryId  the new category ID; {@code null} means no change
      * @param options     the replacement options list; {@code null} means no change
-     * @throws ForbiddenException if the requesting user does not own the advertisement
+     * @throws ForbiddenException        if the requesting user does not own the advertisement
+     * @throws ResourceNotFoundException if {@code categoryId} is provided but no category exists
      */
     private void updateAdv(
             Adv adv, String fullName, String description,
-            City city, String address, UUID userId, List<OptionRequest> options) {
-        validateOwnership(adv, userId);
+            City city, String address, UUID userId,
+            Long categoryId, // <-- پارامتر جدید
+            List<OptionRequest> options) {
 
+        validateOwnership(adv, userId);
         if (fullName != null) adv.setFullName(fullName);
         if (description != null) adv.setDescription(description);
         if (city != null) adv.setCity(city);
         if (address != null) adv.setAddress(address);
+
+        // به‌روزرسانی دسته‌بندی اگر categoryId ارسال شده باشد
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundException("دسته‌بندی با این شناسه یافت نشد"));
+            adv.setCategory(category);
+        }
 
         if (options != null) {
             optionRepository.deleteByAdvId(adv.getId());
@@ -310,7 +339,7 @@ public class AdvService {
      *
      * <p>Verifies that the advertisement identified by {@code advId} is actually a
      * {@link Product} before proceeding. Base fields are updated via {@link #updateAdv},
-     * then product-specific fields (condition, brand, model, constructor, category, price)
+     * then product-specific fields (condition, brand, model, constructor, price)
      * are applied for any non-{@code null} values in the request.</p>
      *
      * @param advId   the UUID of the advertisement to update
@@ -327,17 +356,17 @@ public class AdvService {
             throw new BadRequestException("این آگهی از نوع محصول نیست");
         }
         Product product = (Product) foundAdv;
-
         updateAdv(product,
                 request.fullName(), request.description(),
                 request.city(), request.address(),
-                userId, request.options());
+                userId,
+                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.options());
 
         if (request.stateOfProduct() != null) product.setStateOfProduct(request.stateOfProduct());
         if (request.brand() != null) product.setBrand(request.brand());
         if (request.model() != null) product.setModel(request.model());
         if (request.constructor() != null) product.setConstructor(request.constructor());
-        if (request.category() != null) product.setCategory(request.category());
         if (request.price() != null) product.setPrice(request.price());
 
         Product updated = productRepository.save(product);
@@ -366,11 +395,12 @@ public class AdvService {
             throw new BadRequestException("این آگهی از نوع خدمات نیست");
         }
         Service service = (Service) foundAdv;
-
         updateAdv(service,
                 request.fullName(), request.description(),
                 request.city(), request.address(),
-                userId, request.options());
+                userId,
+                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.options());
 
         if (request.specialCategory() != null) service.setSpecialCategory(request.specialCategory());
         if (request.costOfPart() != null) service.setCostOfPart(request.costOfPart());
@@ -461,7 +491,7 @@ public class AdvService {
     }
 
     /**
-     * Returns a summary list of all advertisements currently in {@link AdvStatus#PENDING} status.
+     * Returns a summary list of all advertisements currently in {@link AdvStatus#PENDING}.
      *
      * <p>Intended for use by administrators to review and moderate new submissions.</p>
      *
@@ -503,13 +533,16 @@ public class AdvService {
     /**
      * Converts an {@link Adv} entity to a lightweight {@link AdvSummaryResponse} DTO.
      *
-     * <p>The first image path is used as the thumbnail; {@code null} is used if no images exist.</p>
+     * <p>The first image path is used as the thumbnail; {@code null} is used if no images exist.
+     * The category name is extracted from the associated {@link Category} if present.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a {@link AdvSummaryResponse} with key summary fields populated
      */
     public AdvSummaryResponse toAdvSummaryResponse(Adv adv) {
         String firstImage = adv.getImages().isEmpty() ? null : adv.getImages().get(0).getPath();
+        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null; // <-- استخراج نام دسته‌بندی
+
         return new AdvSummaryResponse(
                 adv.getId(),
                 adv.getFullName(),
@@ -519,7 +552,8 @@ public class AdvService {
                 adv.getUser().getFullName(),
                 adv.getUser().getId(),
                 adv.getCreationDate(),
-                firstImage
+                firstImage,
+                categoryName // <-- فیلد جدید
         );
     }
 
@@ -528,7 +562,8 @@ public class AdvService {
      *
      * <p>Includes the owner summary, all images, all options, all comments, and—depending
      * on the advertisement type—either a {@link ProductDetailResponse} or a
-     * {@link ServiceDetailResponse} with type-specific fields.</p>
+     * {@link ServiceDetailResponse} with type-specific fields. The category name
+     * is extracted from the associated {@link Category} if present.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a fully populated {@link AdvDetailResponse}
@@ -565,6 +600,8 @@ public class AdvService {
                 ))
                 .collect(Collectors.toList());
 
+        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null; // <-- استخراج نام دسته‌بندی
+
         ProductDetailResponse productDetail = null;
         ServiceDetailResponse serviceDetail = null;
 
@@ -574,12 +611,13 @@ public class AdvService {
                     p.getBrand(),
                     p.getModel(),
                     p.getConstructor(),
-                    p.getCategory(),
+                    categoryName, // <-- ارسال نام دسته‌بندی (از Adv گرفته شده است)
                     p.getPrice()
             );
         } else if (adv.getAdvType() == AdvType.SERVICE && adv instanceof Service s) {
             serviceDetail = new ServiceDetailResponse(
                     s.getSpecialCategory(),
+                    categoryName, // <-- فیلد جدید
                     s.getCostOfPart(),
                     s.getTypeOfPart()
             );
@@ -601,7 +639,8 @@ public class AdvService {
                 options,
                 comments,
                 productDetail,
-                serviceDetail
+                serviceDetail,
+                categoryName // <-- فیلد جدید
         );
     }
 }

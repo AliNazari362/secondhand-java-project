@@ -1,7 +1,6 @@
 package com.secondhand.entity;
 
 import com.secondhand.entity.enums.AdvType;
-import com.secondhand.entity.enums.Category;
 import com.secondhand.entity.enums.City;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -18,16 +17,17 @@ import java.math.BigDecimal;
  * in the {@code products} table and are joined by the primary key.</p>
  *
  * <p>Every product has a price (in Iranian Tomans stored as {@link BigDecimal} to avoid
- * floating-point precision errors), a category, and optional provenance information
- * (brand, model, manufacturer) together with a physical-condition rating.</p>
+ * floating-point precision errors), and optional provenance information
+ * (brand, model, manufacturer) together with a physical-condition rating.
+ * The category is now inherited from the parent {@link Adv} class.</p>
  */
 @Entity
 @Table(
         name = "products",
         indexes = {
-                @Index(name = "idx_product_category", columnList = "category"),
-                @Index(name = "idx_product_price",    columnList = "price"),
-                @Index(name = "idx_product_brand",    columnList = "brand")
+                // ایندکس مربوط به category حذف شد چون این ستون دیگر در جدول products وجود ندارد
+                @Index(name = "idx_product_price", columnList = "price"),
+                @Index(name = "idx_product_brand", columnList = "brand")
         }
 )
 public class Product extends Adv {
@@ -93,17 +93,7 @@ public class Product extends Adv {
     @Column(name = "price", nullable = false, precision = 15, scale = 0)
     private BigDecimal price = BigDecimal.ZERO;
 
-    /**
-     * Top-level category that classifies the type of product.
-     * Drives category-based navigation and filtering in the user interface.
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category", length = 20)
-    private Category category;
-
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
+    // فیلد category که قبلاً اینجا بود، به کلاس پدر (Adv) منتقل شده است.
 
     /**
      * JPA-required no-argument constructor.
@@ -111,12 +101,13 @@ public class Product extends Adv {
      */
     public Product() {
         super();
-        this.setAdvType(AdvType.PRODUCT); // ✅ فعال شد
+        this.setAdvType(AdvType.PRODUCT);
         this.price = BigDecimal.ZERO;
     }
 
     /**
      * Convenience constructor for creating a fully initialised product advertisement.
+     * (پارامتر category از این سازنده حذف شده است)
      *
      * @param description    free-text product description
      * @param user           the owner posting the advertisement
@@ -126,50 +117,60 @@ public class Product extends Adv {
      * @param brand          product brand name
      * @param model          product model name or number
      * @param constructor    manufacturer name
-     * @param category       product top-level category
      * @param price          asking price in Iranian Tomans
      */
     public Product(String description, User user, String fullName, City city,
                    ProductState stateOfProduct, String brand, String model,
-                   String constructor, Category category, BigDecimal price) {
+                   String constructor, BigDecimal price) {
         super(description, AdvType.PRODUCT, user, fullName, city);
         this.stateOfProduct = stateOfProduct;
         this.brand = brand;
         this.model = model;
         this.constructor = constructor;
-        this.category = category;
         this.price = price != null ? price : BigDecimal.ZERO;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
-
-    public ProductState getStateOfProduct() { return stateOfProduct; }
+    public ProductState getStateOfProduct() {
+        return stateOfProduct;
+    }
 
     public void setStateOfProduct(ProductState stateOfProduct) {
         this.stateOfProduct = stateOfProduct;
     }
 
-    public String getBrand() { return brand; }
+    public String getBrand() {
+        return brand;
+    }
 
-    public void setBrand(String brand) { this.brand = brand; }
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
 
-    public String getModel() { return model; }
+    public String getModel() {
+        return model;
+    }
 
-    public void setModel(String model) { this.model = model; }
+    public void setModel(String model) {
+        this.model = model;
+    }
 
-    public String getConstructor() { return constructor; }
+    public String getConstructor() {
+        return constructor;
+    }
 
-    public void setConstructor(String constructor) { this.constructor = constructor; }
+    public void setConstructor(String constructor) {
+        this.constructor = constructor;
+    }
 
-    public BigDecimal getPrice() { return price; }
+    public BigDecimal getPrice() {
+        return price;
+    }
 
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
-    public Category getCategory() { return category; }
-
-    public void setCategory(Category category) { this.category = category; }
+    // متدهای getCategory و setCategory حذف شدند چون از کلاس پدر به ارث می‌روند.
 
     /**
      * Safe toString that never accesses lazy associations.
@@ -180,7 +181,6 @@ public class Product extends Adv {
                 "id=" + getId() +
                 ", fullName='" + getFullName() + '\'' +
                 ", price=" + price +
-                ", category=" + category +
                 ", brand='" + brand + '\'' +
                 ", stateOfProduct=" + stateOfProduct +
                 ", status=" + getStatus() +

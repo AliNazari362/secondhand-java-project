@@ -35,19 +35,23 @@ public class AdvController {
     }
 
     /**
-     * Retrieves a list of active advertisements, optionally filtered by keyword and/or city.
+     * Retrieves a list of active advertisements, optionally filtered by keyword, city, and category.
      *
-     * @param keyword an optional search keyword to filter advertisements by title or description;
-     *                pass {@code null} or omit to skip keyword filtering
-     * @param city    an optional city name (case-insensitive) to filter advertisements by location;
-     *                must be a valid {@link City} enum name, or {@code null}/blank to skip city filtering
+     * @param keyword    an optional search keyword to filter advertisements by title or description;
+     *                   pass {@code null} or omit to skip keyword filtering
+     * @param city       an optional city name (case-insensitive) to filter advertisements by location;
+     *                   must be a valid {@link City} enum name, or {@code null}/blank to skip city filtering
+     * @param categoryId an optional category ID to filter advertisements by category;
+     *                   pass {@code null} or omit to skip category filtering
      * @return a list of {@link AdvSummaryResponse} objects matching the given filters
      * @throws BadRequestException if the provided city name does not match any valid {@link City} value
      */
     @GetMapping("search")
     public List<AdvSummaryResponse> getActiveAds(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Long categoryId) { // <-- پارامتر جدید
+
         City cityEnum = null;
         if (city != null && !city.isBlank()) {
             try {
@@ -56,7 +60,7 @@ public class AdvController {
                 throw new BadRequestException("شهر وارد شده معتبر نیست");
             }
         }
-        return advService.getActiveAds(keyword, cityEnum);
+        return advService.getActiveAds(keyword, cityEnum, categoryId); // <-- ارسال categoryId به سرویس
     }
 
     /**

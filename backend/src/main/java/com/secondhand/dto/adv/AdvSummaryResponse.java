@@ -3,7 +3,6 @@ package com.secondhand.dto.adv;
 import com.secondhand.entity.enums.AdvStatus;
 import com.secondhand.entity.enums.AdvType;
 import com.secondhand.entity.enums.City;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,27 +20,27 @@ import java.util.UUID;
  * @param fullName       advertisement headline
  * @param advType        PRODUCT or SERVICE discriminator
  * @param status         current lifecycle status
- * @param city           city where the item or com.secondhand.service is located
+ * @param city           city where the item or service is located
  * @param ownerFullName  display name of the advertisement owner
  * @param ownerId        unique identifier of the advertisement owner
  * @param creationDate   timestamp when the advertisement was posted
  * @param firstImagePath path of the first attached image, or null if none
+ * @param categoryName   name of the category (derived from the new {@link com.secondhand.entity.Category} entity)
  */
 public record AdvSummaryResponse(
-
         /** Unique identifier of the advertisement. */
         UUID id,
 
         /** Headline shown in listing cards and search results. */
         String fullName,
 
-        /** Discriminates whether this is a product or a com.secondhand.service advertisement. */
+        /** Discriminates whether this is a product or a service advertisement. */
         AdvType advType,
 
         /** Current lifecycle status (PENDING, ACTIVE, REJECTED, SOLD, DELETED). */
         AdvStatus status,
 
-        /** City where the advertised item or com.secondhand.service is located. */
+        /** City where the advertised item or service is located. */
         City city,
 
         /** Display name of the user who posted the advertisement. */
@@ -54,6 +53,8 @@ public record AdvSummaryResponse(
         LocalDateTime creationDate,
 
         /** Relative path or storage key of the first image; null if no images are attached. */
-        String firstImagePath
+        String firstImagePath,
 
+        /** Name of the category that classifies this advertisement. */
+        String categoryName  // <-- جدید
 ) {}

@@ -3,7 +3,6 @@ package com.secondhand.dto.adv;
 import com.secondhand.dto.image.ImageRequest;
 import com.secondhand.dto.option.OptionRequest;
 import com.secondhand.entity.Product.ProductState;
-import com.secondhand.entity.enums.Category;
 import com.secondhand.entity.enums.City;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -36,13 +35,12 @@ import java.util.List;
  * @param brand          Brand name (optional, max 100 characters)
  * @param model          Model name or number (optional, max 150 characters)
  * @param constructor    Manufacturer name (optional, max 150 characters)
- * @param category       Product category (optional)
+ * @param categoryId     ID of the product category (optional, references the new {@link com.secondhand.entity.Category} entity)
  * @param price          Asking price in Iranian Tomans (required, must be zero or positive)
  * @param options        List of dynamic key-value attributes (optional)
  * @param images         List of image paths (optional)
  */
 public record ProductCreateRequest(
-
         @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
         @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
@@ -66,7 +64,8 @@ public record ProductCreateRequest(
         @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String constructor,
 
-        Category category,
+        // فیلد category قبلی (از نوع enum) حذف شد و categoryId جایگزین شد
+        Long categoryId,  // <-- جدید
 
         @NotNull(message = "قیمت نمی‌تواند خالی باشد")
         @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")

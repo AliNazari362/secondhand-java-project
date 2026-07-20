@@ -33,13 +33,13 @@ import java.util.List;
  * @param city            City where the service is offered (optional)
  * @param address         Detailed address (optional, max 500 characters)
  * @param specialCategory Free-text sub-category of the service (optional, max 150 characters)
+ * @param categoryId      ID of the service category (optional, references the new {@link com.secondhand.entity.Category} entity)
  * @param costOfPart      Price per billing unit (required, must be zero or positive)
  * @param typeOfPart      Billing unit type (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, FIXED)
  * @param options         List of dynamic key-value attributes (optional)
  * @param images          List of image paths (optional)
  */
 public record ServiceCreateRequest(
-
         @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
         @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
@@ -54,6 +54,9 @@ public record ServiceCreateRequest(
 
         @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String specialCategory,
+
+        // فیلد جدید برای دسته‌بندی
+        Long categoryId,  // <-- جدید
 
         @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
         @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
