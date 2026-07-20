@@ -2,15 +2,8 @@ package exception;
 
 import utils.AlertUtil;
 
-/**
- * مدیریت متمرکز خطاها در سراسر برنامه.
- * تشخیص نوع استثنا و نمایش پیام مناسب با AlertUtil.
- */
 public class ExceptionHandler {
 
-    /**
-     * تشخیص نوع استثنا و نمایش پیام مناسب.
-     */
     public static void handle(Exception e) {
         if (e instanceof ApiException) {
             ApiException apiEx = (ApiException) e;
@@ -22,16 +15,9 @@ public class ExceptionHandler {
         } else {
             AlertUtil.showError("خطای ناشناخته: " + e.getMessage());
         }
-        // چاپ خطا برای دیباگ (اختیاری)
         e.printStackTrace();
     }
 
-    /**
-     * اجرای یک قطعه کد و مدیریت خودکار خطاهای آن.
-     * این متد برای مواقعی که نمی‌خواهید try-catch بنویسید، مفید است.
-     *
-     * @param action قطعه کدی که ممکن است خطا پرتاب کند.
-     */
     public static void executeWithHandling(Runnable action) {
         try {
             action.run();
@@ -40,12 +26,6 @@ public class ExceptionHandler {
         }
     }
 
-    /**
-     * اجرای یک قطعه کد و در صورت موفقیت، اجرای callback.
-     *
-     * @param action    قطعه کد اصلی
-     * @param onSuccess در صورت عدم وجود خطا اجرا می‌شود
-     */
     public static void executeWithHandling(Runnable action, Runnable onSuccess) {
         try {
             action.run();

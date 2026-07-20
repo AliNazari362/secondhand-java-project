@@ -1,113 +1,110 @@
-package controller;
-
-import utils.AlertUtil;
-import utils.SceneManager;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-
-public class NewAdController {
-
-    public static VBox getRoot() {
-        return createRoot();
-    }
-
-    private static VBox createRoot() {
-        VBox mainBox = new VBox();
-        mainBox.setStyle("-fx-background-color: #f0f4f8;");
-
-        // ---------- هدر ----------
-        HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("📝 ثبت آگهی جدید");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
-
-        // ---------- فرم ----------
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(25));
-        content.setAlignment(Pos.TOP_CENTER);
-
-        VBox card = new VBox(20);
-        card.getStyleClass().add("card");
-        card.setPrefWidth(700);
-
-        Text subtitle = new Text("اطلاعات آگهی");
-        subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        TextField titleField = new TextField();
-        titleField.setPromptText("عنوان آگهی *");
-        titleField.getStyleClass().add("input-field");
-
-        TextArea descArea = new TextArea();
-        descArea.setPromptText("توضیحات کامل *");
-        descArea.getStyleClass().add("text-area-field");
-        descArea.setPrefHeight(120);
-        descArea.setWrapText(true);
-
-        TextField priceField = new TextField();
-        priceField.setPromptText("قیمت (تومان) *");
-        priceField.getStyleClass().add("input-field");
-
-        ComboBox<String> cityCombo = new ComboBox<>();
-        cityCombo.setPromptText("شهر *");
-        cityCombo.getStyleClass().add("input-field");
-        cityCombo.setMaxWidth(Double.MAX_VALUE);
-        cityCombo.getItems().addAll("تهران", "اصفهان", "شیراز", "مشهد", "تبریز", "اهواز", "کرمان", "رشت", "یزد", "قم", "کرج");
-
-        ComboBox<String> typeCombo = new ComboBox<>();
-        typeCombo.setPromptText("نوع آگهی *");
-        typeCombo.getStyleClass().add("input-field");
-        typeCombo.setMaxWidth(Double.MAX_VALUE);
-        typeCombo.getItems().addAll("محصول", "خدمات");
-
-        HBox btnBox = new HBox(10);
-        btnBox.setAlignment(Pos.CENTER);
-
-        Button submitBtn = new Button("📤 ثبت آگهی");
-        submitBtn.getStyleClass().add("success-btn");
-        submitBtn.setOnAction(e -> {
-            if (titleField.getText().trim().isEmpty() ||
-                    descArea.getText().trim().isEmpty() ||
-                    priceField.getText().trim().isEmpty() ||
-                    cityCombo.getValue() == null ||
-                    typeCombo.getValue() == null) {
-                AlertUtil.showError("لطفاً همه فیلدهای ضروری را پر کنید.");
-                return;
-            }
-            AlertUtil.showSuccess("آگهی با موفقیت ثبت شد!");
-            SceneManager.showDashboardPage();
-        });
-
-        Button cancelBtn = new Button("❌ انصراف");
-        cancelBtn.getStyleClass().add("secondary-btn");
-        cancelBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        btnBox.getChildren().addAll(submitBtn, cancelBtn);
-
-        card.getChildren().addAll(subtitle, titleField, descArea, priceField, cityCombo, typeCombo, btnBox);
-        content.getChildren().add(card);
-
-        mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(NewAdController.class.getResource("/style.css").toExternalForm());
-
-        return mainBox;
-    }
-}
+//package controller;
+//
+//import model.enums.City;
+//import model.request.ImageRequest;
+//import model.request.OptionRequest;
+//import model.request.ProductCreateRequest;
+//import model.request.ServiceCreateRequest;
+//import service.AdService;
+//import utils.AlertUtil;
+//import utils.ImageUploadUtil;
+//import utils.SceneManager;
+//import javafx.fxml.FXML;
+//import javafx.scene.control.ComboBox;
+//import javafx.scene.control.TextArea;
+//import javafx.scene.control.TextField;
+//import javafx.stage.FileChooser;
+//
+//import java.io.File;
+//import java.math.BigDecimal;
+//import java.nio.file.Files;
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//public class NewAdController {
+//
+//    @FXML private TextField titleField;
+//    @FXML private TextArea descArea;
+//    @FXML private TextField priceField;
+//    @FXML private ComboBox<String> cityCombo;
+//    @FXML private ComboBox<String> typeCombo;
+//    @FXML private TextField imagePathField;
+//
+//    private final AdService adService = new AdService();
+//    private String uploadedImagePath;
+//
+//    @FXML
+//    public void initialize() {
+//        cityCombo.getItems().addAll("TEHRAN", "ISFAHAN", "SHIRAZ", "MASHHAD", "TABRIZ");
+//        typeCombo.getItems().addAll("PRODUCT", "SERVICE");
+//    }
+//
+//    @FXML
+//    public void onChooseImage() {
+//        FileChooser fileChooser = new FileChooser();
+//        fileChooser.getExtensionFilters().add(
+//                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+//        );
+//        File file = fileChooser.showOpenDialog(null);
+//        if (file != null) {
+//            try {
+//                byte[] bytes = Files.readAllBytes(file.toPath());
+//                uploadedImagePath = ImageUploadUtil.uploadImage(bytes, file.getName());
+//                imagePathField.setText(uploadedImagePath);
+//                AlertUtil.showSuccess("تصویر با موفقیت آپلود شد.");
+//            } catch (Exception e) {
+//                AlertUtil.showError("خطا در آپلود تصویر: " + e.getMessage());
+//            }
+//        }
+//    }
+//
+//    @FXML
+//    public void onSubmit() {
+//        String title = titleField.getText().trim();
+//        String desc = descArea.getText().trim();
+//        String price = priceField.getText().trim();
+//        String city = cityCombo.getValue();
+//        String type = typeCombo.getValue();
+//
+//        if (title.isEmpty() || desc.isEmpty() || price.isEmpty() || city == null || type == null) {
+//            AlertUtil.showError("لطفاً همه فیلدهای ضروری را پر کنید.");
+//            return;
+//        }
+//
+//        try {
+//            List<ImageRequest> images = new ArrayList<>();
+//            if (uploadedImagePath != null) {
+//                images.add(new ImageRequest(uploadedImagePath));
+//            }
+//
+//            List<OptionRequest> options = new ArrayList<>();
+//            // می‌توانید Optionها را از UI دریافت کنید
+//
+//            if ("PRODUCT".equals(type)) {
+//                ProductCreateRequest request = new ProductCreateRequest(
+//                        title, desc, City.valueOf(city), null, null,
+//                        null, null, null, null,
+//                        new BigDecimal(price), options, images
+//                );
+//                adService.createProduct(request);
+//            } else {
+//                ServiceCreateRequest request = new ServiceCreateRequest(
+//                        title, desc, City.valueOf(city), null,
+//                        null, new BigDecimal(price), null, options, images
+//                );
+//                adService.createService(request);
+//            }
+//
+//            AlertUtil.showSuccess("آگهی با موفقیت ثبت شد و در انتظار بررسی است.");
+//            SceneManager.showDashboardPage();
+//
+//        } catch (Exception e) {
+//            AlertUtil.showError("خطا در ثبت آگهی: " + e.getMessage());
+//        }
+//    }
+//
+//    @FXML
+//    public void onCancel() {
+//        SceneManager.showDashboardPage();
+//    }
+//}

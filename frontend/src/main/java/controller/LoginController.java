@@ -1,92 +1,80 @@
 package controller;
 
-import exception.ExceptionHandler;
-import service.SessionManager;
-import utils.AlertUtil;
+import model.request.LoginRequest;
+import model.response.LoginResponse;
+import org.controlsfx.control.Notifications;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
+import service.AuthService;
 import utils.SceneManager;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
+import utils.SessionManager;
+import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 public class LoginController {
 
-    public static VBox getRoot() {
-        return createRoot();
+    @FXML private VBox root;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+
+    private final AuthService authService = new AuthService();
+
+    @FXML
+    public void initialize() {
+        // می‌توانیم آیکون‌ها را به فیلدها اضافه کنیم (اختیاری)
+        // در اینجا فقط یک نمونه از تنظیمات اولیه
     }
 
-    private static VBox createRoot() {
-        VBox card = new VBox(20);
-        card.setAlignment(Pos.CENTER);
-        card.setPadding(new Insets(40));
-        card.getStyleClass().add("card");
+    @FXML
+    public void handleLogin() {
+        String email = emailField.getText().trim();
+        String password = passwordField.getText().trim();
 
-        Text logo = new Text("🛒");
-        logo.setStyle("-fx-font-size: 48px;");
+        if (email.isEmpty() || password.isEmpty()) {
+            Notifications.create()
+                    .title("خطا")
+                    .text("لطفاً همه فیلدها را پر کنید.")
+                    .graphic(new FontIcon(FontAwesomeSolid.EXCLAMATION_TRIANGLE))
+                    .showError();
+            return;
+        }
 
-        Text title = new Text("خوش آمدید");
-        title.getStyleClass().add("title");
+        try {
+            LoginRequest request = new LoginRequest(email, password);
+            LoginResponse response = authService.login(request);
 
-        Text subtitle = new Text("وارد حساب کاربری خود شوید");
-        subtitle.getStyleClass().add("subtitle");
+            // ذخیره در SessionManager
+            SessionManager.setSession(
+                    response.getToken(),
+                    response.getUserId(),
+                    response.getFullName(),
+                    response.getRole().name()
+            );
 
-        TextField emailField = new TextField();
-        emailField.setPromptText("آدرس ایمیل");
-        emailField.getStyleClass().add("input-field");
-        emailField.setMaxWidth(320);
+            // نمایش اعلان موفقیت با ControlsFX
+            Notifications.create()
+                    .title("ورود موفق")
+                    .text("خوش آمدید " + response.getFullName())
+                    .graphic(new FontIcon(FontAwesomeSolid.CHECK_CIRCLE))
+                    .showInformation();
 
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("رمز عبور");
-        passwordField.getStyleClass().add("input-field");
-        passwordField.setMaxWidth(320);
+            // رفتن به صفحه داشبورد
+//            SceneManager.showDashboardPage();  // بعداً پیاده‌سازی می‌شود
 
-        Button loginBtn = new Button("ورود به حساب");
-        loginBtn.getStyleClass().add("primary-btn");
-        loginBtn.setMaxWidth(320);
-        loginBtn.setOnAction(e -> {
-            String email = emailField.getText().trim();
-            String password = passwordField.getText().trim();
+        } catch (Exception e) {
+            Notifications.create()
+                    .title("خطا در ورود")
+                    .text(e.getMessage())
+                    .graphic(new FontIcon(FontAwesomeSolid.EXCLAMATION_CIRCLE))
+                    .showError();
+        }
+    }
 
-            if (email.isEmpty() || password.isEmpty()) {
-                AlertUtil.showError("لطفاً همه فیلدها را پر کنید.");
-                return;
-            }
-
-            try {
-                if ("admin@email.com".equals(email) && "admin123".equals(password)) {
-                    SessionManager.setSession("mock-token-admin", java.util.UUID.randomUUID(), "مدیر سیستم", "ADMIN");
-                    AlertUtil.showSuccess("ورود موفق! خوش آمدید مدیر سیستم");
-                    SceneManager.showDashboardPage();
-                } else if ("user@email.com".equals(email) && "user123".equals(password)) {
-                    SessionManager.setSession("mock-token-user", java.util.UUID.randomUUID(), "کاربر عادی", "USER");
-                    AlertUtil.showSuccess("ورود موفق! خوش آمدید");
-                    SceneManager.showDashboardPage();
-                } else {
-                    AlertUtil.showError("نام کاربری یا رمز عبور اشتباه است.");
-                }
-            } catch (Exception ex) {
-                ExceptionHandler.handle(ex);
-            }
-        });
-
-        Hyperlink registerLink = new Hyperlink("ثبت‌نام نکرده‌اید؟ همین حالا ثبت‌نام کنید");
-        registerLink.getStyleClass().add("link");
-        registerLink.setOnAction(e -> SceneManager.showRegisterPage());
-
-        VBox mainBox = new VBox(15);
-        mainBox.setAlignment(Pos.CENTER);
-        mainBox.setPadding(new Insets(30));
-        mainBox.setStyle("-fx-background-color: #f0f4f8;");
-
-        card.getChildren().addAll(logo, title, subtitle, emailField, passwordField, loginBtn, registerLink);
-        mainBox.getChildren().add(card);
-
-        mainBox.getStylesheets().add(LoginController.class.getResource("/style.css").toExternalForm());
-
-        return mainBox;
+    @FXML
+    public void goToRegister() {
+        // بعداً پیاده‌سازی می‌شود
+//        SceneManager.showRegisterPage(); // فعلاً کامنت
     }
 }

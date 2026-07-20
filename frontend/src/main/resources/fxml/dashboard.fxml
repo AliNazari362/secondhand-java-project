@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+
+    <top>
+        <fx:include source="components/header.fxml" />
+    </top>
+
+    <center>
+        <VBox spacing="15" alignment="TOP_CENTER" style="-fx-background-color: #f0f4f8; -fx-padding: 20;">
+
+            <!-- نوار جستجو -->
+            <HBox spacing="10" alignment="CENTER">
+                <TextField fx:id="searchField" promptText="جستجوی آگهی..." styleClass="input-field" HBox.hgrow="ALWAYS" />
+                <Button text="🔍 جستجو" styleClass="primary-btn" onAction="#onSearch" />
+            </HBox>
+
+            <!-- لیست آگهی‌ها -->
+            <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                <FlowPane fx:id="adFlowPane" alignment="TOP_LEFT" hgap="15" vgap="15" />
+            </ScrollPane>
+
+        </VBox>
+    </center>
+</BorderPane>

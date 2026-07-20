@@ -1,105 +1,134 @@
-package controller;
-
-import utils.AlertUtil;
-import utils.SceneManager;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-
-import java.util.UUID;
-
-public class AdDetailController {
-
-    public static VBox getRoot(UUID adId) {
-        return createRoot(adId);
-    }
-
-    private static VBox createRoot(UUID adId) {
-        VBox mainBox = new VBox();
-        mainBox.setStyle("-fx-background-color: #f0f4f8;");
-
-        // ---------- هدر ----------
-        HBox header = new HBox(15);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(15, 25, 15, 25));
-        header.getStyleClass().add("header");
-
-        Text title = new Text("📄 جزئیات آگهی");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Button backBtn = new Button("🔙 بازگشت");
-        backBtn.getStyleClass().add("secondary-btn");
-        backBtn.setOnAction(e -> SceneManager.showDashboardPage());
-
-        HBox rightBox = new HBox(backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(rightBox, javafx.scene.layout.Priority.ALWAYS);
-        header.getChildren().addAll(title, rightBox);
-
-        // ---------- محتوا ----------
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(25));
-        content.setAlignment(Pos.TOP_CENTER);
-
-        VBox card = new VBox(20);
-        card.getStyleClass().add("card");
-        card.setPrefWidth(700);
-
-        Text adTitle = new Text("لپ‌تاپ لنوو ThinkPad");
-        adTitle.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: #1a202c;");
-
-        Label statusBadge = new Label("فعال");
-        statusBadge.getStyleClass().addAll("status-badge", "status-active");
-
-        VBox infoBox = new VBox(8);
-        Label priceLabel = new Label("💰 قیمت: ۱۸,۰۰۰,۰۰۰ تومان");
-        priceLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Label cityLabel = new Label("📍 شهر: تهران");
-        Label ownerLabel = new Label("👤 فروشنده: علی رضایی");
-        Label dateLabel = new Label("📅 تاریخ ثبت: ۱۴۰۴/۰۱/۱۵");
-
-        Label descTitle = new Label("توضیحات:");
-        descTitle.setStyle("-fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        Text descText = new Text("لپ‌تاپ دست دوم در شرایط عالی. فقط یک سال استفاده شده. بدون خط و خش.");
-        descText.setWrappingWidth(600);
-
-        HBox btnBox = new HBox(10);
-        btnBox.setAlignment(Pos.CENTER);
-
-        Button chatBtn = new Button("💬 پیام به فروشنده");
-        chatBtn.getStyleClass().add("primary-btn");
-        chatBtn.setOnAction(e -> AlertUtil.showWarning("صفحه چت در حال توسعه است."));
-
-        Button favBtn = new Button("❤️ افزودن به علاقه‌مندی");
-        favBtn.getStyleClass().add("secondary-btn");
-        favBtn.setOnAction(e -> AlertUtil.showSuccess("به علاقه‌مندی‌ها اضافه شد."));
-
-        Button rateBtn = new Button("⭐ امتیازدهی");
-        rateBtn.getStyleClass().add("secondary-btn");
-        rateBtn.setOnAction(e -> AlertUtil.showWarning("صفحه امتیازدهی در حال توسعه است."));
-
-        Button editBtn = new Button("✏️ ویرایش");
-        editBtn.getStyleClass().add("primary-btn");
-        editBtn.setOnAction(e -> SceneManager.showEditAdPage(adId));
-
-        Button deleteBtn = new Button("🗑️ حذف");
-        deleteBtn.getStyleClass().add("danger-btn");
-        deleteBtn.setOnAction(e -> AlertUtil.showSuccess("آگهی با موفقیت حذف شد!"));
-
-        btnBox.getChildren().addAll(chatBtn, favBtn, rateBtn, editBtn, deleteBtn);
-        infoBox.getChildren().addAll(priceLabel, cityLabel, ownerLabel, dateLabel);
-        card.getChildren().addAll(adTitle, statusBadge, infoBox, descTitle, descText, btnBox);
-        content.getChildren().add(card);
-
-        mainBox.getChildren().addAll(header, content);
-        mainBox.getStylesheets().add(AdDetailController.class.getResource("/style.css").toExternalForm());
-
-        return mainBox;
-    }
-}
+//package controller;
+//
+//import model.response.AdvertisementDetailDto;
+//import service.AdService;
+//import service.RatingService;
+//import utils.AlertUtil;
+//import utils.SceneManager;
+//import utils.SessionManager;
+//import javafx.fxml.FXML;
+//import javafx.scene.control.Button;
+//import javafx.scene.control.Label;
+//import javafx.scene.text.Text;
+//
+//import java.util.UUID;
+//
+//public class AdDetailController {
+//
+//    @FXML private Text titleText;
+//    @FXML private Label statusLabel;
+//    @FXML private Label priceLabel;
+//    @FXML private Label cityLabel;
+//    @FXML private Label ownerLabel;
+//    @FXML private Label dateLabel;
+//    @FXML private Text descText;
+//    @FXML private Label ratingLabel;
+//
+//    @FXML private Button chatBtn;
+//    @FXML private Button favBtn;
+//    @FXML private Button rateBtn;
+//    @FXML private Button editBtn;
+//    @FXML private Button deleteBtn;
+//    @FXML private Button soldBtn;
+//
+//    private UUID adId;
+//    private final AdService adService = new AdService();
+//    private final RatingService ratingService = new RatingService();
+//    private AdvertisementDetailDto currentAd;
+//
+//    public void setAdId(UUID adId) {
+//        this.adId = adId;
+//        loadAdDetail();
+//    }
+//
+//    @FXML
+//    public void initialize() {
+//        // رویدادهای دکمه‌ها در initialize متصل می‌شوند
+//    }
+//
+//    private void loadAdDetail() {
+//        try {
+//            currentAd = adService.getAdDetail(adId);
+//            fillData(currentAd);
+//
+//            // بررسی مالکیت
+//            boolean isOwner = currentAd.getOwner().getId().equals(SessionManager.getUserId());
+//            chatBtn.setVisible(!isOwner);
+//            editBtn.setVisible(isOwner);
+//            deleteBtn.setVisible(isOwner);
+//            soldBtn.setVisible(isOwner);
+//
+//            // دریافت امتیاز
+//            double avg = ratingService.getAverageRating(adId);
+//            long count = ratingService.getRatingCount(adId);
+//            ratingLabel.setText("⭐ " + String.format("%.1f", avg) + " (" + count + " نظر)");
+//
+//        } catch (Exception e) {
+//            AlertUtil.showError("خطا در بارگذاری جزئیات: " + e.getMessage());
+//        }
+//    }
+//
+//    private void fillData(AdvertisementDetailDto ad) {
+//        titleText.setText(ad.getFullName());
+//        statusLabel.setText(ad.getStatus().name());
+//        priceLabel.setText("💰 قیمت: " + ad.getProductDetail().getPrice() + " تومان");
+//        cityLabel.setText("📍 " + ad.getCity().name());
+//        ownerLabel.setText("👤 فروشنده: " + ad.getOwner().getFullName());
+//        dateLabel.setText("📅 تاریخ ثبت: " + ad.getCreationDate().toLocalDate());
+//        descText.setText(ad.getDescription());
+//    }
+//
+//    @FXML
+//    public void onChat() {
+//        // TODO: پیاده‌سازی شروع چت
+//        AlertUtil.showWarning("صفحه چت در حال توسعه است.");
+//    }
+//
+//    @FXML
+//    public void onAddFavorite() {
+//        try {
+//            new service.FavoriteService().addFavorite(adId);
+//            AlertUtil.showSuccess("به علاقه‌مندی‌ها اضافه شد.");
+//        } catch (Exception e) {
+//            AlertUtil.showError("خطا: " + e.getMessage());
+//        }
+//    }
+//
+//    @FXML
+//    public void onRate() {
+//        // TODO: باز کردن دیالوگ امتیازدهی
+//        AlertUtil.showWarning("صفحه امتیازدهی در حال توسعه است.");
+//    }
+//
+//    @FXML
+//    public void onEdit() {
+//        SceneManager.showEditAdPage(adId);
+//    }
+//
+//    @FXML
+//    public void onDelete() {
+//        try {
+//            adService.deleteAd(adId);
+//            AlertUtil.showSuccess("آگهی با موفقیت حذف شد.");
+//            SceneManager.showDashboardPage();
+//        } catch (Exception e) {
+//            AlertUtil.showError("خطا در حذف: " + e.getMessage());
+//        }
+//    }
+//
+//    @FXML
+//    public void onMarkAsSold() {
+//        try {
+//            adService.markAsSold(adId);
+//            AlertUtil.showSuccess("آگهی به فروخته‌شده تغییر کرد.");
+//            loadAdDetail();
+//        } catch (Exception e) {
+//            AlertUtil.showError("خطا: " + e.getMessage());
+//        }
+//    }
+//
+//    @FXML
+//    public void goBack() {
+//        SceneManager.showDashboardPage();
+//    }
+//}

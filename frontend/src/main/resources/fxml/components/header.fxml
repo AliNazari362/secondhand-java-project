@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
+
+<HBox spacing="15" alignment="CENTER_LEFT" styleClass="header" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.HeaderController">
+    <padding>
+        <Insets top="15" right="25" bottom="15" left="25" />
+    </padding>
+
+    <Text fx:id="titleText" text="📋 لیست آگهی‌ها" styleClass="header-title" />
+    <Text fx:id="userInfoText" text="خوش آمدید، کاربر" styleClass="header-subtitle" />
+
+    <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+        <Button text="➕ آگهی جدید" styleClass="primary-btn" onAction="#onNewAd" />
+        <Button text="❤️ علاقه‌مندی‌ها" styleClass="secondary-btn" onAction="#onFavorites" />
+        <Button text="💬 پیام‌ها" styleClass="secondary-btn" onAction="#onChat" />
+        <Button fx:id="adminBtn" text="⚙️ مدیریت" styleClass="danger-btn" onAction="#onAdmin" visible="false" />
+        <Button text="🚪 خروج" styleClass="secondary-btn" onAction="#onLogout" />
+    </HBox>
+</HBox>

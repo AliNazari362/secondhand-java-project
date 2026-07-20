@@ -1,0 +1,92 @@
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/Vazirmatn.ttf');
+}
+
+.root {
+    -fx-font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+}
+
+.login-container {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 10);
+    -fx-pref-width: 400;
+    -fx-pref-height: 480;
+}
+
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3748;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-fill: #718096;
+}
+
+.input-container {
+    -fx-padding: 0 10;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+}
+
+.input-container:focused-within {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
+}
+
+.input-field {
+    -fx-padding: 12 0;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45;
+}
+
+.input-field:focused {
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+.primary-btn {
+    -fx-background-color: #4299e1;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 8;
+    -fx-pref-height: 48;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #3182ce;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.link {
+    -fx-text-fill: #4299e1;
+    -fx-font-size: 13px;
+    -fx-underline: false;
+    -fx-cursor: hand;
+}
+
+.link:hover {
+    -fx-text-fill: #2b6cb0;
+    -fx-underline: true;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/Vazirmatn.ttf');
+}
+
+.root {
+    -fx-font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+}

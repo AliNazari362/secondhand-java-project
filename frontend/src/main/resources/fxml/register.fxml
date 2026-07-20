@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="CENTER" spacing="15" styleClass="login-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RegisterController">
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40" />
+    </padding>
+
+    <Text text="📝" styleClass="logo" />
+    <Text text="ثبت‌نام" styleClass="title" />
+    <Text text="ایجاد حساب کاربری جدید" styleClass="subtitle" />
+
+    <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-field" />
+    <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" />
+    <PasswordField fx:id="passwordField" promptText="رمز عبور (حداقل ۸ کاراکتر)" styleClass="input-field" />
+    <TextField fx:id="phoneField" promptText="شماره تماس (اختیاری)" styleClass="input-field" />
+
+    <Button text="ثبت‌نام" styleClass="success-btn" onAction="#handleRegister" />
+
+    <Hyperlink text="قبلاً ثبت‌نام کرده‌اید؟ وارد شوید" onAction="#goToLogin" styleClass="link" />
+</VBox>

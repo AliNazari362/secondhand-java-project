@@ -4,6 +4,7 @@ import javafx.scene.control.Alert;
 
 public class AlertUtil {
 
+    // برای مواقعی که بخواهیم از Alert استاندارد استفاده کنیم
     public static void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("خطا");

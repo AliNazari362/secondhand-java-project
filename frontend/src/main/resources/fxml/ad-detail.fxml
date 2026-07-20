@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController">
+
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+            <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
+            <Text text="📄 جزئیات آگهی" styleClass="header-title" />
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <Button text="🔙 بازگشت" styleClass="secondary-btn" onAction="#goBack" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+            <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
+
+                <VBox styleClass="card" spacing="15" prefWidth="700">
+
+                    <Text fx:id="titleText" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: #1a202c;" />
+                    <Label fx:id="statusLabel" styleClass="status-badge" />
+
+                    <VBox spacing="5">
+                        <Label fx:id="priceLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                        <Label fx:id="cityLabel" />
+                        <Label fx:id="ownerLabel" />
+                        <Label fx:id="dateLabel" />
+                        <Label fx:id="ratingLabel" style="-fx-font-size: 14px; -fx-text-fill: #f6ad55;" />
+                    </VBox>
+
+                    <Label text="توضیحات:" style="-fx-font-weight: bold; -fx-fill: #2d3748;" />
+                    <Text fx:id="descText" wrappingWidth="600" />
+
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button fx:id="chatBtn" text="💬 پیام به فروشنده" styleClass="primary-btn" onAction="#onChat" />
+                        <Button fx:id="favBtn" text="❤️ افزودن به علاقه‌مندی" styleClass="secondary-btn" onAction="#onAddFavorite" />
+                        <Button fx:id="rateBtn" text="⭐ امتیازدهی" styleClass="secondary-btn" onAction="#onRate" />
+                        <Button fx:id="editBtn" text="✏️ ویرایش" styleClass="primary-btn" onAction="#onEdit" />
+                        <Button fx:id="deleteBtn" text="🗑️ حذف" styleClass="danger-btn" onAction="#onDelete" />
+                        <Button fx:id="soldBtn" text="✅ فروخته شد" styleClass="success-btn" onAction="#onMarkAsSold" />
+                    </HBox>
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

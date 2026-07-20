@@ -12,20 +12,40 @@ import com.secondhand.entity.enums.AdvType;
 import com.secondhand.entity.enums.City;
 import com.secondhand.exception.BadRequestException;
 import com.secondhand.exception.ForbiddenException;
-import com.secondhand.repository.*;
 import com.secondhand.exception.ResourceNotFoundException;
+import com.secondhand.repository.*;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Service for managing advertisements ({@link Adv}), including products and services.
- * <p>
- * Provides operations for creating, reading, updating, and deleting advertisements,
- * as well as admin-facing operations such as approval, rejection, and moderation.
- * Ownership validation is enforced on all mutating operations.
- * </p>
+ * Service layer for managing advertisements (products and services).
+ *
+ * <p>This service handles all advertisement-related operations:</p>
+ * <ul>
+ *   <li>Creating new advertisements (product or service) with images and options</li>
+ *   <li>Retrieving advertisements with various filters</li>
+ *   <li>Retrieving full advertisement details</li>
+ *   <li>Updating and deleting advertisements (with ownership validation)</li>
+ *   <li>Marking advertisements as sold</li>
+ *   <li>Admin operations like approving and rejecting advertisements</li>
+ * </ul>
+ *
+ * <p><strong>Image Support:</strong> When creating an advertisement, the client can
+ * provide a list of image paths (via {@code images} field in the request DTOs).
+ * These images are automatically persisted and associated with the advertisement.
+ * The images are returned in the advertisement detail responses.</p>
+ *
+ * <p><strong>Ownership Validation:</strong> All mutating operations enforce that
+ * the requesting user is the owner of the advertisement. This is validated using
+ * the {@link #validateOwnership(Adv, UUID)} method.</p>
+ *
+ * @see Adv
+ * @see Product
+ * @see Service
+ * @see Image
+ * @see Option
  */
 @org.springframework.stereotype.Service
 public class AdvService {
@@ -40,9 +60,9 @@ public class AdvService {
      * Constructs an {@code AdvService} with all required repository and service dependencies.
      *
      * @param advRepository     the repository for base {@link Adv} entities
-     * @param productRepository the repository for {@link Product} entities
-     * @param serviceRepository the repository for {@link Service} entities
-     * @param userService       the service used for user lookups
+     * @param productRepository the repository for {@link Product} advertisements
+     * @param serviceRepository the repository for {@link Service} advertisements
+     * @param userService       the service used for user lookups and persistence
      * @param optionRepository  the repository for managing advertisement {@link Option} entities
      */
     public AdvService(AdvRepository advRepository,
@@ -59,10 +79,10 @@ public class AdvService {
 
     /**
      * Populates the base fields common to all advertisement types on a new {@link Adv} instance.
-     * <p>
-     * Sets the full name, description, city, address, owner, initial status ({@link AdvStatus#PENDING}),
-     * advertisement type, and any provided custom options.
-     * </p>
+     *
+     * <p>Sets the full name, description, city, address, owner, initial status ({@link AdvStatus#PENDING}),
+     * advertisement type, and any provided custom options. This method is used internally by
+     * {@link #createProduct} and {@link #createService} to avoid code duplication.</p>
      *
      * @param adv         the advertisement entity to populate (must not be {@code null})
      * @param fullName    the display name/title of the advertisement
@@ -70,12 +90,12 @@ public class AdvService {
      * @param city        the city where the advertisement is located
      * @param address     the specific address for the advertisement
      * @param user        the owner of the advertisement
-     * @param avdType     the type of advertisement ({@link AdvType#PRODUCT} or {@link AdvType#SERVICE})
+     * @param advType     the type of advertisement ({@link AdvType#PRODUCT} or {@link AdvType#SERVICE})
      * @param options     an optional list of key-value options; may be {@code null}
      */
     private void createAdv(
             Adv adv, String fullName, String description,
-            City city, String address, User user, AdvType avdType,
+            City city, String address, User user, AdvType advType,
             List<OptionRequest> options) {
 
         adv.setFullName(fullName);
@@ -84,7 +104,7 @@ public class AdvService {
         adv.setAddress(address);
         adv.setUser(user);
         adv.setStatus(AdvStatus.PENDING);
-        adv.setAdvType(avdType);
+        adv.setAdvType(advType);
 
         if (options != null) {
             options.forEach(opt -> {
@@ -100,11 +120,20 @@ public class AdvService {
     /**
      * Creates and persists a new {@link Product} advertisement.
      *
+     * <p>This method performs the following steps:</p>
+     * <ol>
+     *   <li>Finds the user by ID (extracted from the JWT token).</li>
+     *   <li>Creates a {@link Product} entity and populates its fields using {@link #createAdv}.</li>
+     *   <li>Sets product-specific fields (condition, brand, model, constructor, category, price).</li>
+     *   <li>Processes and attaches any images provided in the request.</li>
+     *   <li>Persists the product and returns its full details.</li>
+     * </ol>
+     *
      * @param request the product creation data including title, description, location,
-     *                price, condition, brand, model, constructor, category, and options
+     *                price, condition, brand, model, constructor, category, options, and images
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created product advertisement
-     * @throws com.secondhand.exception.ResourceNotFoundException if no user exists with the given {@code userId}
+     * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createProduct(ProductCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
@@ -123,6 +152,14 @@ public class AdvService {
         product.setCategory(request.category());
         product.setPrice(request.price());
 
+        // ✅ Attach images if provided
+        if (request.images() != null) {
+            request.images().forEach(imgReq -> {
+                Image image = new Image(imgReq.path(), product);
+                product.addImage(image);
+            });
+        }
+
         Product saved = productRepository.save(product);
         return toAdvDetailResponse(saved);
     }
@@ -130,11 +167,14 @@ public class AdvService {
     /**
      * Creates and persists a new {@link Service} advertisement.
      *
+     * <p>This method is similar to {@link #createProduct} but uses the {@link Service} entity
+     * and populates service-specific fields (specialCategory, costOfPart, typeOfPart).</p>
+     *
      * @param request the service creation data including title, description, location,
-     *                special category, cost of part, type of part, and options
+     *                special category, cost of part, type of part, options, and images
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created service advertisement
-     * @throws com.secondhand.exception.ResourceNotFoundException if no user exists with the given {@code userId}
+     * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createService(ServiceCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
@@ -149,6 +189,14 @@ public class AdvService {
         service.setSpecialCategory(request.specialCategory());
         service.setCostOfPart(request.costOfPart());
         service.setTypeOfPart(request.typeOfPart());
+
+        // ✅ Attach images if provided
+        if (request.images() != null) {
+            request.images().forEach(imgReq -> {
+                Image image = new Image(imgReq.path(), service);
+                service.addImage(image);
+            });
+        }
 
         Service saved = serviceRepository.save(service);
         return toAdvDetailResponse(saved);
@@ -173,9 +221,9 @@ public class AdvService {
 
     /**
      * Returns all currently active advertisements matching the given filters.
-     * <p>
-     * Delegates to {@link #getAds(String, City, AdvStatus)} with {@link AdvStatus#ACTIVE}.
-     * </p>
+     *
+     * <p>This is a convenience method that delegates to {@link #getAds} with
+     * {@link AdvStatus#ACTIVE} as the status filter.</p>
      *
      * @param keyword an optional keyword filter; may be {@code null}
      * @param city    an optional city filter; may be {@code null}
@@ -187,11 +235,10 @@ public class AdvService {
 
     /**
      * Returns the full detail of a publicly accessible advertisement.
-     * <p>
-     * Only advertisements in {@link AdvStatus#ACTIVE} or {@link AdvStatus#SOLD} status
+     *
+     * <p>Only advertisements in {@link AdvStatus#ACTIVE} or {@link AdvStatus#SOLD} status
      * are accessible through this endpoint. Other statuses (e.g., PENDING, REJECTED, DELETED)
-     * are considered not publicly available.
-     * </p>
+     * are considered not publicly available.</p>
      *
      * @param advId the UUID of the advertisement to retrieve
      * @return a {@link AdvDetailResponse} for the specified advertisement
@@ -222,11 +269,10 @@ public class AdvService {
 
     /**
      * Updates the base fields common to all advertisement types on an existing {@link Adv}.
-     * <p>
-     * Validates that the requesting user owns the advertisement before applying any changes.
+     *
+     * <p>Validates that the requesting user owns the advertisement before applying any changes.
      * Only non-{@code null} fields from the parameters are applied. If a new options list
-     * is provided, the existing options are deleted and replaced.
-     * </p>
+     * is provided, the existing options are deleted and replaced.</p>
      *
      * @param adv         the advertisement entity to update
      * @param fullName    the new title; {@code null} means no change
@@ -261,12 +307,11 @@ public class AdvService {
 
     /**
      * Updates an existing {@link Product} advertisement.
-     * <p>
-     * Verifies that the advertisement identified by {@code advId} is actually a
+     *
+     * <p>Verifies that the advertisement identified by {@code advId} is actually a
      * {@link Product} before proceeding. Base fields are updated via {@link #updateAdv},
      * then product-specific fields (condition, brand, model, constructor, category, price)
-     * are applied for any non-{@code null} values in the request.
-     * </p>
+     * are applied for any non-{@code null} values in the request.</p>
      *
      * @param advId   the UUID of the advertisement to update
      * @param request the product update data; only non-{@code null} fields are applied
@@ -301,12 +346,11 @@ public class AdvService {
 
     /**
      * Updates an existing {@link Service} advertisement.
-     * <p>
-     * Verifies that the advertisement identified by {@code advId} is actually a
+     *
+     * <p>Verifies that the advertisement identified by {@code advId} is actually a
      * {@link Service} before proceeding. Base fields are updated via {@link #updateAdv},
      * then service-specific fields (special category, cost of part, type of part)
-     * are applied for any non-{@code null} values in the request.
-     * </p>
+     * are applied for any non-{@code null} values in the request.</p>
      *
      * @param advId   the UUID of the advertisement to update
      * @param request the service update data; only non-{@code null} fields are applied
@@ -338,9 +382,8 @@ public class AdvService {
 
     /**
      * Soft-deletes an advertisement by setting its status to {@link AdvStatus#DELETED}.
-     * <p>
-     * Ownership is validated before the status change is applied.
-     * </p>
+     *
+     * <p>Ownership is validated before the status change is applied.</p>
      *
      * @param advId  the UUID of the advertisement to delete
      * @param userId the UUID of the requesting user
@@ -356,10 +399,9 @@ public class AdvService {
 
     /**
      * Marks an active advertisement as sold by setting its status to {@link AdvStatus#SOLD}.
-     * <p>
-     * Ownership is validated, and the advertisement must currently be in
-     * {@link AdvStatus#ACTIVE} status.
-     * </p>
+     *
+     * <p>Ownership is validated, and the advertisement must currently be in
+     * {@link AdvStatus#ACTIVE} status.</p>
      *
      * @param advId  the UUID of the advertisement to mark as sold
      * @param userId the UUID of the requesting user
@@ -379,10 +421,9 @@ public class AdvService {
 
     /**
      * Approves a pending advertisement by setting its status to {@link AdvStatus#ACTIVE}.
-     * <p>
-     * This is an admin operation. The advertisement must currently be in
-     * {@link AdvStatus#PENDING} status.
-     * </p>
+     *
+     * <p>This is an admin operation. The advertisement must currently be in
+     * {@link AdvStatus#PENDING} status.</p>
      *
      * @param advId the UUID of the advertisement to approve
      * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
@@ -400,10 +441,9 @@ public class AdvService {
     /**
      * Rejects a pending advertisement by setting its status to {@link AdvStatus#REJECTED}
      * and recording the rejection reason.
-     * <p>
-     * This is an admin operation. The advertisement must currently be in
-     * {@link AdvStatus#PENDING} status.
-     * </p>
+     *
+     * <p>This is an admin operation. The advertisement must currently be in
+     * {@link AdvStatus#PENDING} status.</p>
      *
      * @param advId  the UUID of the advertisement to reject
      * @param reason the reason for rejection, stored on the advertisement entity
@@ -422,9 +462,8 @@ public class AdvService {
 
     /**
      * Returns a summary list of all advertisements currently in {@link AdvStatus#PENDING} status.
-     * <p>
-     * Intended for use by administrators to review and moderate new submissions.
-     * </p>
+     *
+     * <p>Intended for use by administrators to review and moderate new submissions.</p>
      *
      * @return a list of {@link AdvSummaryResponse} objects for pending advertisements;
      *         never {@code null}, may be empty
@@ -463,9 +502,8 @@ public class AdvService {
 
     /**
      * Converts an {@link Adv} entity to a lightweight {@link AdvSummaryResponse} DTO.
-     * <p>
-     * The first image path is used as the thumbnail; {@code null} is used if no images exist.
-     * </p>
+     *
+     * <p>The first image path is used as the thumbnail; {@code null} is used if no images exist.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a {@link AdvSummaryResponse} with key summary fields populated
@@ -487,11 +525,10 @@ public class AdvService {
 
     /**
      * Converts an {@link Adv} entity to a full {@link AdvDetailResponse} DTO.
-     * <p>
-     * Includes the owner summary, all images, all options, all comments, and—depending
+     *
+     * <p>Includes the owner summary, all images, all options, all comments, and—depending
      * on the advertisement type—either a {@link ProductDetailResponse} or a
-     * {@link ServiceDetailResponse} with type-specific fields.
-     * </p>
+     * {@link ServiceDetailResponse} with type-specific fields.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a fully populated {@link AdvDetailResponse}

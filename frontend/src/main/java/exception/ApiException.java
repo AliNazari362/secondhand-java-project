@@ -1,8 +1,5 @@
 package exception;
 
-/**
- * خطاهای مربوط به پاسخ‌های ناموفق از Backend (کدهای HTTP >= 400).
- */
 public class ApiException extends RuntimeException {
     private final int statusCode;
 

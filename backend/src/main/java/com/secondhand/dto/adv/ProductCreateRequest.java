@@ -1,5 +1,6 @@
 package com.secondhand.dto.adv;
 
+import com.secondhand.dto.image.ImageRequest;
 import com.secondhand.dto.option.OptionRequest;
 import com.secondhand.entity.Product.ProductState;
 import com.secondhand.entity.enums.Category;
@@ -16,64 +17,64 @@ import java.util.List;
 /**
  * Request DTO for creating a new product advertisement.
  *
- * <p>Submitted via POST /api/advertisements/products. The authenticated user is
- * derived from the security context by the com.secondhand.service layer and is not included here.</p>
+ * <p>This DTO is sent by the client (Frontend) to the server to register a new
+ * physical goods advertisement in the system. The authenticated user is identified
+ * via the JWT token, so the user ID is not included in this request.</p>
  *
- * @param fullName       advertisement headline; mandatory
- * @param description    free-text description; optional
- * @param city           city where the product is located; optional
- * @param address        detailed street address; optional
- * @param stateOfProduct physical condition of the product; optional
- * @param brand          product brand name; optional
- * @param model          product model name or number; optional
- * @param constructor    manufacturer name; optional
- * @param category       product top-level category; optional
- * @param price          asking price in Iranian Tomans; mandatory, must be &gt;= 0
- * @param options        list of key-value attribute pairs; optional
+ * <p>All required fields are annotated with validation constraints. Optional fields
+ * may be {@code null} and are handled appropriately on the server side.</p>
+ *
+ * <p><strong>Image Support:</strong> The {@code images} field allows uploading
+ * multiple image references (paths) along with the advertisement. These images
+ * are stored and associated with the advertisement during creation.</p>
+ *
+ * @param fullName       Advertisement title (required, max 255 characters)
+ * @param description    Full description (optional, max 5000 characters)
+ * @param city           City where the product is located (optional)
+ * @param address        Detailed street address (optional, max 500 characters)
+ * @param stateOfProduct Physical condition of the product (NEW, LIKE_NEW, GOOD, FAIR, DAMAGED, REFURBISHED)
+ * @param brand          Brand name (optional, max 100 characters)
+ * @param model          Model name or number (optional, max 150 characters)
+ * @param constructor    Manufacturer name (optional, max 150 characters)
+ * @param category       Product category (optional)
+ * @param price          Asking price in Iranian Tomans (required, must be zero or positive)
+ * @param options        List of dynamic key-value attributes (optional)
+ * @param images         List of image paths (optional)
  */
-public record ProductCreateRequest (
+public record ProductCreateRequest(
 
-        /** Advertisement headline shown in listings and search results; must not be blank. */
         @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
-                @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
+        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
-        /** Free-text description of the product; optional but recommended. */
         @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
-        /** City where the product is located; used for geographic filtering. */
         City city,
 
-        /** Optional detailed street address; provides more precision than city alone. */
         @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
-        /** Physical condition of the product (NEW, LIKE_NEW, GOOD, FAIR, DAMAGED, REFURBISHED). */
         ProductState stateOfProduct,
 
-        /** Brand name of the product (e.g., Samsung, Apple). */
         @Size(max = 100, message = "نام برند نباید از ۱۰۰ کاراکتر بیشتر باشد")
         String brand,
 
-        /** Model name or number of the product (e.g., Galaxy S21). */
         @Size(max = 150, message = "نام مدل نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String model,
 
-        /** Name of the manufacturing company that produced the item. */
         @Size(max = 150, message = "نام سازنده نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String constructor,
 
-        /** Top-level category that classifies the type of product. */
         Category category,
 
-        /** Asking price in Iranian Tomans; must be zero or positive. */
         @NotNull(message = "قیمت نمی‌تواند خالی باشد")
         @PositiveOrZero(message = "قیمت باید صفر یا مثبت باشد")
         BigDecimal price,
 
-        /** Optional list of additional key-value attributes (e.g., RAM=8GB, Color=Black). */
         @Valid
-        List<OptionRequest> options
+        List<OptionRequest> options,
 
+        @Valid
+        List<ImageRequest> images
 ) {}

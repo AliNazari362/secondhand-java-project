@@ -1,21 +1,18 @@
 package app;
 
+import config.ThemeManager;
+import utils.SceneManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import utils.SceneManager;
-import atlantafx.base.theme.PrimerLight;
-import javafx.application.Application;
-
 
 public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        // اعمال تم AtlantaFX
+        ThemeManager.applyTheme();
 
-        Application.setUserAgentStylesheet(
-                new PrimerLight().getUserAgentStylesheet()
-        );
-
+        // مقداردهی SceneManager
         SceneManager.init(stage);
         SceneManager.showLoginPage();
     }

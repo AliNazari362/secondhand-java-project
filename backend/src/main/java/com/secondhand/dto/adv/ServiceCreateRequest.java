@@ -1,5 +1,6 @@
 package com.secondhand.dto.adv;
 
+import com.secondhand.dto.image.ImageRequest;
 import com.secondhand.dto.option.OptionRequest;
 import com.secondhand.entity.Service.ServiceType;
 import com.secondhand.entity.enums.City;
@@ -13,52 +14,56 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Request DTO for creating a new com.secondhand.service advertisement.
+ * Request DTO for creating a new service advertisement.
  *
- * <p>Submitted via POST /api/advertisements/services. The authenticated user is
- * derived from the security context by the com.secondhand.service layer and is not included here.</p>
+ * <p>This DTO is sent by the client (Frontend) to the server to register a new
+ * service offering in the system. Services include programming, repairs, consulting,
+ * and similar offerings. Pricing can be based on hourly, daily, weekly, monthly,
+ * annual, or fixed rates.</p>
  *
- * @param fullName        advertisement headline; mandatory
- * @param description     free-text description; optional
- * @param city            city where the com.secondhand.service is offered; optional
- * @param address         detailed location address; optional
- * @param specialCategory free-text sub-category of the com.secondhand.service; optional
- * @param costOfPart      price per billing unit in Iranian Tomans; mandatory, must be &gt;= 0
- * @param typeOfPart      billing period/unit (HOURLY, DAILY, etc.); optional
- * @param options         list of key-value attribute pairs; optional
+ * <p>The authenticated user is identified via the JWT token, so the user ID is
+ * not included in this request.</p>
+ *
+ * <p><strong>Image Support:</strong> The {@code images} field allows uploading
+ * multiple image references (paths) along with the advertisement. These images
+ * are stored and associated with the advertisement during creation.</p>
+ *
+ * @param fullName        Advertisement title (required, max 255 characters)
+ * @param description     Full description (optional, max 5000 characters)
+ * @param city            City where the service is offered (optional)
+ * @param address         Detailed address (optional, max 500 characters)
+ * @param specialCategory Free-text sub-category of the service (optional, max 150 characters)
+ * @param costOfPart      Price per billing unit (required, must be zero or positive)
+ * @param typeOfPart      Billing unit type (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, FIXED)
+ * @param options         List of dynamic key-value attributes (optional)
+ * @param images          List of image paths (optional)
  */
 public record ServiceCreateRequest(
 
-        /** Advertisement headline shown in listings and search results; must not be blank. */
         @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
-                @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
+        @Size(max = 255, message = "عنوان آگهی نباید از ۲۵۵ کاراکتر بیشتر باشد")
         String fullName,
 
-        /** Free-text description of the com.secondhand.service offered; optional but recommended. */
         @Size(max = 5000, message = "توضیحات نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String description,
 
-        /** City where the com.secondhand.service is offered; used for geographic filtering. */
         City city,
 
-        /** Optional detailed address or com.secondhand.service area; provides more precision than city alone. */
         @Size(max = 500, message = "آدرس نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String address,
 
-        /** Free-text sub-category of the com.secondhand.service (e.g., "Plumbing", "Web Design", "Tutoring"). */
         @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String specialCategory,
 
-        /** Price per billing unit in Iranian Tomans; must be zero or positive. */
         @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
         @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")
         BigDecimal costOfPart,
 
-        /** Billing period/unit that defines how costOfPart is applied to the client. */
         ServiceType typeOfPart,
 
-        /** Optional list of additional key-value attributes describing the com.secondhand.service. */
         @Valid
-        List<OptionRequest> options
+        List<OptionRequest> options,
 
+        @Valid
+        List<ImageRequest> images
 ) {}
