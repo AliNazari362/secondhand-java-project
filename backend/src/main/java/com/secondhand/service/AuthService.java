@@ -3,6 +3,7 @@ package com.secondhand.service;
 import com.secondhand.dto.user.UserLoginRequest;
 import com.secondhand.dto.user.UserRegisterRequest;
 import com.secondhand.dto.user.UserDetailResponse;
+import com.secondhand.dto.user.LoginResponse;
 import com.secondhand.entity.User;
 import com.secondhand.entity.enums.UserStatus;
 import com.secondhand.entity.enums.UserType;
@@ -64,7 +65,7 @@ public class AuthService {
     }
 
     /**
-     * Authenticates a user and returns a signed JWT token on success.
+     * Authenticates a user and returns a signed JWT token along with user information.
      * <p>
      * Performs the following checks in order:
      * <ol>
@@ -76,11 +77,11 @@ public class AuthService {
      * </p>
      *
      * @param request the login credentials containing email and password
-     * @return a signed JWT token string valid for 24 hours
+     * @return a {@link LoginResponse} containing the JWT token and user profile data
      * @throws BadRequestException  if the email is not found or the password is incorrect
      * @throws ForbiddenException   if the account is banned or has been deleted
      */
-    public String login(UserLoginRequest request) {
+    public LoginResponse login(UserLoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BadRequestException("ایمیل نامعتبر است"));
 
@@ -96,10 +97,17 @@ public class AuthService {
             throw new ForbiddenException("این حساب کاربری حذف شده است و امکان ورود وجود ندارد");
         }
 
-        return JwtUtil.generateToken(
+        String token = JwtUtil.generateToken(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getUserType().name()
+        );
+
+        return new LoginResponse(
+                token,
+                user.getId(),
+                user.getFullName(),
+                user.getUserType()
         );
     }
 }

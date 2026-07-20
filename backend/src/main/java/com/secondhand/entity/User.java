@@ -49,7 +49,7 @@ public class User extends Person {
      * Not unique; used for human-readable identification only.
      */
     @NotBlank(message = "نام کامل نمی‌تواند خالی باشد")
-        @Size(max = 150, message = "نام کامل نباید از ۱۵۰ کاراکتر بیشتر باشد")
+    @Size(max = 150, message = "نام کامل نباید از ۱۵۰ کاراکتر بیشتر باشد")
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
@@ -69,7 +69,12 @@ public class User extends Person {
     /**
      * Chatrooms in which this user is a participant.
      * Each chatroom is linked to a specific advertisement negotiation thread.
-     * This side owns the foreign key via @JoinColumn.
+     * This side owns the foreign key via {@code @JoinColumn}.
+     *
+     * <p><strong>Important:</strong> When adding a chatroom to this list, the
+     * {@code user_id} column in the {@code chatrooms} table is automatically
+     * populated by JPA. The chatroom must be saved <em>after</em> being added
+     * to this list for the foreign key to be correctly set.</p>
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -163,6 +168,10 @@ public class User extends Person {
      * Associates a chatroom with this user.
      * Guards against duplicate entries.
      *
+     * <p><strong>Note:</strong> When a chatroom is added to this list and then
+     * the user is saved, the {@code user_id} foreign key in the {@code chatrooms}
+     * table is automatically populated by JPA.</p>
+     *
      * @param room the chatroom to add; must not be null
      */
     public void addRoom(Chatroom room) {
@@ -208,6 +217,8 @@ public class User extends Person {
     /**
      * Convenience accessor used in log messages and toString outputs.
      * Returns the email address as the unique textual identifier.
+     *
+     * @return the email address of this user
      */
     public String getUsername() {
         return getEmail();
