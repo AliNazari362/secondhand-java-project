@@ -1,10 +1,12 @@
 package utils;
 
-import controller.*;
+import controller.LoginController;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.util.UUID;
+import java.io.IOException;
 
 public class SceneManager {
 
@@ -14,74 +16,25 @@ public class SceneManager {
         primaryStage = stage;
     }
 
-    // ---------- صفحات اصلی ----------
     public static void showLoginPage() {
-        Scene scene = new Scene(LoginController.getRoot(), 500, 400);
-        primaryStage.setTitle("ورود به سامانه");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    SceneManager.class.getResource("/fxml/login.fxml")
+            );
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 520, 500);
+            // اضافه کردن CSS سفارشی
+            scene.getStylesheets().add(
+                    SceneManager.class.getResource("/css/app.css").toExternalForm()
+            );
+            primaryStage.setTitle("ورود به سامانه");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            AlertUtil.showError("خطا در بارگذاری صفحه ورود: " + e.getMessage());
+        }
     }
 
-    public static void showRegisterPage() {
-        Scene scene = new Scene(RegisterController.getRoot(), 500, 500);
-        primaryStage.setTitle("ثبت‌نام");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showDashboardPage() {
-        Scene scene = new Scene(DashboardController.getRoot(), 800, 600);
-        primaryStage.setTitle("لیست آگهی‌ها");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showNewAdPage() {
-        Scene scene = new Scene(NewAdController.getRoot(), 700, 600);
-        primaryStage.setTitle("ثبت آگهی جدید");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showAdDetailPage(UUID adId) {
-        Scene scene = new Scene(AdDetailController.getRoot(adId), 700, 600);
-        primaryStage.setTitle("جزئیات آگهی");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showChatListPage() {
-        Scene scene = new Scene(ChatListController.getRoot(), 700, 500);
-        primaryStage.setTitle("گفت‌وگوها");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showChatRoomPage(UUID chatroomId) {
-        Scene scene = new Scene(ChatRoomController.getRoot(chatroomId), 600, 500);
-        primaryStage.setTitle("گفت‌وگو");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showFavoritesPage() {
-        Scene scene = new Scene(FavoritesController.getRoot(), 800, 600);
-        primaryStage.setTitle("علاقه‌مندی‌ها");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showEditAdPage(UUID adId) {
-        Scene scene = new Scene(EditAdController.getRoot(adId), 700, 600);
-        primaryStage.setTitle("ویرایش آگهی");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    public static void showAdminPage() {
-        Scene scene = new Scene(AdminController.getRoot(), 800, 600);
-        primaryStage.setTitle("پنل مدیریت");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
+    // متدهای دیگر برای صفحات بعدی...
 }
