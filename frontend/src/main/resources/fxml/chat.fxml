@@ -9,42 +9,42 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController">
-
+<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController">
     <top>
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
-            <Text text="💬 گفت‌وگوها" styleClass="header-title" />
+            <FontIcon iconCode="COMMENTS" iconSize="20" iconColor="#2d3748" />
+            <Text text="گفت‌وگوها" styleClass="header-title" />
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button text="🔙 بازگشت" styleClass="secondary-btn" onAction="#goBack" />
+                <Button onAction="#goBack">
+                    <graphic><FontIcon iconCode="ARROW_LEFT" iconSize="16" /></graphic>
+                </Button>
             </HBox>
         </HBox>
     </top>
-
     <center>
         <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f4f8;" HBox.hgrow="ALWAYS">
-
-            <!-- لیست گفت‌وگوها -->
             <VBox spacing="10" prefWidth="250">
                 <Text text="گفت‌وگوهای من" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
                 <ListView fx:id="chatListView" styleClass="list-view" VBox.vgrow="ALWAYS" />
             </VBox>
-
-            <!-- صفحه چت -->
             <VBox spacing="10" HBox.hgrow="ALWAYS">
                 <Text fx:id="chatTitle" text="انتخاب یک گفت‌وگو" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
                     <VBox fx:id="messagesContainer" spacing="5" />
                 </ScrollPane>
-
                 <HBox spacing="10">
-                    <TextField fx:id="messageField" promptText="پیام خود را بنویسید..." styleClass="input-field" HBox.hgrow="ALWAYS" />
-                    <Button text="📤 ارسال" styleClass="primary-btn" onAction="#onSendMessage" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container" HBox.hgrow="ALWAYS">
+                        <FontIcon iconCode="PEN" iconSize="16" iconColor="#718096" />
+                        <TextField fx:id="messageField" promptText="پیام خود را بنویسید..." styleClass="input-field" HBox.hgrow="ALWAYS" />
+                    </HBox>
+                    <Button onAction="#onSendMessage">
+                        <graphic><FontIcon iconCode="PAPER_PLANE" iconSize="16" /></graphic>
+                    </Button>
                 </HBox>
             </VBox>
-
         </HBox>
     </center>
 </BorderPane>

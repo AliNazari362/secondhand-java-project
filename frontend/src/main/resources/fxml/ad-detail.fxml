@@ -8,28 +8,27 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController">
-
+<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController">
     <top>
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
-            <Text text="📄 جزئیات آگهی" styleClass="header-title" />
+            <FontIcon iconCode="FILE_ALT" iconSize="20" iconColor="#2d3748" />
+            <Text text="جزئیات آگهی" styleClass="header-title" />
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button text="🔙 بازگشت" styleClass="secondary-btn" onAction="#goBack" />
+                <Button onAction="#goBack">
+                    <graphic><FontIcon iconCode="ARROW_LEFT" iconSize="16" /></graphic>
+                </Button>
             </HBox>
         </HBox>
     </top>
-
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
             <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
-
                 <VBox styleClass="card" spacing="15" prefWidth="700">
-
                     <Text fx:id="titleText" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: #1a202c;" />
                     <Label fx:id="statusLabel" styleClass="status-badge" />
-
                     <VBox spacing="5">
                         <Label fx:id="priceLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
                         <Label fx:id="cityLabel" />
@@ -37,21 +36,29 @@
                         <Label fx:id="dateLabel" />
                         <Label fx:id="ratingLabel" style="-fx-font-size: 14px; -fx-text-fill: #f6ad55;" />
                     </VBox>
-
                     <Label text="توضیحات:" style="-fx-font-weight: bold; -fx-fill: #2d3748;" />
-                    <Text fx:id="descText" wrappingWidth="600" />
-
+                    <Text fx:id="descText" wrappingWidth="600" style="-fx-font-size: 14px; -fx-fill: #2d3748;" />
                     <HBox spacing="10" alignment="CENTER">
-                        <Button fx:id="chatBtn" text="💬 پیام به فروشنده" styleClass="primary-btn" onAction="#onChat" />
-                        <Button fx:id="favBtn" text="❤️ افزودن به علاقه‌مندی" styleClass="secondary-btn" onAction="#onAddFavorite" />
-                        <Button fx:id="rateBtn" text="⭐ امتیازدهی" styleClass="secondary-btn" onAction="#onRate" />
-                        <Button fx:id="editBtn" text="✏️ ویرایش" styleClass="primary-btn" onAction="#onEdit" />
-                        <Button fx:id="deleteBtn" text="🗑️ حذف" styleClass="danger-btn" onAction="#onDelete" />
-                        <Button fx:id="soldBtn" text="✅ فروخته شد" styleClass="success-btn" onAction="#onMarkAsSold" />
+                        <Button fx:id="chatBtn" onAction="#onChat">
+                            <graphic><FontIcon iconCode="COMMENT" iconSize="16" /></graphic>
+                        </Button>
+                        <Button fx:id="favBtn" onAction="#onAddFavorite">
+                            <graphic><FontIcon iconCode="HEART" iconSize="16" /></graphic>
+                        </Button>
+                        <Button fx:id="rateBtn" onAction="#onRate">
+                            <graphic><FontIcon iconCode="STAR" iconSize="16" /></graphic>
+                        </Button>
+                        <Button fx:id="editBtn" onAction="#onEdit">
+                            <graphic><FontIcon iconCode="EDIT" iconSize="16" /></graphic>
+                        </Button>
+                        <Button fx:id="deleteBtn" onAction="#onDelete">
+                            <graphic><FontIcon iconCode="TRASH" iconSize="16" /></graphic>
+                        </Button>
+                        <Button fx:id="soldBtn" onAction="#onMarkAsSold">
+                            <graphic><FontIcon iconCode="CHECK_CIRCLE" iconSize="16" /></graphic>
+                        </Button>
                     </HBox>
-
                 </VBox>
-
             </VBox>
         </ScrollPane>
     </center>

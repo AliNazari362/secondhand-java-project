@@ -4,11 +4,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="bubbleContainer" spacing="2" styleClass="message-bubble" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.MessageBubbleController">
+<VBox fx:id="bubbleContainer" spacing="2" styleClass="message-bubble" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.MessageBubbleController">
     <padding>
         <Insets top="5" right="10" bottom="5" left="10" />
     </padding>
-
     <Label fx:id="senderLabel" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #718096;" />
     <Label fx:id="messageLabel" style="-fx-font-size: 14px; -fx-wrap-text: true;" />
     <Label fx:id="timeLabel" style="-fx-font-size: 10px; -fx-text-fill: #a0aec0;" />
