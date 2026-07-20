@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * <p>This service handles all advertisement-related operations:</p>
  * <ul>
  *   <li>Creating new advertisements (product or service) with images and options</li>
- *   <li>Retrieving advertisements with various filters</li>
+ *   <li>Retrieving advertisements with various filters and sorting</li>
  *   <li>Retrieving full advertisement details</li>
  *   <li>Updating and deleting advertisements (with ownership validation)</li>
  *   <li>Marking advertisements as sold</li>
@@ -40,6 +40,9 @@ import java.util.stream.Collectors;
  * <p><strong>Category Support:</strong> Advertisements are now classified using
  * the new {@link Category} entity. The client provides a {@code categoryId} in
  * create/update requests, which is resolved to a {@link Category} instance.</p>
+ *
+ * <p><strong>Sorting Support:</strong> The search method supports sorting by
+ * creation date (newest/oldest), price (ascending/descending), and average rating.</p>
  *
  * <p><strong>Ownership Validation:</strong> All mutating operations enforce that
  * the requesting user is the owner of the advertisement. This is validated using
@@ -60,7 +63,7 @@ public class AdvService {
     private final ServiceRepository serviceRepository;
     private final UserService userService;
     private final OptionRepository optionRepository;
-    private final CategoryRepository categoryRepository; // <-- وابستگی جدید
+    private final CategoryRepository categoryRepository;
 
     /**
      * Constructs an {@code AdvService} with all required repository and service dependencies.
@@ -77,7 +80,7 @@ public class AdvService {
                       ServiceRepository serviceRepository,
                       UserService userService,
                       OptionRepository optionRepository,
-                      CategoryRepository categoryRepository) { // <-- پارامتر جدید
+                      CategoryRepository categoryRepository) {
         this.advRepository = advRepository;
         this.productRepository = productRepository;
         this.serviceRepository = serviceRepository;
@@ -107,7 +110,7 @@ public class AdvService {
     private void createAdv(
             Adv adv, String fullName, String description,
             City city, String address, User user, AdvType advType,
-            Long categoryId, // <-- پارامتر جدید
+            Long categoryId,
             List<OptionRequest> options) {
 
         adv.setFullName(fullName);
@@ -118,7 +121,6 @@ public class AdvService {
         adv.setStatus(AdvStatus.PENDING);
         adv.setAdvType(advType);
 
-        // تنظیم دسته‌بندی اگر categoryId ارسال شده باشد
         if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("دسته‌بندی با این شناسه یافت نشد"));
@@ -139,20 +141,9 @@ public class AdvService {
     /**
      * Creates and persists a new {@link Product} advertisement.
      *
-     * <p>This method performs the following steps:</p>
-     * <ol>
-     *   <li>Finds the user by ID (extracted from the JWT token).</li>
-     *   <li>Creates a {@link Product} entity and populates its fields using {@link #createAdv}.</li>
-     *   <li>Sets product-specific fields (condition, brand, model, constructor, price).</li>
-     *   <li>Processes and attaches any images provided in the request.</li>
-     *   <li>Persists the product and returns its full details.</li>
-     * </ol>
-     *
-     * @param request the product creation data including title, description, location,
-     *                price, condition, brand, model, constructor, categoryId, options, and images
+     * @param request the product creation data
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created product advertisement
-     * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createProduct(ProductCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
@@ -161,7 +152,7 @@ public class AdvService {
                 request.fullName(), request.description(),
                 request.city(), request.address(),
                 user, AdvType.PRODUCT,
-                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.categoryId(),
                 request.options());
 
         product.setStateOfProduct(request.stateOfProduct());
@@ -184,14 +175,9 @@ public class AdvService {
     /**
      * Creates and persists a new {@link Service} advertisement.
      *
-     * <p>This method is similar to {@link #createProduct(ProductCreateRequest, UUID)}
-     * and populates service-specific fields (specialCategory, costOfPart, typeOfPart).</p>
-     *
-     * @param request the service creation data including title, description, location,
-     *                special category, cost of part, type of part, categoryId, options, and images
+     * @param request the service creation data
      * @param userId  the UUID of the authenticated user creating the advertisement
      * @return a {@link AdvDetailResponse} representing the newly created service advertisement
-     * @throws ResourceNotFoundException if no user exists with the given {@code userId}
      */
     public AdvDetailResponse createService(ServiceCreateRequest request, UUID userId) {
         User user = userService.findUserById(userId);
@@ -200,7 +186,7 @@ public class AdvService {
                 request.fullName(), request.description(),
                 request.city(), request.address(),
                 user, AdvType.SERVICE,
-                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.categoryId(),
                 request.options());
 
         service.setSpecialCategory(request.specialCategory());
@@ -219,49 +205,42 @@ public class AdvService {
     }
 
     /**
-     * Searches for advertisements matching the given filters.
+     * Searches for advertisements matching the given filters and sorting.
      *
-     * @param keyword    an optional keyword to match against advertisement titles/descriptions;
-     *                   may be {@code null} to skip keyword filtering
-     * @param city       an optional city filter; may be {@code null} to include all cities
-     * @param status     an optional status filter; may be {@code null} to include all statuses
-     * @param categoryId an optional category ID filter; may be {@code null} to include all categories
-     * @return a list of {@link AdvSummaryResponse} objects matching the given criteria;
-     *         never {@code null}, may be empty
+     * @param keyword    optional keyword to match against advertisement titles/descriptions
+     * @param city       optional city filter
+     * @param status     optional status filter
+     * @param categoryId optional category ID filter
+     * @param sortBy     sorting criterion (newest, oldest, priceAsc, priceDesc, ratingDesc)
+     * @return a list of {@link AdvSummaryResponse} objects matching the criteria and sorted
      */
-    public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status, Long categoryId) {
-        List<Adv> ads = advRepository.search(keyword, city, status, categoryId); // <-- ارسال categoryId به ریپازیتوری
+    public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status,
+                                           Long categoryId, String sortBy) {
+        List<Adv> ads = advRepository.search(keyword, city, status, categoryId, sortBy);
         return ads.stream()
                 .map(this::toAdvSummaryResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Returns all currently active advertisements matching the given filters.
+     * Returns all currently active advertisements matching the given filters and sorting.
      *
-     * <p>This is a convenience method that delegates to {@link #getAds(String, City, AdvStatus, Long)}
-     * with {@link AdvStatus#ACTIVE} as the status.</p>
-     *
-     * @param keyword    an optional keyword filter; may be {@code null}
-     * @param city       an optional city filter; may be {@code null}
-     * @param categoryId an optional category ID filter; may be {@code null}
-     * @return a list of active {@link AdvSummaryResponse} objects; never {@code null}, may be empty
+     * @param keyword    optional keyword filter
+     * @param city       optional city filter
+     * @param categoryId optional category ID filter
+     * @param sortBy     sorting criterion
+     * @return a list of active {@link AdvSummaryResponse} objects
      */
-    public List<AdvSummaryResponse> getActiveAds(String keyword, City city, Long categoryId) {
-        return getAds(keyword, city, AdvStatus.ACTIVE, categoryId);
+    public List<AdvSummaryResponse> getActiveAds(String keyword, City city,
+                                                 Long categoryId, String sortBy) {
+        return getAds(keyword, city, AdvStatus.ACTIVE, categoryId, sortBy);
     }
 
     /**
      * Returns the full detail of a publicly accessible advertisement.
      *
-     * <p>Only advertisements in {@link AdvStatus#ACTIVE} or {@link AdvStatus#SOLD}
-     * are accessible through this endpoint. Other statuses (e.g., PENDING, REJECTED, DELETED)
-     * are considered not publicly available.</p>
-     *
      * @param advId the UUID of the advertisement to retrieve
      * @return a {@link AdvDetailResponse} for the specified advertisement
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws BadRequestException       if the advertisement exists but is not publicly accessible
      */
     public AdvDetailResponse getAdvDetail(UUID advId) {
         Adv adv = findAdvById(advId);
@@ -275,8 +254,7 @@ public class AdvService {
      * Returns a summary list of all advertisements belonging to a specific user.
      *
      * @param userId the UUID of the user whose advertisements should be retrieved
-     * @return a list of {@link AdvSummaryResponse} objects for the given user;
-     *         never {@code null}, may be empty
+     * @return a list of {@link AdvSummaryResponse} objects
      */
     public List<AdvSummaryResponse> getUserAds(UUID userId) {
         List<Adv> ads = advRepository.findByUserId(userId);
@@ -288,25 +266,19 @@ public class AdvService {
     /**
      * Updates the base fields common to all advertisement types on an existing {@link Adv}.
      *
-     * <p>Validates that the requesting user owns the advertisement before applying any changes.
-     * Only non-{@code null} fields from the parameters are applied. If a new options list
-     * is provided, the existing options are deleted and replaced.</p>
-     *
      * @param adv         the advertisement entity to update
      * @param fullName    the new title; {@code null} means no change
      * @param description the new description; {@code null} means no change
      * @param city        the new city; {@code null} means no change
      * @param address     the new address; {@code null} means no change
-     * @param userId      the UUID of the requesting user (used for ownership validation)
+     * @param userId      the UUID of the requesting user
      * @param categoryId  the new category ID; {@code null} means no change
      * @param options     the replacement options list; {@code null} means no change
-     * @throws ForbiddenException        if the requesting user does not own the advertisement
-     * @throws ResourceNotFoundException if {@code categoryId} is provided but no category exists
      */
     private void updateAdv(
             Adv adv, String fullName, String description,
             City city, String address, UUID userId,
-            Long categoryId, // <-- پارامتر جدید
+            Long categoryId,
             List<OptionRequest> options) {
 
         validateOwnership(adv, userId);
@@ -315,7 +287,6 @@ public class AdvService {
         if (city != null) adv.setCity(city);
         if (address != null) adv.setAddress(address);
 
-        // به‌روزرسانی دسته‌بندی اگر categoryId ارسال شده باشد
         if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("دسته‌بندی با این شناسه یافت نشد"));
@@ -337,18 +308,10 @@ public class AdvService {
     /**
      * Updates an existing {@link Product} advertisement.
      *
-     * <p>Verifies that the advertisement identified by {@code advId} is actually a
-     * {@link Product} before proceeding. Base fields are updated via {@link #updateAdv},
-     * then product-specific fields (condition, brand, model, constructor, price)
-     * are applied for any non-{@code null} values in the request.</p>
-     *
      * @param advId   the UUID of the advertisement to update
-     * @param request the product update data; only non-{@code null} fields are applied
+     * @param request the product update data
      * @param userId  the UUID of the requesting user
-     * @return a {@link AdvDetailResponse} reflecting the updated product advertisement
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws BadRequestException       if the advertisement is not of type {@link Product}
-     * @throws ForbiddenException        if the requesting user does not own the advertisement
+     * @return the updated {@link AdvDetailResponse}
      */
     public AdvDetailResponse updateProduct(UUID advId, ProductUpdateRequest request, UUID userId) {
         Adv foundAdv = findAdvById(advId);
@@ -360,7 +323,7 @@ public class AdvService {
                 request.fullName(), request.description(),
                 request.city(), request.address(),
                 userId,
-                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.categoryId(),
                 request.options());
 
         if (request.stateOfProduct() != null) product.setStateOfProduct(request.stateOfProduct());
@@ -376,18 +339,10 @@ public class AdvService {
     /**
      * Updates an existing {@link Service} advertisement.
      *
-     * <p>Verifies that the advertisement identified by {@code advId} is actually a
-     * {@link Service} before proceeding. Base fields are updated via {@link #updateAdv},
-     * then service-specific fields (special category, cost of part, type of part)
-     * are applied for any non-{@code null} values in the request.</p>
-     *
      * @param advId   the UUID of the advertisement to update
-     * @param request the service update data; only non-{@code null} fields are applied
+     * @param request the service update data
      * @param userId  the UUID of the requesting user
-     * @return a {@link AdvDetailResponse} reflecting the updated service advertisement
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws BadRequestException       if the advertisement is not of type {@link Service}
-     * @throws ForbiddenException        if the requesting user does not own the advertisement
+     * @return the updated {@link AdvDetailResponse}
      */
     public AdvDetailResponse updateService(UUID advId, ServiceUpdateRequest request, UUID userId) {
         Adv foundAdv = findAdvById(advId);
@@ -399,7 +354,7 @@ public class AdvService {
                 request.fullName(), request.description(),
                 request.city(), request.address(),
                 userId,
-                request.categoryId(), // <-- ارسال categoryId از درخواست
+                request.categoryId(),
                 request.options());
 
         if (request.specialCategory() != null) service.setSpecialCategory(request.specialCategory());
@@ -413,12 +368,8 @@ public class AdvService {
     /**
      * Soft-deletes an advertisement by setting its status to {@link AdvStatus#DELETED}.
      *
-     * <p>Ownership is validated before the status change is applied.</p>
-     *
      * @param advId  the UUID of the advertisement to delete
      * @param userId the UUID of the requesting user
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws ForbiddenException        if the requesting user does not own the advertisement
      */
     public void deleteAdv(UUID advId, UUID userId) {
         Adv adv = findAdvById(advId);
@@ -430,14 +381,8 @@ public class AdvService {
     /**
      * Marks an active advertisement as sold by setting its status to {@link AdvStatus#SOLD}.
      *
-     * <p>Ownership is validated, and the advertisement must currently be in
-     * {@link AdvStatus#ACTIVE} status.</p>
-     *
      * @param advId  the UUID of the advertisement to mark as sold
      * @param userId the UUID of the requesting user
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws ForbiddenException        if the requesting user does not own the advertisement
-     * @throws BadRequestException       if the advertisement is not currently active
      */
     public void markAsSold(UUID advId, UUID userId) {
         Adv adv = findAdvById(advId);
@@ -451,13 +396,9 @@ public class AdvService {
 
     /**
      * Approves a pending advertisement by setting its status to {@link AdvStatus#ACTIVE}.
-     *
-     * <p>This is an admin operation. The advertisement must currently be in
-     * {@link AdvStatus#PENDING} status.</p>
+     * Admin operation.
      *
      * @param advId the UUID of the advertisement to approve
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws BadRequestException       if the advertisement is not in pending status
      */
     public void approveAdv(UUID advId) {
         Adv adv = findAdvById(advId);
@@ -469,16 +410,11 @@ public class AdvService {
     }
 
     /**
-     * Rejects a pending advertisement by setting its status to {@link AdvStatus#REJECTED}
-     * and recording the rejection reason.
-     *
-     * <p>This is an admin operation. The advertisement must currently be in
-     * {@link AdvStatus#PENDING} status.</p>
+     * Rejects a pending advertisement by setting its status to {@link AdvStatus#REJECTED}.
+     * Admin operation.
      *
      * @param advId  the UUID of the advertisement to reject
-     * @param reason the reason for rejection, stored on the advertisement entity
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
-     * @throws BadRequestException       if the advertisement is not in pending status
+     * @param reason the reason for rejection
      */
     public void rejectAdv(UUID advId, String reason) {
         Adv adv = findAdvById(advId);
@@ -492,11 +428,9 @@ public class AdvService {
 
     /**
      * Returns a summary list of all advertisements currently in {@link AdvStatus#PENDING}.
+     * Admin operation.
      *
-     * <p>Intended for use by administrators to review and moderate new submissions.</p>
-     *
-     * @return a list of {@link AdvSummaryResponse} objects for pending advertisements;
-     *         never {@code null}, may be empty
+     * @return a list of pending {@link AdvSummaryResponse} objects
      */
     public List<AdvSummaryResponse> getPendingAds() {
         List<Adv> ads = advRepository.findByStatus(AdvStatus.PENDING);
@@ -506,11 +440,11 @@ public class AdvService {
     }
 
     /**
-     * Looks up an advertisement by its UUID, throwing if not found.
+     * Looks up an advertisement by its UUID.
      *
      * @param advId the UUID of the advertisement to find
      * @return the {@link Adv} entity with the given ID
-     * @throws ResourceNotFoundException if no advertisement exists with the given {@code advId}
+     * @throws ResourceNotFoundException if no advertisement exists
      */
     public Adv findAdvById(UUID advId) {
         return advRepository.findById(advId)
@@ -522,7 +456,7 @@ public class AdvService {
      *
      * @param adv    the advertisement whose ownership is being checked
      * @param userId the UUID of the user claiming ownership
-     * @throws ForbiddenException if the user's ID does not match the advertisement's owner ID
+     * @throws ForbiddenException if the user is not the owner
      */
     private void validateOwnership(Adv adv, UUID userId) {
         if (!adv.getUser().getId().equals(userId)) {
@@ -533,15 +467,12 @@ public class AdvService {
     /**
      * Converts an {@link Adv} entity to a lightweight {@link AdvSummaryResponse} DTO.
      *
-     * <p>The first image path is used as the thumbnail; {@code null} is used if no images exist.
-     * The category name is extracted from the associated {@link Category} if present.</p>
-     *
      * @param adv the advertisement entity to convert
-     * @return a {@link AdvSummaryResponse} with key summary fields populated
+     * @return a {@link AdvSummaryResponse} with key summary fields
      */
     public AdvSummaryResponse toAdvSummaryResponse(Adv adv) {
         String firstImage = adv.getImages().isEmpty() ? null : adv.getImages().get(0).getPath();
-        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null; // <-- استخراج نام دسته‌بندی
+        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null;
 
         return new AdvSummaryResponse(
                 adv.getId(),
@@ -553,17 +484,12 @@ public class AdvService {
                 adv.getUser().getId(),
                 adv.getCreationDate(),
                 firstImage,
-                categoryName // <-- فیلد جدید
+                categoryName
         );
     }
 
     /**
      * Converts an {@link Adv} entity to a full {@link AdvDetailResponse} DTO.
-     *
-     * <p>Includes the owner summary, all images, all options, all comments, and—depending
-     * on the advertisement type—either a {@link ProductDetailResponse} or a
-     * {@link ServiceDetailResponse} with type-specific fields. The category name
-     * is extracted from the associated {@link Category} if present.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a fully populated {@link AdvDetailResponse}
@@ -600,7 +526,7 @@ public class AdvService {
                 ))
                 .collect(Collectors.toList());
 
-        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null; // <-- استخراج نام دسته‌بندی
+        String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null;
 
         ProductDetailResponse productDetail = null;
         ServiceDetailResponse serviceDetail = null;
@@ -611,13 +537,13 @@ public class AdvService {
                     p.getBrand(),
                     p.getModel(),
                     p.getConstructor(),
-                    categoryName, // <-- ارسال نام دسته‌بندی (از Adv گرفته شده است)
+                    categoryName,
                     p.getPrice()
             );
         } else if (adv.getAdvType() == AdvType.SERVICE && adv instanceof Service s) {
             serviceDetail = new ServiceDetailResponse(
                     s.getSpecialCategory(),
-                    categoryName, // <-- فیلد جدید
+                    categoryName,
                     s.getCostOfPart(),
                     s.getTypeOfPart()
             );
@@ -640,7 +566,7 @@ public class AdvService {
                 comments,
                 productDetail,
                 serviceDetail,
-                categoryName // <-- فیلد جدید
+                categoryName
         );
     }
 }

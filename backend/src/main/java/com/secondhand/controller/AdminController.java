@@ -1,6 +1,7 @@
 package com.secondhand.controller;
 
 import com.secondhand.dto.adv.AdvSummaryResponse;
+import com.secondhand.dto.admin.DashboardStatsResponse;
 import com.secondhand.dto.user.UserSummaryResponse;
 import com.secondhand.entity.User;
 import com.secondhand.entity.enums.UserStatus;
@@ -155,6 +156,26 @@ public class AdminController {
         adminService.deleteAdv(advId);
         return ResponseEntity.ok("آگهی با موفقیت حذف شد");
     }
+
+    // ==================== جدید: داشبورد آماری ====================
+
+    /**
+     * Retrieves comprehensive system statistics for the admin dashboard.
+     * <p>
+     * This endpoint returns aggregated data including user counts (total, active, banned, deleted),
+     * advertisement distribution by status (pending, active, sold, rejected), and total message/comment counts.
+     * </p>
+     *
+     * @param token the JWT bearer token from the {@code Authorization} request header (admin required)
+     * @return a {@link DashboardStatsResponse} containing all system statistics
+     */
+    @GetMapping("dashboard-stats")
+    public DashboardStatsResponse getDashboardStats(@RequestHeader("Authorization") String token) {
+        checkAdmin(token);
+        return adminService.getDashboardStats();
+    }
+
+    // ============================================================
 
     /**
      * Verifies that the token belongs to a user with {@link UserType#ADMIN} role.

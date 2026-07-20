@@ -35,7 +35,8 @@ public class AdvController {
     }
 
     /**
-     * Retrieves a list of active advertisements, optionally filtered by keyword, city, and category.
+     * Retrieves a list of active advertisements, optionally filtered by keyword, city, category,
+     * and sorted by the specified criteria.
      *
      * @param keyword    an optional search keyword to filter advertisements by title or description;
      *                   pass {@code null} or omit to skip keyword filtering
@@ -43,14 +44,17 @@ public class AdvController {
      *                   must be a valid {@link City} enum name, or {@code null}/blank to skip city filtering
      * @param categoryId an optional category ID to filter advertisements by category;
      *                   pass {@code null} or omit to skip category filtering
-     * @return a list of {@link AdvSummaryResponse} objects matching the given filters
+     * @param sortBy     an optional sorting criterion; supported values:
+     *                   {@code newest} (default), {@code oldest}, {@code priceAsc}, {@code priceDesc}, {@code ratingDesc}
+     * @return a list of {@link AdvSummaryResponse} objects matching the given filters and sorted accordingly
      * @throws BadRequestException if the provided city name does not match any valid {@link City} value
      */
     @GetMapping("search")
     public List<AdvSummaryResponse> getActiveAds(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) Long categoryId) { // <-- پارامتر جدید
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false, defaultValue = "newest") String sortBy) { // <-- پارامتر جدید
 
         City cityEnum = null;
         if (city != null && !city.isBlank()) {
@@ -60,7 +64,7 @@ public class AdvController {
                 throw new BadRequestException("شهر وارد شده معتبر نیست");
             }
         }
-        return advService.getActiveAds(keyword, cityEnum, categoryId); // <-- ارسال categoryId به سرویس
+        return advService.getActiveAds(keyword, cityEnum, categoryId, sortBy); // <-- ارسال sortBy به سرویس
     }
 
     /**

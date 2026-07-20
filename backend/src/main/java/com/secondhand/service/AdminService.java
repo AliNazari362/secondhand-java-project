@@ -1,12 +1,15 @@
 package com.secondhand.service;
 
 import com.secondhand.dto.adv.AdvSummaryResponse;
+import com.secondhand.dto.admin.DashboardStatsResponse;
 import com.secondhand.dto.user.UserSummaryResponse;
 import com.secondhand.entity.Adv;
 import com.secondhand.entity.enums.AdvStatus;
 import com.secondhand.entity.User;
 import com.secondhand.entity.enums.UserStatus;
 import com.secondhand.repository.AdvRepository;
+import com.secondhand.repository.CommentRepository;
+import com.secondhand.repository.MessageRepository;
 import com.secondhand.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
  *   <li>Banning and unbanning user accounts</li>
  *   <li>Approving, rejecting, and force-deleting advertisements</li>
  *   <li>Retrieving the list of advertisements pending review</li>
+ *   <li>Retrieving system-wide statistics for the admin dashboard</li>
  * </ul>
  * These operations should only be accessible to users with an admin role.
  * </p>
@@ -34,23 +38,31 @@ public class AdminService {
     private final AdvService advService;
     private final AdvRepository advRepository;
     private final UserService userService;
+    private final CommentRepository commentRepository;
+    private final MessageRepository messageRepository;
 
     /**
      * Constructs an {@code AdminService} with all required repository and service dependencies.
      *
-     * @param userRepository the repository for persisting and querying {@link User} entities
-     * @param advService     the service used for advertisement operations and lookups
-     * @param advRepository  the repository for persisting and querying {@link Adv} entities
-     * @param userService    the service used for user lookups and response mapping
+     * @param userRepository     the repository for persisting and querying {@link User} entities
+     * @param advService         the service used for advertisement operations and lookups
+     * @param advRepository      the repository for persisting and querying {@link Adv} entities
+     * @param userService        the service used for user lookups and response mapping
+     * @param commentRepository  the repository for querying {@link com.secondhand.entity.Comment} entities
+     * @param messageRepository  the repository for querying {@link com.secondhand.entity.Message} entities
      */
     public AdminService(UserRepository userRepository,
                         AdvService advService,
                         AdvRepository advRepository,
-                        UserService userService) {
+                        UserService userService,
+                        CommentRepository commentRepository,
+                        MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.advService = advService;
         this.advRepository = advRepository;
         this.userService = userService;
+        this.commentRepository = commentRepository;
+        this.messageRepository = messageRepository;
     }
 
     /**
@@ -161,5 +173,45 @@ public class AdminService {
      */
     public List<AdvSummaryResponse> getPendingAds() {
         return advService.getPendingAds();
+    }
+
+    /**
+     * Retrieves comprehensive system statistics for the admin dashboard.
+     * <p>
+     * This method aggregates data from multiple repositories to provide a
+     * complete overview of the platform's current state, including user counts,
+     * advertisement distribution by status, and total message/comment counts.
+     * </p>
+     *
+     * @return a {@link DashboardStatsResponse} containing all aggregated statistics
+     */
+    public DashboardStatsResponse getDashboardStats() {
+        long totalUsers = userRepository.count();
+        long activeUsers = userRepository.findByUserStatus(UserStatus.ACTIVE).size();
+        long bannedUsers = userRepository.findByUserStatus(UserStatus.BANNED).size();
+        long deletedUsers = userRepository.findByUserStatus(UserStatus.DELETED).size();
+
+        long totalAds = advRepository.count();
+        long pendingAds = advRepository.findByStatus(AdvStatus.PENDING).size();
+        long activeAds = advRepository.findByStatus(AdvStatus.ACTIVE).size();
+        long soldAds = advRepository.findByStatus(AdvStatus.SOLD).size();
+        long rejectedAds = advRepository.findByStatus(AdvStatus.REJECTED).size();
+
+        long totalMessages = messageRepository.count();
+        long totalComments = commentRepository.count();
+
+        return new DashboardStatsResponse(
+                totalUsers,
+                activeUsers,
+                bannedUsers,
+                deletedUsers,
+                totalAds,
+                pendingAds,
+                activeAds,
+                soldAds,
+                rejectedAds,
+                totalMessages,
+                totalComments
+        );
     }
 }
