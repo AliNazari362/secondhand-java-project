@@ -1,5 +1,7 @@
 package com.secondhand.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.secondhand.entity.enums.AdvType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -18,9 +20,11 @@ import java.util.Objects;
  * The {@code type} field uses {@link AdvType} to distinguish between
  * categories meant for PRODUCT ads versus SERVICE ads.</p>
  *
- * <p>This entity is managed by administrators via dedicated CRUD endpoints.
- * Advertisements reference a category via a {@link ManyToOne} relationship
- * defined in the {@link Adv} entity.</p>
+ * <p><strong>JSON Serialization Note:</strong> The combination of
+ * {@code @JsonManagedReference} and {@code @JsonBackReference} prevents
+ * infinite recursion when serializing bidirectional relationships to JSON.
+ * The parent side ({@code subCategories}) is serialized normally, while the
+ * child side ({@code parent}) is ignored during serialization to break the cycle.</p>
  *
  * @see Adv
  * @see AdvType
@@ -58,17 +62,27 @@ public class Category {
      * Parent category in the hierarchy.
      * If {@code null}, this category is a root-level (top-level) category.
      * This enables the hierarchical (tree) structure.
+     *
+     * <p><strong>JSON Serialization:</strong> This field is annotated with
+     * {@code @JsonBackReference} to prevent infinite recursion when
+     * serializing the parent-child relationship.</p>
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
+    @JsonBackReference  // <-- این خط مانع از حلقه بی‌نهایت می‌شود
     private Category parent;
 
     /**
      * List of sub-categories (children) of this category.
      * Maintained as the inverse side of the {@code parent} relationship.
      * Cascades all operations and orphans are removed automatically.
+     *
+     * <p><strong>JSON Serialization:</strong> This field is annotated with
+     * {@code @JsonManagedReference} to allow full serialization of the
+     * child list without causing infinite recursion.</p>
      */
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference  // <-- این خط باعث می‌شود زیردسته‌ها نمایش داده شوند
     private List<Category> subCategories = new ArrayList<>();
 
     /**
