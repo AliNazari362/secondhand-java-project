@@ -2,7 +2,6 @@ package controller;
 
 import javafx.scene.control.ListCell;
 import model.response.AdvertisementSummaryDto;
-import service.SessionManager;
 import utils.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

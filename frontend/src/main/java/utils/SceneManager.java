@@ -1,12 +1,12 @@
 package utils;
 
-import controller.LoginController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class SceneManager {
 
@@ -23,18 +23,15 @@ public class SceneManager {
             );
             Parent root = loader.load();
             Scene scene = new Scene(root, 520, 500);
-            // اضافه کردن CSS سفارشی
+            // add CSS file
             scene.getStylesheets().add(
-                    SceneManager.class.getResource("/css/app.css").toExternalForm()
+                    Objects.requireNonNull(SceneManager.class.getResource("/css/app.css")).toExternalForm()
             );
             primaryStage.setTitle("ورود به سامانه");
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
-            e.printStackTrace();
             AlertUtil.showError("خطا در بارگذاری صفحه ورود: " + e.getMessage());
         }
     }
-
-    // متدهای دیگر برای صفحات بعدی...
 }

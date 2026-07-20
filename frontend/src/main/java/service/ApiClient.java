@@ -271,4 +271,9 @@ public class ApiClient {
         }
         return "";
     }
+
+    public String uploadFile(String path, byte[] imageBytes, String fileName) {
+        // TODO complete this
+        return "";
+    }
 }

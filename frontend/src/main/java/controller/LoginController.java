@@ -5,7 +5,6 @@ import model.enums.UserType;
 import model.request.LoginRequest;
 import model.response.LoginResponse;
 import service.ApiClient;
-import service.SessionManager;
 import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.geometry.Insets;

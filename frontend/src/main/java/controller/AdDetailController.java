@@ -5,7 +5,6 @@ import model.request.ChatroomCreateRequest;
 import model.response.AdvertisementDetailDto;
 import model.response.ChatroomDetailDto;
 import service.ApiClient;
-import service.SessionManager;
 import utils.AlertUtil;
 import utils.SceneManager;
 import javafx.geometry.Insets;
