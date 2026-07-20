@@ -1,0 +1,353 @@
+/* ========================= */
+/*    صفحه ورود / ثبت‌نام    */
+/* ========================= */
+.login-container {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 10);
+    -fx-pref-width: 400;
+}
+
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3748;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-fill: #718096;
+}
+
+/* ========================= */
+/*       فیلدهای ورودی       */
+/* ========================= */
+.input-container {
+    -fx-padding: 0 10;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-pref-height: 45;
+}
+
+.input-container:focused {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
+}
+
+.input-field {
+    -fx-padding: 12 0;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45;
+}
+
+.input-field:focused {
+    -fx-border-color: transparent;
+    -fx-effect: null;
+}
+
+/* ========================= */
+/*          دکمه‌ها           */
+/* ========================= */
+.primary-btn {
+    -fx-background-color: #4299e1;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 8;
+    -fx-pref-height: 48;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #3182ce;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.success-btn {
+    -fx-background-color: #48bb78;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 8;
+    -fx-pref-height: 48;
+    -fx-cursor: hand;
+}
+
+.success-btn:hover {
+    -fx-background-color: #38a169;
+}
+
+.danger-btn {
+    -fx-background-color: #fc8181;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 8;
+    -fx-pref-height: 48;
+    -fx-cursor: hand;
+}
+
+.danger-btn:hover {
+    -fx-background-color: #f56565;
+}
+
+.secondary-btn {
+    -fx-background-color: #edf2f7;
+    -fx-text-fill: #2d3748;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 25;
+    -fx-background-radius: 8;
+    -fx-pref-height: 42;
+    -fx-cursor: hand;
+}
+
+.secondary-btn:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* ========================= */
+/*          لینک‌ها          */
+/* ========================= */
+.link {
+    -fx-text-fill: #4299e1;
+    -fx-font-size: 13px;
+    -fx-underline: false;
+    -fx-cursor: hand;
+}
+
+.link:hover {
+    -fx-text-fill: #2b6cb0;
+    -fx-underline: true;
+}
+
+/* ========================= */
+/*          هدر             */
+/* ========================= */
+.header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+.header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3748;
+}
+
+.header-subtitle {
+    -fx-font-size: 14px;
+    -fx-fill: #718096;
+}
+
+/* ========================= */
+/*       کارت آگهی          */
+/* ========================= */
+.ad-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);
+    -fx-padding: 15;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-pref-width: 200;
+}
+
+.ad-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.ad-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-fill: #2d3748;
+}
+
+.ad-price {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #48bb78;
+}
+
+.ad-city {
+    -fx-font-size: 13px;
+    -fx-text-fill: #718096;
+}
+
+.ad-date {
+    -fx-font-size: 12px;
+    -fx-text-fill: #a0aec0;
+}
+
+/* ========================= */
+/*         کارت‌ها           */
+/* ========================= */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 4);
+    -fx-padding: 30;
+}
+
+/* ========================= */
+/*         لیست‌ها           */
+/* ========================= */
+.list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+}
+
+.list-view .list-cell {
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-view .list-cell:hover {
+    -fx-background-color: #ebf8ff;
+}
+
+.list-view .list-cell:selected {
+    -fx-background-color: #4299e1;
+    -fx-text-fill: white;
+}
+
+/* ========================= */
+/*          تب‌ها            */
+/* ========================= */
+.tab-pane {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 10;
+}
+
+.tab {
+    -fx-background-color: #edf2f7;
+    -fx-background-radius: 8 8 0 0;
+    -fx-padding: 10 20;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected {
+    -fx-background-color: #4299e1;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+/* ========================= */
+/*       وضعیت آگهی         */
+/* ========================= */
+.status-badge {
+    -fx-padding: 4 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.status-active {
+    -fx-background-color: #48bb78;
+    -fx-text-fill: white;
+}
+
+.status-pending {
+    -fx-background-color: #ed8936;
+    -fx-text-fill: white;
+}
+
+.status-rejected {
+    -fx-background-color: #fc8181;
+    -fx-text-fill: white;
+}
+
+.status-sold {
+    -fx-background-color: #a0aec0;
+    -fx-text-fill: white;
+}
+
+/* ========================= */
+/*       کامپوننت‌ها        */
+/* ========================= */
+.message-bubble {
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+    -fx-max-width: 80%;
+}
+
+.my-message {
+    -fx-background-color: #4299e1;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.other-message {
+    -fx-background-color: #edf2f7;
+    -fx-text-fill: #2d3748;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.category-chip {
+    -fx-background-color: #ebf8ff;
+    -fx-background-radius: 12;
+    -fx-padding: 4 12;
+    -fx-border-color: #bee3f8;
+    -fx-border-radius: 12;
+}
+
+.category-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2b6cb0;
+}
+
+.sidebar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2d3748;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #edf2f7;
+}
+
+.text-area-field {
+    -fx-padding: 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-font-size: 14px;
+}
+
+.text-area-field:focused {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
+}

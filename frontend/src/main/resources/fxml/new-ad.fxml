@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import java.lang.String?>
+
+<VBox spacing="0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.NewAdController" nodeOrientation="RIGHT_TO_LEFT">
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+        <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
+        <FontIcon iconLiteral="fas-plus" iconSize="20" iconColor="#2d3748" />
+        <Text text="ثبت آگهی جدید" styleClass="header-title" />
+        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <Button onAction="#onCancel">
+                <graphic><FontIcon iconLiteral="fas-times" iconSize="16" /></graphic>
+            </Button>
+        </HBox>
+    </HBox>
+    <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
+            <VBox styleClass="card" spacing="20" prefWidth="700.0">
+                <Text text="اطلاعات آگهی" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+
+                <!-- Image Upload Section -->
+                <VBox spacing="10" alignment="CENTER" style="-fx-padding: 15; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-border-style: dashed; -fx-border-width: 2; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
+                    <FontIcon iconLiteral="fas-cloud-upload-alt" iconSize="36" iconColor="#a0aec0" />
+                    <Text text="تصاویر آگهی را اینجا بارگذاری کنید" style="-fx-font-size: 13px; -fx-fill: #718096;" />
+                    <Text text="فرمت های مجاز: JPG, PNG (حداکثر ۵ عکس)" style="-fx-font-size: 11px; -fx-fill: #a0aec0;" />
+                    <Button text="انتخاب تصاویر" onAction="#onChooseImage" styleClass="success-btn">
+                        <graphic><FontIcon iconLiteral="fas-images" iconSize="16" /></graphic>
+                    </Button>
+                </VBox>
+
+                <!-- Title -->
+                <VBox spacing="5">
+                    <Text text="عنوان آگهی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                    <TextField fx:id="titleField" promptText="عنوان آگهی *" styleClass="input-field" />
+                </VBox>
+
+                <!-- Description -->
+                <VBox spacing="5">
+                    <Text text="توضیحات" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                    <TextArea fx:id="descArea" promptText="توضیحات کامل *" styleClass="text-area-field" prefHeight="120.0" wrapText="true" />
+                </VBox>
+
+                <!-- City -->
+                <VBox spacing="5">
+                    <Text text="شهر" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                    <ComboBox fx:id="cityCombo" promptText="شهر *" styleClass="input-field" maxWidth="1.7976931348623157E308">
+                        <items>
+<!--                            <String fx:value="تهران" />-->
+<!--                            <String fx:value="اصفهان" />-->
+<!--                            <String fx:value="شیراز" />-->
+<!--                            <String fx:value="مشهد" />-->
+<!--                            <String fx:value="تبریز" />-->
+<!--                            <String fx:value="اهواز" />-->
+<!--                            <String fx:value="کرمان" />-->
+<!--                            <String fx:value="رشت" />-->
+<!--                            <String fx:value="یزد" />-->
+<!--                            <String fx:value="قم" />-->
+<!--                            <String fx:value="کرج" />-->
+                        </items>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Address -->
+                <VBox spacing="5">
+                    <Text text="آدرس" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                    <TextField fx:id="addressField" promptText="آدرس *" styleClass="input-field" />
+                </VBox>
+
+                <!-- Ad Type Selection -->
+                <VBox spacing="5">
+                    <Text text="نوع آگهی" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                    <ComboBox fx:id="typeCombo" promptText="انتخاب نوع آگهی (خدمت یا کالا) *" styleClass="input-field" maxWidth="1.7976931348623157E308">
+                        <items>
+<!--                            <String fx:value="خدمت" />-->
+<!--                            <String fx:value="کالا" />-->
+                        </items>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Service Fields Section -->
+                <VBox fx:id="serviceFields" spacing="15">
+                    <Text text="جزئیات خدمت" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 5 0 0 0;" />
+                    <VBox spacing="5">
+                        <Text text="نوع محاسبه خدمت" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <ComboBox fx:id="serviceCalcTypeCombo" promptText="نوع محاسبه خدمت *" styleClass="input-field" maxWidth="1.7976931348623157E308">
+<!--                            <items>-->
+<!--                                <String fx:value="ساعتی" />-->
+<!--                                <String fx:value="روزانه" />-->
+<!--                                <String fx:value="هفتگی" />-->
+<!--                                <String fx:value="ماهانه" />-->
+<!--                                <String fx:value="سالانه" />-->
+<!--                                <String fx:value="ثابت" />-->
+<!--                            </items>-->
+                        </ComboBox>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="هزینه ارائه خدمت" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <TextField fx:id="servicePriceField" promptText="هزینه ارائه خدمت در هر پارت *" styleClass="input-field" />
+                    </VBox>
+                </VBox>
+
+                <!-- Product Fields Section -->
+                <VBox fx:id="productFields" spacing="15">
+                    <Text text="جزئیات کالا" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 5 0 0 0;" />
+                    <VBox spacing="5">
+                        <Text text="قیمت" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <TextField fx:id="productPriceField" promptText="قیمت (تومان) *" styleClass="input-field" />
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="وضعیت محصول" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <ComboBox fx:id="productConditionCombo" promptText="وضعیت محصول *" styleClass="input-field" maxWidth="1.7976931348623157E308">
+                            <items>
+<!--                                <String fx:value="نو" />-->
+<!--                                <String fx:value="در حد نو" />-->
+<!--                                <String fx:value="خوب" />-->
+<!--                                <String fx:value="قابل قبول" />-->
+<!--                                <String fx:value="آسیب دیده" />-->
+<!--                                <String fx:value="بازسازی شده" />-->
+                            </items>
+                        </ComboBox>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="برند" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <TextField fx:id="brandField" promptText="برند" styleClass="input-field" />
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="مدل" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <TextField fx:id="modelField" promptText="مدل" styleClass="input-field" />
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="دسته بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <ComboBox fx:id="categoryCombo" promptText="دسته بندی *" styleClass="input-field" maxWidth="1.7976931348623157E308">
+                            <items>
+<!--                                <String fx:value="الکترونیک" />-->
+<!--                                <String fx:value="وسیله نقلیه" />-->
+<!--                                <String fx:value="مبلمان" />-->
+<!--                                <String fx:value="کتاب" />-->
+<!--                                <String fx:value="پوشاک" />-->
+<!--                                <String fx:value="املاک" />-->
+<!--                                <String fx:value="ورزشی" />-->
+<!--                                <String fx:value="اسباب بازی" />-->
+<!--                                <String fx:value="سایر" />-->
+                            </items>
+                        </ComboBox>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Text text="سازنده یا طراح" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                        <TextField fx:id="manufacturerField" promptText="سازنده یا طراح" styleClass="input-field" />
+                    </VBox>
+                </VBox>
+
+                <!-- Add Options Section -->
+                <VBox spacing="10">
+                    <Text text="ویژگی های اضافی" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 5 0 0 0;" />
+                    <Button text="افزودن ویژگی جدید"  styleClass="primary-btn" maxWidth="200">
+                        <graphic><FontIcon iconLiteral="fas-plus-circle" iconSize="16" /></graphic>
+                    </Button>
+                    <VBox fx:id="optionsContainer" spacing="10" />
+                </VBox>
+
+                <!-- Submit Button -->
+                <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                    <Button text="ثبت آگهی" onAction="#onSubmit" styleClass="success-btn">
+                        <graphic><FontIcon iconLiteral="fas-check-circle" iconSize="16" /></graphic>
+                    </Button>
+                    <Button text="انصراف" onAction="#onCancel" styleClass="danger-btn">
+                        <graphic><FontIcon iconLiteral="fas-times" iconSize="16" /></graphic>
+                    </Button>
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

@@ -15,7 +15,7 @@ public class ExceptionHandler {
      */
     public static void handle(Exception e) {
         if (e instanceof ApiException apiEx) {
-            ErrorResponseDto error = ApiClient.fromJson(apiEx.getMessage(), ErrorResponseDto.class);
+            ErrorResponseDto error = ApiClient.getInstance().fromJson(apiEx.getMessage(), ErrorResponseDto.class);
             AlertUtil.showError("خطا: " + error.getMessage());
         } else if (e instanceof AuthenticationException) {
             AlertUtil.showError("خطای احراز هویت: " + e.getMessage());

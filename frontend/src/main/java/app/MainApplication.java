@@ -1,10 +1,11 @@
 package app;
 
 import javafx.application.Application;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import utils.SceneManager;
 import atlantafx.base.theme.PrimerLight;
-import javafx.application.Application;
+import utils.Pages;
+import utils.SceneManager;
 
 
 public class MainApplication extends Application {
@@ -17,7 +18,7 @@ public class MainApplication extends Application {
         );
 
         SceneManager.init(stage);
-        SceneManager.showLoginPage();
+        SceneManager.showPage(Pages.LOGIN, null);
     }
 
     public static void main(String[] args) {

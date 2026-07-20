@@ -1,17 +1,14 @@
-package controller;
+package component;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 
-public class DashboardController {
+public class SearchBarController {
 
     @FXML private TextField searchField;
-    @FXML private FlowPane adFlowPane;
 
     @FXML
     public void onSearch() {
-        // TODO: پیاده‌سازی جستجو
         System.out.println("Search clicked!");
     }
 }

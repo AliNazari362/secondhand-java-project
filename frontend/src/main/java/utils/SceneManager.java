@@ -3,6 +3,7 @@ package utils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -16,22 +17,30 @@ public class SceneManager {
         primaryStage = stage;
     }
 
-    public static void showLoginPage() {
+    public static void showPage(Pages page, String title) {
+        String finalTitle = title == null ? page.getTitle() : title;
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    SceneManager.class.getResource("/fxml/login.fxml")
-            );
+            // Set fxml File
+            FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource("/fxml/" + page.getRoot() + ".fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root, 520, 500);
-            // add CSS file
+            Scene scene = new Scene(root, 800,600);
+
+            // Set Style
             scene.getStylesheets().add(
                     Objects.requireNonNull(SceneManager.class.getResource("/css/app.css")).toExternalForm()
             );
-            primaryStage.setTitle("ورود به سامانه");
+
+            // Set font
+            Font font = Font.loadFont(SceneManager.class.getResourceAsStream("/fonts/anjoman.ttf"), 14);
+            if (font != null) root.setStyle("-fx-font-family: '" + font.getFamily() + "'; -fx-font-size: 14px;");
+
+            primaryStage.setTitle(finalTitle);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
-            AlertUtil.showError("خطا در بارگذاری صفحه ورود: " + e.getMessage());
+            e.printStackTrace();
+//            System.err.println(e.getMessage());
+            AlertUtil.showError("خطا در بارگذاری صفحه " + finalTitle);
         }
     }
 }
