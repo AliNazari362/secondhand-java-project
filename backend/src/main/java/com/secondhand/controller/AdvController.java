@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public class AdvController {
 
     /**
      * Retrieves a list of active advertisements, optionally filtered by keyword, city, category,
-     * and sorted by the specified criteria.
+     * price range, and sorted by the specified criteria.
      *
      * @param keyword    an optional search keyword to filter advertisements by title or description;
      *                   pass {@code null} or omit to skip keyword filtering
@@ -46,6 +47,10 @@ public class AdvController {
      *                   pass {@code null} or omit to skip category filtering
      * @param sortBy     an optional sorting criterion; supported values:
      *                   {@code newest} (default), {@code oldest}, {@code priceAsc}, {@code priceDesc}, {@code ratingDesc}
+     * @param minPrice   an optional minimum price filter (inclusive, only for products);
+     *                   pass {@code null} or omit to skip minimum price filtering
+     * @param maxPrice   an optional maximum price filter (inclusive, only for products);
+     *                   pass {@code null} or omit to skip maximum price filtering
      * @return a list of {@link AdvSummaryResponse} objects matching the given filters and sorted accordingly
      * @throws BadRequestException if the provided city name does not match any valid {@link City} value
      */
@@ -54,7 +59,9 @@ public class AdvController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false, defaultValue = "newest") String sortBy) { // <-- پارامتر جدید
+            @RequestParam(required = false, defaultValue = "newest") String sortBy,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice) {
 
         City cityEnum = null;
         if (city != null && !city.isBlank()) {
@@ -64,7 +71,7 @@ public class AdvController {
                 throw new BadRequestException("شهر وارد شده معتبر نیست");
             }
         }
-        return advService.getActiveAds(keyword, cityEnum, categoryId, sortBy); // <-- ارسال sortBy به سرویس
+        return advService.getActiveAds(keyword, cityEnum, categoryId, sortBy, minPrice, maxPrice);
     }
 
     /**

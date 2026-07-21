@@ -1,8 +1,6 @@
 package model.response;
 
-import model.enums.Category;
 import model.enums.ProductState;
-
 import java.math.BigDecimal;
 
 public class ProductDetailDto {
@@ -10,12 +8,12 @@ public class ProductDetailDto {
     private String brand;
     private String model;
     private String constructor;
-    private Category category;
+    private String categoryName;  // <-- تغییر: از Category به String
     private BigDecimal price;
 
     public ProductDetailDto() {}
 
-    // Getters & Setters
+    // Getters and Setters
     public ProductState getStateOfProduct() { return stateOfProduct; }
     public void setStateOfProduct(ProductState stateOfProduct) { this.stateOfProduct = stateOfProduct; }
 
@@ -28,8 +26,8 @@ public class ProductDetailDto {
     public String getConstructor() { return constructor; }
     public void setConstructor(String constructor) { this.constructor = constructor; }
 
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
+    public String getCategoryName() { return categoryName; }  // <-- تغییر
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }  // <-- تغییر
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }

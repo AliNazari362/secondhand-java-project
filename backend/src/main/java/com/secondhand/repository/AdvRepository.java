@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
  *
  * <p>Provides standard CRUD operations inherited from {@link JpaRepository} as well as
  * custom query methods for filtering advertisements by status, city, type, owner,
- * category, and a full-text keyword search with sorting capabilities.</p>
+ * category, price range, and a full-text keyword search with sorting capabilities.</p>
  *
  * <p>The repository uses JPQL with Hibernate and is compatible with SQLite via the
  * {@code hibernate-community-dialects} library.</p>
@@ -58,7 +59,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
     List<Adv> findByUserId(UUID userId);
 
     /**
-     * Searches advertisements by keyword, city, status, and category,
+     * Searches advertisements by keyword, city, status, category, and price range,
      * excluding DELETED and REJECTED ones, with dynamic sorting.
      *
      * <p>All parameters are optional. When a parameter is {@code null} it is ignored,
@@ -73,15 +74,17 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
      *   <li>{@code ratingDesc} - orders by average rating descending (highest rated first)</li>
      * </ul>
      *
-     * <p><strong>Note:</strong> For price and rating sorting, the query uses subqueries
-     * that work across the joined inheritance hierarchy. For service advertisements,
-     * the price sorting will treat them as having null price (they will appear last).</p>
+     * <p><strong>Price Range Filtering:</strong> The query uses subqueries to check
+     * the price of products. For service advertisements (which have no price),
+     * the price conditions are ignored (treated as NULL).</p>
      *
      * @param keyword    optional text to match against the title or description (case-insensitive)
      * @param city       optional city to restrict results to
      * @param status     optional lifecycle status to restrict results to
      * @param categoryId optional category ID to restrict results to
      * @param sortBy     sorting criterion (default: "newest")
+     * @param minPrice   optional minimum price filter (inclusive, only for products)
+     * @param maxPrice   optional maximum price filter (inclusive, only for products)
      * @return list of matching advertisements; empty list if none found
      */
     @Query("SELECT a FROM Adv a WHERE " +
@@ -90,6 +93,8 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
             "AND (:city IS NULL OR a.city = :city) " +
             "AND (:status IS NULL OR a.status = :status) " +
             "AND (:categoryId IS NULL OR a.category.id = :categoryId) " +
+            "AND (:minPrice IS NULL OR (SELECT p.price FROM Product p WHERE p.id = a.id) >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR (SELECT p.price FROM Product p WHERE p.id = a.id) <= :maxPrice) " +
             "AND a.status != 'DELETED' AND a.status != 'REJECTED' " +
             "ORDER BY " +
             "CASE WHEN :sortBy = 'newest' THEN a.creationDate END DESC, " +
@@ -101,5 +106,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
                      @Param("city") City city,
                      @Param("status") AdvStatus status,
                      @Param("categoryId") Long categoryId,
-                     @Param("sortBy") String sortBy);
+                     @Param("sortBy") String sortBy,
+                     @Param("minPrice") BigDecimal minPrice,
+                     @Param("maxPrice") BigDecimal maxPrice);
 }

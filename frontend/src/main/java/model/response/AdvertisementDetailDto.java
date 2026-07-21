@@ -3,7 +3,6 @@ package model.response;
 import model.enums.AdvStatus;
 import model.enums.AdvType;
 import model.enums.City;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +24,11 @@ public class AdvertisementDetailDto {
     private List<CommentResponseDto> comments;
     private ProductDetailDto productDetail;
     private ServiceDetailDto serviceDetail;
+    private String categoryName;  // <-- جدید
 
     public AdvertisementDetailDto() {}
 
-    // Getters & Setters
+    // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -76,4 +76,7 @@ public class AdvertisementDetailDto {
 
     public ServiceDetailDto getServiceDetail() { return serviceDetail; }
     public void setServiceDetail(ServiceDetailDto serviceDetail) { this.serviceDetail = serviceDetail; }
+
+    public String getCategoryName() { return categoryName; }  // <-- جدید
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }  // <-- جدید
 }

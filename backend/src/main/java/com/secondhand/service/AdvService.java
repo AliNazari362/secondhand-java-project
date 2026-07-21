@@ -15,6 +15,7 @@ import com.secondhand.exception.ForbiddenException;
 import com.secondhand.exception.ResourceNotFoundException;
 import com.secondhand.repository.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
  * <p>This service handles all advertisement-related operations:</p>
  * <ul>
  *   <li>Creating new advertisements (product or service) with images and options</li>
- *   <li>Retrieving advertisements with various filters and sorting</li>
+ *   <li>Retrieving advertisements with various filters, sorting, and price range</li>
  *   <li>Retrieving full advertisement details</li>
  *   <li>Updating and deleting advertisements (with ownership validation)</li>
  *   <li>Marking advertisements as sold</li>
@@ -43,6 +44,10 @@ import java.util.stream.Collectors;
  *
  * <p><strong>Sorting Support:</strong> The search method supports sorting by
  * creation date (newest/oldest), price (ascending/descending), and average rating.</p>
+ *
+ * <p><strong>Price Range Filtering:</strong> The search method supports filtering
+ * products by minimum and maximum price. For service advertisements, price filters
+ * are ignored (since services don't have a price field).</p>
  *
  * <p><strong>Ownership Validation:</strong> All mutating operations enforce that
  * the requesting user is the owner of the advertisement. This is validated using
@@ -205,35 +210,41 @@ public class AdvService {
     }
 
     /**
-     * Searches for advertisements matching the given filters and sorting.
+     * Searches for advertisements matching the given filters, sorting, and price range.
      *
      * @param keyword    optional keyword to match against advertisement titles/descriptions
      * @param city       optional city filter
      * @param status     optional status filter
      * @param categoryId optional category ID filter
      * @param sortBy     sorting criterion (newest, oldest, priceAsc, priceDesc, ratingDesc)
+     * @param minPrice   optional minimum price filter (inclusive, only for products)
+     * @param maxPrice   optional maximum price filter (inclusive, only for products)
      * @return a list of {@link AdvSummaryResponse} objects matching the criteria and sorted
      */
     public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status,
-                                           Long categoryId, String sortBy) {
-        List<Adv> ads = advRepository.search(keyword, city, status, categoryId, sortBy);
+                                           Long categoryId, String sortBy,
+                                           BigDecimal minPrice, BigDecimal maxPrice) {
+        List<Adv> ads = advRepository.search(keyword, city, status, categoryId, sortBy, minPrice, maxPrice);
         return ads.stream()
                 .map(this::toAdvSummaryResponse)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Returns all currently active advertisements matching the given filters and sorting.
+     * Returns all currently active advertisements matching the given filters, sorting, and price range.
      *
      * @param keyword    optional keyword filter
      * @param city       optional city filter
      * @param categoryId optional category ID filter
      * @param sortBy     sorting criterion
+     * @param minPrice   optional minimum price filter (inclusive, only for products)
+     * @param maxPrice   optional maximum price filter (inclusive, only for products)
      * @return a list of active {@link AdvSummaryResponse} objects
      */
     public List<AdvSummaryResponse> getActiveAds(String keyword, City city,
-                                                 Long categoryId, String sortBy) {
-        return getAds(keyword, city, AdvStatus.ACTIVE, categoryId, sortBy);
+                                                 Long categoryId, String sortBy,
+                                                 BigDecimal minPrice, BigDecimal maxPrice) {
+        return getAds(keyword, city, AdvStatus.ACTIVE, categoryId, sortBy, minPrice, maxPrice);
     }
 
     /**

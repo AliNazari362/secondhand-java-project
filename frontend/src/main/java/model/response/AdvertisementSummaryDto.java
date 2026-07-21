@@ -3,7 +3,6 @@ package model.response;
 import model.enums.AdvStatus;
 import model.enums.AdvType;
 import model.enums.City;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,10 +16,11 @@ public class AdvertisementSummaryDto {
     private UUID ownerId;
     private LocalDateTime creationDate;
     private String firstImagePath;
+    private String categoryName;  // <-- جدید
 
     public AdvertisementSummaryDto() {}
 
-    // Getters & Setters
+    // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -47,4 +47,7 @@ public class AdvertisementSummaryDto {
 
     public String getFirstImagePath() { return firstImagePath; }
     public void setFirstImagePath(String firstImagePath) { this.firstImagePath = firstImagePath; }
+
+    public String getCategoryName() { return categoryName; }  // <-- جدید
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }  // <-- جدید
 }

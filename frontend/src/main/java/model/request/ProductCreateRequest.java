@@ -1,9 +1,7 @@
 package model.request;
 
-import model.enums.Category;
 import model.enums.City;
 import model.enums.ProductState;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,13 +14,14 @@ public class ProductCreateRequest {
     private String brand;
     private String model;
     private String constructor;
-    private Category category;
+    private Long categoryId;  // <-- تغییر: از Category به Long
     private BigDecimal price;
     private List<OptionRequest> options;
+    private List<ImageRequest> images;  // <-- اضافه شد (قبلاً نبود)
 
     public ProductCreateRequest() {}
 
-    // Getters & Setters
+    // Getters and Setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 
@@ -47,12 +46,15 @@ public class ProductCreateRequest {
     public String getConstructor() { return constructor; }
     public void setConstructor(String constructor) { this.constructor = constructor; }
 
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
+    public Long getCategoryId() { return categoryId; }  // <-- تغییر
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }  // <-- تغییر
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
 
     public List<OptionRequest> getOptions() { return options; }
     public void setOptions(List<OptionRequest> options) { this.options = options; }
+
+    public List<ImageRequest> getImages() { return images; }  // <-- جدید
+    public void setImages(List<ImageRequest> images) { this.images = images; }  // <-- جدید
 }

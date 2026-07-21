@@ -2,7 +2,6 @@ package model.request;
 
 import model.enums.City;
 import model.enums.ServiceType;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -12,13 +11,15 @@ public class ServiceCreateRequest {
     private City city;
     private String address;
     private String specialCategory;
+    private Long categoryId;  // <-- جدید
     private BigDecimal costOfPart;
     private ServiceType typeOfPart;
     private List<OptionRequest> options;
+    private List<ImageRequest> images;  // <-- جدید
 
     public ServiceCreateRequest() {}
 
-    // Getters & Setters
+    // Getters and Setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 
@@ -34,6 +35,9 @@ public class ServiceCreateRequest {
     public String getSpecialCategory() { return specialCategory; }
     public void setSpecialCategory(String specialCategory) { this.specialCategory = specialCategory; }
 
+    public Long getCategoryId() { return categoryId; }  // <-- جدید
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }  // <-- جدید
+
     public BigDecimal getCostOfPart() { return costOfPart; }
     public void setCostOfPart(BigDecimal costOfPart) { this.costOfPart = costOfPart; }
 
@@ -42,4 +46,7 @@ public class ServiceCreateRequest {
 
     public List<OptionRequest> getOptions() { return options; }
     public void setOptions(List<OptionRequest> options) { this.options = options; }
+
+    public List<ImageRequest> getImages() { return images; }  // <-- جدید
+    public void setImages(List<ImageRequest> images) { this.images = images; }  // <-- جدید
 }
