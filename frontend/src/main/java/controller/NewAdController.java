@@ -38,10 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * Controller for creating a new advertisement.
- * Supports 3-level hierarchical category selection:
- * Level 1: Root categories (filtered by ad type: PRODUCT or SERVICE)
- * Level 2: Sub-categories
- * Level 3: Leaf categories (final selection)
+ * Supports hierarchical category selection using parentId reconstruction.
  */
 public class NewAdController {
 
@@ -57,7 +54,7 @@ public class NewAdController {
     @FXML private TextField servicePriceField;
     @FXML private ComboBox<String> productConditionCombo;
     @FXML private ComboBox<String> categoryCombo;
-    @FXML private TextField brandField;          // برند حفظ شده
+    @FXML private TextField brandField;
     @FXML private TextField productPriceField;
     @FXML private TextField modelField;
     @FXML private TextField manufacturerField;
@@ -72,9 +69,7 @@ public class NewAdController {
     private Map<String, Long> categoryNameToIdMap;
 
     // ===== For hierarchical category navigation =====
-    private List<Category> rootCategories = new ArrayList<>();
     private Category currentSelectedCategory;
-    private List<Category> currentLevelCategories = new ArrayList<>();
     private boolean isUpdating = false;
 
     // ===== Image Management =====
@@ -82,65 +77,60 @@ public class NewAdController {
     private static final int MAX_IMAGE_SIZE_MB = 5;
     private final List<File> selectedImageFiles = new ArrayList<>();
 
-    /**
-     * Initializes the controller.
-     */
     @FXML
     public void initialize() {
         options = new ArrayList<>();
 
-        // ===== City ComboBox =====
         for (City city : City.values()) {
             cityCombo.getItems().add(city.getPersianName());
         }
 
-        // ===== Product Condition =====
         for (ProductState state : ProductState.values()) {
             productConditionCombo.getItems().add(state.getPersianName());
         }
 
-        // ===== Service Calculation Type =====
         for (ServiceType type : ServiceType.values()) {
             serviceCalcTypeCombo.getItems().add(type.getPersianName());
         }
 
-        // ===== Ad Type =====
         typeCombo.getItems().addAll("خدمت", "کالا");
         typeCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             onChooseType();
         });
 
-        // ===== Hide specific fields initially =====
         productFields.setVisible(false);
         productFields.setManaged(false);
         serviceFields.setVisible(false);
         serviceFields.setManaged(false);
 
-        // ===== Load categories =====
         loadCategories();
-
-        // ===== Setup category selection listener =====
         setupCategoryComboListener();
     }
 
     // ================================
-    //  Category Management (3-Level Hierarchical)
+    //  Category Management (با بازسازی parentId)
     // ================================
 
     /**
-     * Loads all categories from the backend and rebuilds parent-child relationships.
+     * بارگذاری دسته‌بندی‌ها از سرور و بازسازی روابط والد-فرزند با استفاده از parentId.
      */
     private void loadCategories() {
         try {
             allCategories = categoryService.getAllCategories();
-            System.out.println("🔍 تعداد کل دسته‌بندی‌ها: " + allCategories.size());
+            System.out.println("🔍 [DEBUG] تعداد کل دسته‌بندی‌ها از سرور: " + allCategories.size());
 
-            // بازسازی روابط با استفاده از parentId
+            // ===== مرحله 1: ساخت Map از شناسه به شیء =====
             Map<Long, Category> categoryMap = new HashMap<>();
             for (Category cat : allCategories) {
                 if (cat.getId() != null) {
                     categoryMap.put(cat.getId(), cat);
                 }
+            }
+
+            // ===== مرحله 2: بازسازی روابط =====
+            // ابتدا همه subCategories را خالی کن
+            for (Category cat : allCategories) {
+                cat.getSubCategories().clear();
             }
 
             for (Category cat : allCategories) {
@@ -149,8 +139,25 @@ public class NewAdController {
                     Category parent = categoryMap.get(pid);
                     if (parent != null) {
                         cat.setParent(parent);
-                        parent.getSubCategories().add(cat);
-                        System.out.println("🔗 " + cat.getName() + " ← " + parent.getName());
+                        // اضافه کردن به زیردسته‌های والد
+                        if (!parent.getSubCategories().contains(cat)) {
+                            parent.getSubCategories().add(cat);
+                        }
+                        System.out.println("🔗 [DEBUG] " + cat.getName() + " ← " + parent.getName());
+                    } else {
+                        System.err.println("⚠️ [DEBUG] والد پیدا نشد برای: " + cat.getName() + " (parentId=" + pid + ")");
+                    }
+                }
+            }
+
+            // ===== مرحله 3: چاپ درخت برای دیباگ =====
+            for (Category cat : allCategories) {
+                if (cat.isRoot()) {
+                    System.out.println("📂 [DEBUG] ریشه: " + cat.getName() +
+                            " -> تعداد زیردسته‌ها: " + cat.getSubCategories().size());
+                    for (Category child : cat.getSubCategories()) {
+                        System.out.println("   └─ " + child.getName() +
+                                " (زیردسته‌های خود: " + child.getSubCategories().size() + ")");
                     }
                 }
             }
@@ -160,6 +167,7 @@ public class NewAdController {
                 populateCategoryComboBox();
                 isUpdating = false;
             });
+
         } catch (Exception e) {
             AlertUtil.showError("خطا در دریافت دسته‌بندی‌ها: " + e.getMessage());
             e.printStackTrace();
@@ -167,21 +175,18 @@ public class NewAdController {
     }
 
     /**
-     * Populates category combo box with root categories filtered by ad type.
-     * Level 1: Root categories (e.g., "الکترونیک", "آشپزخانه")
+     * کامبوباکس را با ریشه‌ها (سطح اول) پر می‌کند.
      */
     private void populateCategoryComboBox() {
         AdvType filterType = selectedAdvType;
-        System.out.println("🔍 فیلتر نوع: " + filterType);
+        System.out.println("🔍 [DEBUG] فیلتر نوع: " + filterType);
 
-        // فقط ریشه‌هایی که با نوع آگهی مطابقت دارند
         List<Category> roots = allCategories.stream()
                 .filter(cat -> (filterType == null || cat.getType() == filterType) && cat.isRoot())
                 .sorted(Comparator.comparing(Category::getName))
                 .collect(Collectors.toList());
 
-        rootCategories = roots;
-        currentLevelCategories = roots;
+        System.out.println("🌱 [DEBUG] تعداد ریشه‌ها: " + roots.size());
         currentSelectedCategory = null;
 
         categoryNameToIdMap = new LinkedHashMap<>();
@@ -199,43 +204,49 @@ public class NewAdController {
             categoryCombo.getItems().addAll(displayNames);
             categoryCombo.getSelectionModel().selectFirst();
             categoryCombo.setDisable(false);
+            System.out.println("✅ [DEBUG] کامبوباکس با " + roots.size() + " ریشه پر شد.");
         } else {
             categoryCombo.getItems().add("هیچ دسته‌بندی موجود نیست");
             categoryCombo.setDisable(true);
+            System.out.println("⚠️ [DEBUG] هیچ ریشه‌ای موجود نیست.");
         }
         isUpdating = false;
     }
 
     /**
-     * Loads sub-categories (Level 2 or Level 3) into the combo box.
-     * Adds a "Back" option to navigate to the previous level.
+     * بارگذاری زیردسته‌های یک دسته‌بندی در کامبوباکس.
      */
     private void loadSubCategories(Category parent) {
-        if (parent == null) return;
+        if (parent == null) {
+            System.err.println("❌ [DEBUG] parent null است!");
+            return;
+        }
 
         List<Category> children = parent.getSubCategories();
-        currentLevelCategories = children;
-        currentSelectedCategory = parent;
+        System.out.println("🔽 [DEBUG] بارگذاری زیردسته‌های: " + parent.getName() +
+                " -> تعداد: " + (children != null ? children.size() : 0));
 
-        categoryNameToIdMap = new LinkedHashMap<>();
-        List<String> displayNames = new ArrayList<>();
-
-        // اگر زیردسته‌ای نباشد، این دسته‌بندی برگ (Leaf) است
         if (children == null || children.isEmpty()) {
             isUpdating = true;
             categoryCombo.getItems().clear();
             categoryCombo.getItems().add(parent.getName() + " ✓");
             categoryCombo.setDisable(true);
+            System.out.println("🍃 [DEBUG] برگ انتخاب شد: " + parent.getName());
             isUpdating = false;
             return;
         }
 
         children.sort(Comparator.comparing(Category::getName));
 
+        currentSelectedCategory = parent;
+
+        categoryNameToIdMap = new LinkedHashMap<>();
+        List<String> displayNames = new ArrayList<>();
+
         isUpdating = true;
         categoryCombo.getItems().clear();
 
-        // گزینه بازگشت به سطح بالاتر
+        // گزینه بازگشت
         categoryCombo.getItems().add("← بازگشت");
         categoryNameToIdMap.put("← بازگشت", -1L);
 
@@ -246,63 +257,78 @@ public class NewAdController {
 
         categoryCombo.setDisable(false);
         categoryCombo.getSelectionModel().selectFirst();
+        System.out.println("✅ [DEBUG] " + children.size() + " زیردسته در کامبوباکس بارگذاری شد.");
         isUpdating = false;
     }
 
     /**
-     * Listens to category combo box selection changes.
+     * شنونده برای تغییر انتخاب در کامبوباکس.
      */
     private void setupCategoryComboListener() {
         categoryCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (isUpdating) return;
-            if (newVal == null) return;
+            System.out.println("🔄 [DEBUG] انتخاب تغییر کرد: oldVal=" + oldVal + ", newVal=" + newVal);
 
-            // گزینه بازگشت
+            if (isUpdating) {
+                System.out.println("⏳ [DEBUG] در حال به‌روزرسانی، نادیده گرفته شد.");
+                return;
+            }
+            if (newVal == null) {
+                System.out.println("⚠️ [DEBUG] newVal null است.");
+                return;
+            }
+
             if ("← بازگشت".equals(newVal)) {
+                System.out.println("🔙 [DEBUG] گزینه بازگشت انتخاب شد.");
                 goBackToParentLevel();
                 return;
             }
 
             Long categoryId = categoryNameToIdMap.get(newVal);
-            if (categoryId == null) return;
+            if (categoryId == null) {
+                System.err.println("❌ [DEBUG] شناسه برای '" + newVal + "' یافت نشد.");
+                return;
+            }
 
             Category selectedCat = findCategoryById(categoryId);
-            if (selectedCat == null) return;
+            if (selectedCat == null) {
+                System.err.println("❌ [DEBUG] دسته‌بندی با شناسه " + categoryId + " یافت نشد.");
+                return;
+            }
 
-            // اگر زیردسته داشت، آن‌ها را بارگذاری کن (سطح بعدی)
-            if (selectedCat.getSubCategories() != null && !selectedCat.getSubCategories().isEmpty()) {
+            System.out.println("🔍 [DEBUG] دسته‌بندی انتخاب‌شده: " + selectedCat.getName() +
+                    " (زیردسته‌ها: " + selectedCat.getSubCategories().size() + ")");
+
+            if (!selectedCat.getSubCategories().isEmpty()) {
                 loadSubCategories(selectedCat);
             } else {
-                // این دسته‌بندی برگ است (سطح سوم)
                 currentSelectedCategory = selectedCat;
-                System.out.println("✅ دسته‌بندی نهایی انتخاب شد: " + selectedCat.getName() + " (ID: " + selectedCat.getId() + ")");
+                System.out.println("✅ [DEBUG] دسته‌بندی نهایی انتخاب شد: " + selectedCat.getName());
             }
         });
     }
 
     /**
-     * Goes back to the parent level in the category hierarchy.
+     * بازگشت به سطح بالاتر.
      */
     private void goBackToParentLevel() {
         if (isUpdating) return;
 
         if (currentSelectedCategory == null) {
-            return; // در سطح ریشه هستیم
+            System.out.println("↩️ [DEBUG] در سطح ریشه هستیم، بازگشت به ریشه‌ها.");
+            populateCategoryComboBox();
+            return;
         }
 
         Category parent = currentSelectedCategory.getParent();
         if (parent == null) {
-            // بازگشت به ریشه‌ها
+            System.out.println("↩️ [DEBUG] والد null است → بازگشت به ریشه‌ها.");
             populateCategoryComboBox();
         } else {
-            // بازگشت به والد
+            System.out.println("↩️ [DEBUG] بازگشت به والد: " + parent.getName());
             loadSubCategories(parent);
         }
     }
 
-    /**
-     * Finds a category by ID.
-     */
     private Category findCategoryById(Long id) {
         for (Category cat : allCategories) {
             if (cat.getId().equals(id)) {
@@ -312,9 +338,6 @@ public class NewAdController {
         return null;
     }
 
-    /**
-     * Returns the ID of the selected leaf category.
-     */
     private Long getSelectedCategoryId() {
         if (currentSelectedCategory != null) {
             return currentSelectedCategory.getId();
@@ -427,7 +450,6 @@ public class NewAdController {
 
             previewBox.getChildren().addAll(imageView, sizeText, removeBtn);
             imagePreviewContainer.getChildren().add(previewBox);
-
         } catch (Exception e) {
             AlertUtil.showError("خطا در بارگذاری پیش‌نمایش تصویر: " + e.getMessage());
         }
@@ -544,7 +566,7 @@ public class NewAdController {
 
             Platform.runLater(() -> {
                 AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد");
-                SceneManager.showPage(Pages.LIST_ADS, null);
+                SceneManager.showPage(Pages.DASHBOARD, null);
             });
 
         } catch (NumberFormatException e) {
@@ -564,7 +586,7 @@ public class NewAdController {
         request.setCity(city);
         request.setPrice(new BigDecimal(productPriceField.getText().trim()));
         request.setStateOfProduct(ProductState.fromPersianName(productConditionCombo.getValue()));
-        request.setBrand(brandField.getText().trim());   // برند حفظ شد
+        request.setBrand(brandField.getText().trim());
         request.setModel(modelField.getText().trim());
         request.setConstructor(manufacturerField.getText().trim());
         request.setCategoryId(categoryId);
