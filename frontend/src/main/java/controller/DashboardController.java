@@ -77,7 +77,6 @@ public class DashboardController {
 
     /**
      * Loads categories from the backend and populates the category combo box.
-     * Displays categories in a flat list (without indentation for simplicity).
      */
     private void loadCategories() {
         try {
@@ -97,7 +96,6 @@ public class DashboardController {
 
     /**
      * Handles the search button click.
-     * Collects filter values and performs the search.
      */
     @FXML
     public void onSearch() {
@@ -106,7 +104,6 @@ public class DashboardController {
 
     /**
      * Performs the actual search with all filters.
-     * Builds the search query, calls the service, and displays results.
      */
     private void performSearch() {
         try {
@@ -135,7 +132,7 @@ public class DashboardController {
 
             // ===== Sort =====
             String sortPersian = sortCombo.getSelectionModel().getSelectedItem();
-            String sortBy = "newest"; // default
+            String sortBy = "newest";
             if (sortPersian != null) {
                 switch (sortPersian) {
                     case "جدیدترین" -> sortBy = "newest";
@@ -179,8 +176,6 @@ public class DashboardController {
 
     /**
      * Displays the search results as ad cards in the FlowPane.
-     *
-     * @param ads the list of advertisement summaries to display
      */
     private void displayAds(List<AdvertisementSummaryDto> ads) {
         adFlowPane.getChildren().clear();
@@ -204,9 +199,6 @@ public class DashboardController {
 
     /**
      * Creates an ad card component for a single advertisement.
-     *
-     * @param ad the advertisement data
-     * @return the card as a VBox
      */
     private VBox createAdCard(AdvertisementSummaryDto ad) {
         try {
@@ -220,7 +212,6 @@ public class DashboardController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Fallback card in case of error
             VBox fallback = new VBox(5);
             fallback.setPadding(new Insets(10));
             fallback.setStyle(

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -39,7 +38,7 @@
                 </Button>
             </HBox>
 
-            <!-- لیست آگهی‌ها -->
+            <!-- لیست آگهی‌ها (فقط از سرور) -->
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
                 <FlowPane fx:id="adFlowPane" alignment="TOP_LEFT" hgap="15" vgap="15" />
             </ScrollPane>

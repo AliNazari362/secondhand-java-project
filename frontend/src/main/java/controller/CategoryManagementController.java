@@ -15,6 +15,7 @@ import utils.SceneManager;
 import java.util.*;
 
 public class CategoryManagementController {
+
     @FXML private TreeView<Category> categoryTreeView;
     @FXML private TextField nameField;
     @FXML private ComboBox<String> typeComboBox;
@@ -27,6 +28,7 @@ public class CategoryManagementController {
     private final CategoryService categoryService = new CategoryService();
     private Category selectedCategory;
     private List<Category> allCategories;
+    private boolean isUpdating = false;
 
     @FXML
     public void initialize() {
@@ -53,7 +55,7 @@ public class CategoryManagementController {
 
         categoryTreeView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newVal) -> {
-                    if (newVal != null) {
+                    if (!isUpdating && newVal != null) {
                         selectCategory(newVal.getValue());
                     }
                 }
@@ -64,14 +66,10 @@ public class CategoryManagementController {
         saveButton.setDisable(true);
     }
 
-    // ==========================
-    // بارگذاری و بازسازی درخت
-    // ==========================
     private void loadCategories() {
         try {
             allCategories = categoryService.getAllCategories();
 
-            // 1️⃣ ساخت Map برای یافتن سریع والدها
             Map<Long, Category> categoryMap = new HashMap<>();
             for (Category cat : allCategories) {
                 if (cat.getId() != null) {
@@ -79,25 +77,31 @@ public class CategoryManagementController {
                 }
             }
 
-            // 2️⃣ بازسازی روابط بر اساس parentId
             for (Category cat : allCategories) {
                 Long pid = cat.getParentId();
                 if (pid != null) {
                     Category parent = categoryMap.get(pid);
                     if (parent != null) {
-                        cat.setParent(parent); // این کار parentId را هم به‌روز می‌کند
+                        cat.setParent(parent);
+                        if (!parent.getSubCategories().contains(cat)) {
+                            parent.getSubCategories().add(cat);
+                        }
                     }
                 }
             }
 
             Platform.runLater(() -> {
+                isUpdating = true;
                 TreeItem<Category> rootNode = buildTree(allCategories);
                 categoryTreeView.setRoot(rootNode);
                 categoryTreeView.setShowRoot(false);
                 clearForm();
+                isUpdating = false;
             });
+
         } catch (Exception e) {
             AlertUtil.showError("خطا در بارگذاری دسته‌بندی‌ها: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -128,19 +132,25 @@ public class CategoryManagementController {
                 }
             }
         }
+
+        sortTreeItems(root);
         return root;
     }
 
-    // ==========================
-    // انتخاب و نمایش در فرم
-    // ==========================
+    private void sortTreeItems(TreeItem<Category> item) {
+        if (item.getChildren().isEmpty()) return;
+        item.getChildren().sort(Comparator.comparing(o -> o.getValue().getName()));
+        for (TreeItem<Category> child : item.getChildren()) {
+            sortTreeItems(child);
+        }
+    }
+
     private void selectCategory(Category category) {
         this.selectedCategory = category;
         selectedCategoryLabel.setText("دسته‌بندی انتخاب‌شده: " + category.getName());
         nameField.setText(category.getName());
         typeComboBox.getSelectionModel().select(category.getType().name());
 
-        // اگر والد مستقیماً ست نشده ولی parentId دارد، آن را پیدا کن
         if (category.getParent() == null && category.getParentId() != null) {
             for (Category cat : allCategories) {
                 if (cat.getId() != null && cat.getId().equals(category.getParentId())) {
@@ -157,7 +167,7 @@ public class CategoryManagementController {
 
     private void populateParentComboBox() {
         parentComboBox.getItems().clear();
-        parentComboBox.getItems().add(null); // گزینه ریشه
+        parentComboBox.getItems().add(null);
 
         if (allCategories == null) return;
 
@@ -167,7 +177,6 @@ public class CategoryManagementController {
             }
         }
 
-        // انتخاب والد فعلی
         if (selectedCategory != null) {
             Category parent = selectedCategory.getParent();
             if (parent != null) {
@@ -190,9 +199,9 @@ public class CategoryManagementController {
         saveButton.setDisable(true);
     }
 
-    // ==========================
-    // ذخیره‌سازی
-    // ==========================
+    // ============================================================
+    // ✅ متد onSave اصلاح‌شده (رفع StackOverflow)
+    // ============================================================
     @FXML
     public void onSave() {
         try {
@@ -213,7 +222,18 @@ public class CategoryManagementController {
             Category category = new Category();
             category.setName(name);
             category.setType(type);
-            category.setParent(parent); // این کار parentId را نیز مقداردهی می‌کند
+
+            // ---------- ایجاد والد سبک (فقط با id) برای جلوگیری از حلقه ----------
+            if (parent != null) {
+                Category shallowParent = new Category();
+                shallowParent.setId(parent.getId());
+                category.setParent(shallowParent);
+            } else {
+                category.setParent(null);
+            }
+
+            // برای اطمینان، `subCategories` را خالی بگذارید (یا null)
+            category.setSubCategories(null);
 
             if (selectedCategory == null) {
                 categoryService.createCategory(category);
@@ -224,15 +244,16 @@ public class CategoryManagementController {
                 AlertUtil.showSuccess("دسته‌بندی با موفقیت ویرایش شد.");
             }
 
-            loadCategories(); // بارگذاری مجدد
+            loadCategories();
+
         } catch (Exception e) {
             AlertUtil.showError("خطا در ذخیره دسته‌بندی: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // ==========================
-    // سایر متدها
-    // ==========================
+    // ============================================================
+
     @FXML
     public void onDelete() {
         if (selectedCategory == null) {
@@ -254,6 +275,7 @@ public class CategoryManagementController {
             loadCategories();
         } catch (Exception e) {
             AlertUtil.showError("خطا در حذف دسته‌بندی: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

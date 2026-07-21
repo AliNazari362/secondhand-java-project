@@ -18,7 +18,7 @@ import model.response.AdvertisementDetailDto;
 import model.response.ImageResponseDto;
 import model.response.UserSummaryDto;
 import service.AdvService;
-import service.FavoritesService;
+import service.FavoriteService;
 import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
@@ -72,7 +72,7 @@ public class AdDetailController implements DataReceiver {
     private boolean isFavorite = false;
 
     private final AdvService advService = new AdvService();
-    private final FavoritesService favoritesService = new FavoritesService();
+    private final FavoriteService favoriteService = new FavoriteService();
 
     /**
      * Receives data passed from the previous page (the advertisement ID).
@@ -154,7 +154,7 @@ public class AdDetailController implements DataReceiver {
         // نمایش دکمه‌های عملیاتی بر اساس مالکیت
         updateActionButtons();
 
-        // بررسی وضعیت علاقه‌مندی (اختیاری)
+        // بررسی وضعیت علاقه‌مندی (با فراخوانی API)
         checkFavoriteStatus();
 
         // نمایش نظرات (در صورت وجود)
@@ -202,6 +202,7 @@ public class AdDetailController implements DataReceiver {
             imagesContainer.getChildren().add(imageBox);
         }
     }
+
     /**
      * Displays key-value options/attributes of the advertisement.
      */
@@ -260,40 +261,70 @@ public class AdDetailController implements DataReceiver {
         UUID currentUserId = SessionManager.getUserId();
         boolean isOwner = currentAd.getOwner() != null &&
                 currentAd.getOwner().getId().equals(currentUserId);
+        boolean isAdmin = SessionManager.isAdmin();
 
+        // دکمه چت – فقط برای غیر مالک نمایش داده می‌شود
         chatBtn.setVisible(!isOwner);
         chatBtn.setManaged(!isOwner);
 
+        // دکمه علاقه‌مندی – فقط برای غیر مالک
         favBtn.setVisible(!isOwner);
         favBtn.setManaged(!isOwner);
 
+        // دکمه امتیاز – فقط برای غیر مالک
         rateBtn.setVisible(!isOwner);
         rateBtn.setManaged(!isOwner);
 
+        // دکمه ویرایش – فقط برای مالک
         editBtn.setVisible(isOwner);
         editBtn.setManaged(isOwner);
 
-        deleteBtn.setVisible(isOwner);
-        deleteBtn.setManaged(isOwner);
+        // دکمه حذف – برای مالک یا ادمین
+        deleteBtn.setVisible(isOwner || isAdmin);
+        deleteBtn.setManaged(isOwner || isAdmin);
 
+        // دکمه فروش رفته – فقط برای مالک و آگهی فعال
         soldBtn.setVisible(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
         soldBtn.setManaged(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
     }
 
     /**
-     * Checks if the current advertisement is in the user's favorites (placeholder).
+     * Checks if the current advertisement is in the user's favorites.
+     * If the user is not logged in, favorite status is set to false.
      */
     private void checkFavoriteStatus() {
-        // فعلاً مقداردهی اولیه می‌شود – در آینده با یک API کامل می‌شود
-        isFavorite = false;
+        if (!SessionManager.isLoggedIn()) {
+            isFavorite = false;
+            updateFavoriteButton();
+            return;
+        }
+
+        if (advId == null) {
+            isFavorite = false;
+            updateFavoriteButton();
+            return;
+        }
+
+        try {
+            // فراخوانی API برای بررسی وضعیت علاقه‌مندی
+            isFavorite = favoriteService.isFavorite(advId.toString());
+        } catch (Exception e) {
+            System.err.println("❌ خطا در بررسی وضعیت علاقه‌مندی: " + e.getMessage());
+            isFavorite = false;
+        }
         updateFavoriteButton();
     }
 
+    /**
+     * Updates the favorite button text and style based on favorite status.
+     */
     private void updateFavoriteButton() {
         if (isFavorite) {
             favBtn.setText("❤️ حذف از علاقه‌مندی");
+            favBtn.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold;");
         } else {
             favBtn.setText("🤍 افزودن به علاقه‌مندی");
+            favBtn.setStyle("-fx-text-fill: #2d3748;");
         }
     }
 
@@ -342,24 +373,48 @@ public class AdDetailController implements DataReceiver {
 
     @FXML
     public void onChat() {
-        AlertUtil.showWarning("قابلیت چت در حال توسعه است.");
+        if (advId == null) {
+            AlertUtil.showError("شناسه آگهی نامعتبر است.");
+            return;
+        }
+        // رفتن به صفحه چت با شناسه آگهی
+        SceneManager.showPage(Pages.CHAT, null, advId);
     }
 
+    /**
+     * Handles add/remove favorite button click.
+     * Toggles the favorite status of the current advertisement.
+     */
     @FXML
     public void onAddFavorite() {
+        // بررسی لاگین بودن کاربر
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب کاربری خود شوید.");
+            SceneManager.showPage(Pages.LOGIN, null);
+            return;
+        }
+
+        if (advId == null) {
+            AlertUtil.showError("شناسه آگهی نامعتبر است.");
+            return;
+        }
+
         try {
             if (isFavorite) {
-                favoritesService.removeFavorite(advId.toString());
+                // حذف از علاقه‌مندی
+                favoriteService.removeFavorite(advId.toString());
                 isFavorite = false;
                 AlertUtil.showSuccess("آگهی از علاقه‌مندی‌ها حذف شد.");
             } else {
-                favoritesService.addFavorite(advId.toString());
+                // افزودن به علاقه‌مندی
+                favoriteService.addFavorite(advId.toString());
                 isFavorite = true;
                 AlertUtil.showSuccess("آگهی به علاقه‌مندی‌ها اضافه شد.");
             }
             updateFavoriteButton();
         } catch (Exception e) {
             AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -371,7 +426,7 @@ public class AdDetailController implements DataReceiver {
     @FXML
     public void onEdit() {
         if (advId != null) {
-            SceneManager.showPage(Pages.EDIT_AD, null, advId); // اضافه کردن null به عنوان عنوان
+            SceneManager.showPage(Pages.EDIT_AD, null, advId);
         }
     }
 

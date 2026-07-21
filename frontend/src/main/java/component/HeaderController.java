@@ -3,6 +3,8 @@ package component;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
+import service.AuthService;
+import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
 import utils.SessionManager;
@@ -17,8 +19,7 @@ public class HeaderController {
     public void initialize() {
         System.out.println("✅ هدر با موفقیت بارگذاری شد!");
 
-        // تنظیم visibility دکمه‌ی ادمین بر اساس نقش کاربر
-        // اگر کاربر لاگین کرده و نقش ADMIN دارد، دکمه را نشان بده
+        // نمایش دکمه ادمین فقط برای کاربران ادمین
         if (SessionManager.isLoggedIn() && SessionManager.isAdmin()) {
             adminBtn.setVisible(true);
             adminBtn.setManaged(true);
@@ -27,7 +28,7 @@ public class HeaderController {
             adminBtn.setManaged(false);
         }
 
-        // همچنین می‌توانید نام کاربر را در هدر نمایش دهید
+        // نمایش نام کاربر
         if (SessionManager.isLoggedIn()) {
             String fullName = SessionManager.getFullName();
             if (fullName != null && !fullName.isEmpty()) {
@@ -43,6 +44,11 @@ public class HeaderController {
 
     @FXML
     public void onFavorites() {
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب کاربری خود شوید.");
+            SceneManager.showPage(Pages.LOGIN, null);
+            return;
+        }
         SceneManager.showPage(Pages.FAVORITES, null);
     }
 
@@ -62,9 +68,34 @@ public class HeaderController {
         SceneManager.showPage(Pages.ADMIN, null);
     }
 
+    /**
+     * خروج از حساب کاربری
+     * پس از تأیید کاربر، جلسه پاک شده و به صفحه ورود هدایت می‌شود.
+     */
     @FXML
     public void onLogout() {
-        // TODO: پیاده‌سازی خروج (پاک کردن session و رفتن به صفحه لاگین)
-        System.out.println("Logout clicked!");
+        // نمایش پیام تأیید
+        boolean confirm = AlertUtil.showConfirmation(
+                "خروج از حساب",
+                "آیا از خروج از حساب کاربری خود اطمینان دارید؟"
+        );
+
+        if (!confirm) {
+            return; // کاربر انصراف داد
+        }
+
+        try {
+            // پاک کردن اطلاعات جلسه
+            AuthService.logout();
+
+            // نمایش پیام موفقیت
+            AlertUtil.showSuccess("شما با موفقیت خارج شدید.");
+
+            // هدایت به صفحه ورود
+            SceneManager.showPage(Pages.LOGIN, null);
+
+        } catch (Exception e) {
+            AlertUtil.showError("خطا در خروج از حساب: " + e.getMessage());
+        }
     }
 }

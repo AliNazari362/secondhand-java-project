@@ -20,6 +20,9 @@ public class AuthService {
         return api.fromJson(response, UserDto.class);
     }
 
+    /**
+     * خروج از حساب کاربری – پاک کردن اطلاعات جلسه
+     */
     public static void logout() {
         SessionManager.clear();
     }

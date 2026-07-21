@@ -7,15 +7,20 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import model.response.AdvertisementSummaryDto;
 import utils.AlertUtil;
+import utils.Pages;
+import utils.SceneManager;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Controller for the advertisement card component.
  * Displays a summary of an advertisement in list/search views.
+ * Clicking on the card navigates to the advertisement detail page.
  */
 public class AdCardController {
+
     @FXML private Text titleText;
     @FXML private Label priceLabel;
     @FXML private Label cityLabel;
@@ -24,7 +29,10 @@ public class AdCardController {
     @FXML private ImageView imageView;
     @FXML private Label statusLabel;
 
-    // آدرس پایه سرور برای تصاویر (مطابق با بک‌اند)
+    // شناسه آگهی برای انتقال به صفحه جزئیات
+    private UUID adId;
+
+    // آدرس پایه سرور برای تصاویر
     private static final String BASE_IMAGE_URL = "http://localhost:8080/";
 
     /**
@@ -34,6 +42,9 @@ public class AdCardController {
      */
     public void setData(AdvertisementSummaryDto ad) {
         try {
+            // ذخیره شناسه آگهی برای کلیک
+            this.adId = ad.getId();
+
             titleText.setText(ad.getFullName() != null ? ad.getFullName() : "بدون عنوان");
 
             if (ad.getPrice() != null) {
@@ -68,25 +79,23 @@ public class AdCardController {
                 statusLabel.setVisible(false);
             }
 
-            // ===== نمایش تصویر (با پشتیبانی از مسیر محلی و سرور) =====
+            // ===== نمایش تصویر =====
             if (ad.getFirstImagePath() != null && !ad.getFirstImagePath().isEmpty()) {
                 String imagePath = ad.getFirstImagePath();
                 Image image = null;
 
-                // ۱. ابتدا بررسی کنید که آیا فایل محلی وجود دارد (برای توسعه)
+                // ۱. بررسی فایل محلی
                 File file = new File(imagePath);
                 if (file.exists()) {
                     image = new Image(file.toURI().toString(), 180, 120, true, true);
                 }
 
-                // ۲. اگر فایل محلی نبود، از سرور بارگذاری کنید
+                // ۲. بارگذاری از سرور
                 if (image == null || image.isError()) {
-                    // اگر مسیر با "uploads/" شروع نشود، آن را اضافه کنید
                     String serverPath = imagePath;
                     if (!serverPath.startsWith("uploads/") && !serverPath.startsWith("http")) {
                         serverPath = "uploads/" + serverPath;
                     }
-                    // اگر آدرس کامل نبود، آدرس سرور را اضافه کنید
                     if (!serverPath.startsWith("http")) {
                         serverPath = BASE_IMAGE_URL + serverPath;
                     }
@@ -104,9 +113,20 @@ public class AdCardController {
             }
 
         } catch (Exception e) {
-            // خطا را نمایش ندهید تا کارت‌های دیگر به درستی نشان داده شوند
-            // فقط لاگ کنید
             System.err.println("خطا در نمایش آگهی: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles click on the ad card.
+     * Navigates to the advertisement detail page.
+     */
+    @FXML
+    public void handleCardClick() {
+        if (adId != null) {
+            SceneManager.showPage(Pages.AD_DETAIL, null, adId);
+        } else {
+            AlertUtil.showError("شناسه آگهی موجود نیست.");
         }
     }
 
