@@ -15,25 +15,25 @@
         <Insets top="40" right="40" bottom="40" left="40" />
     </padding>
 
-    <FontIcon iconCode="STORE" iconSize="48" iconColor="#2d3748" />
+    <FontIcon iconLiteral="fas-store" iconSize="48" iconColor="#2d3748" />
     <Text text="خوش آمدید" styleClass="title" />
     <Text text="وارد حساب کاربری خود شوید" styleClass="subtitle" />
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="ENVELOPE" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="far-envelope" iconSize="16" iconColor="#718096" />
         <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="LOCK" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
         <PasswordField fx:id="passwordField" promptText="رمز عبور" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <Button text="ورود به حساب" styleClass="primary-btn" onAction="#handleLogin">
         <graphic>
-            <FontIcon iconCode="SIGN_IN_ALT" iconSize="16" />
+            <FontIcon iconLiteral="fas-sign-in-alt" iconSize="16" />
         </graphic>
     </Button>
 
-    <Hyperlink text="ثبت‌نام نکرده‌اید؟ همین حالا ثبت‌نام کنید" onAction="#goToRegister" styleClass="link" />
+    <Hyperlink text="ثبت نام نکرده اید؟ همین حالا ثبت نام کنید" onAction="#goToRegister" styleClass="link" />
 </VBox>

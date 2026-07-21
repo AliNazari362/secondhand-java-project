@@ -11,24 +11,24 @@
         <Insets top="15" right="25" bottom="15" left="25" />
     </padding>
 
-    <Text fx:id="titleText" text="لیست آگهی‌ها" styleClass="header-title" />
+    <Text fx:id="titleText" text="لیست آگهی ها" styleClass="header-title" />
     <Text fx:id="userInfoText" text="خوش آمدید، کاربر" styleClass="header-subtitle" />
 
     <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
         <Button onAction="#onNewAd">
-            <graphic><FontIcon iconCode="PLUS" iconSize="16" /></graphic>
+            <graphic><FontIcon iconLiteral="fas-plus" iconSize="16" /></graphic>
         </Button>
         <Button onAction="#onFavorites">
-            <graphic><FontIcon iconCode="HEART" iconSize="16" /></graphic>
+            <graphic><FontIcon iconLiteral="fas-heart" iconSize="16" /></graphic>
         </Button>
         <Button onAction="#onChat">
-            <graphic><FontIcon iconCode="COMMENT" iconSize="16" /></graphic>
+            <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
         </Button>
         <Button fx:id="adminBtn" onAction="#onAdmin" visible="false">
-            <graphic><FontIcon iconCode="COG" iconSize="16" /></graphic>
+            <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" /></graphic>
         </Button>
         <Button onAction="#onLogout">
-            <graphic><FontIcon iconCode="SIGN_OUT_ALT" iconSize="16" /></graphic>
+            <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
         </Button>
     </HBox>
 </HBox>

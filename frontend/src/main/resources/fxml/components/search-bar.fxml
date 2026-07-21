@@ -8,6 +8,6 @@
 <HBox spacing="10" alignment="CENTER" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.SearchBarController">
     <TextField fx:id="searchField" promptText="جستجو..." styleClass="input-field" HBox.hgrow="ALWAYS" />
     <Button onAction="#onSearch">
-        <graphic><FontIcon iconCode="SEARCH" iconSize="16" /></graphic>
+        <graphic><FontIcon iconLiteral="fas-search" iconSize="16" /></graphic>
     </Button>
 </HBox>

@@ -15,35 +15,35 @@
         <Insets top="30" right="40" bottom="30" left="40" />
     </padding>
 
-    <FontIcon iconCode="USER_PLUS" iconSize="48" iconColor="#2d3748" />
-    <Text text="ثبت‌نام" styleClass="title" />
+    <FontIcon iconLiteral="fas-user-plus" iconSize="48" iconColor="#2d3748" />
+    <Text text="ثبت نام" styleClass="title" />
     <Text text="ایجاد حساب کاربری جدید" styleClass="subtitle" />
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="USER" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="fas-user" iconSize="16" iconColor="#718096" />
         <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="ENVELOPE" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#718096" />
         <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="LOCK" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
         <PasswordField fx:id="passwordField" promptText="رمز عبور (حداقل ۸ کاراکتر)" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-        <FontIcon iconCode="PHONE" iconSize="16" iconColor="#718096" />
+        <FontIcon iconLiteral="fas-phone" iconSize="16" iconColor="#718096" />
         <TextField fx:id="phoneField" promptText="شماره تماس (اختیاری)" styleClass="input-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <Button text="ثبت‌نام" styleClass="success-btn" onAction="#handleRegister">
+    <Button text="ثبت نام" styleClass="success-btn" onAction="#handleRegister">
         <graphic>
-            <FontIcon iconCode="CHECK" iconSize="16" />
+            <FontIcon iconLiteral="fas-check" iconSize="16" />
         </graphic>
     </Button>
 
-    <Hyperlink text="قبلاً ثبت‌نام کرده‌اید؟ وارد شوید" onAction="#goToLogin" styleClass="link" />
+    <Hyperlink text="قبلاً ثبت نام کرده اید؟ وارد شوید" onAction="#goToLogin" styleClass="link" />
 </VBox>

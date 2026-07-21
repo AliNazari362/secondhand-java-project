@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -11,40 +10,85 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController">
+<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatController" nodeOrientation="RIGHT_TO_LEFT">
     <top>
-        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
-            <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
-            <FontIcon iconCode="COMMENTS" iconSize="20" iconColor="#2d3748" />
-            <Text text="گفت‌وگوها" styleClass="header-title" />
-            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                <Button onAction="#goBack">
-                    <graphic><FontIcon iconCode="ARROW_LEFT" iconSize="16" /></graphic>
-                </Button>
-            </HBox>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="header">
+            <padding><Insets top="12" right="20" bottom="12" left="20" /></padding>
+            <Button onAction="#goBack" style="-fx-background-color: transparent; -fx-padding: 0;">
+                <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="18" iconColor="#2d3748" /></graphic>
+            </Button>
+            <FontIcon iconLiteral="fas-user-circle" iconSize="32" iconColor="#4a5568" />
+            <VBox spacing="1">
+                <Text fx:id="chatTitle" text="علی محمدی" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                <Text text="آنلاین" style="-fx-font-size: 10px; -fx-fill: #38a169;" />
+            </VBox>
         </HBox>
     </top>
     <center>
-        <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f4f8;" HBox.hgrow="ALWAYS">
-            <VBox spacing="10" prefWidth="250">
-                <Text text="گفت‌وگوهای من" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                <ListView fx:id="chatListView" styleClass="list-view" VBox.vgrow="ALWAYS" />
-            </VBox>
-            <VBox spacing="10" HBox.hgrow="ALWAYS">
-                <Text fx:id="chatTitle" text="انتخاب یک گفت‌وگو" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
-                    <VBox fx:id="messagesContainer" spacing="5" />
-                </ScrollPane>
-                <HBox spacing="10">
-                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container" HBox.hgrow="ALWAYS">
-                        <FontIcon iconCode="PEN" iconSize="16" iconColor="#718096" />
-                        <TextField fx:id="messageField" promptText="پیام خود را بنویسید..." styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <VBox spacing="0" style="-fx-background-color: #e8edf2;" VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;">
+                <VBox fx:id="messagesContainer" spacing="8" style="-fx-padding: 15;">
+
+                    <!-- Received Message -->
+                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 0 0 40;">
+                        <VBox spacing="2" alignment="TOP_RIGHT" style="-fx-max-width: 320;">
+                            <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;">
+                                <Text text="سلام، وقت بخیر" style="-fx-font-size: 13px; -fx-fill: #2d3748;" wrappingWidth="280" />
+                            </VBox>
+                            <Text text="۱۰:۳۰ ق.ظ" style="-fx-font-size: 9px; -fx-fill: #a0aec0; -fx-padding: 0 5 0 0;" />
+                        </VBox>
                     </HBox>
-                    <Button onAction="#onSendMessage">
-                        <graphic><FontIcon iconCode="PAPER_PLANE" iconSize="16" /></graphic>
-                    </Button>
-                </HBox>
-            </VBox>
-        </HBox>
+
+                    <!-- Sent Message -->
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 40 0 0;">
+                        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-max-width: 320;">
+                            <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: #bee3f8; -fx-background-radius: 12 12 12 4;">
+                                <Text text="سلام، وقت شما هم بخیر" style="-fx-font-size: 13px; -fx-fill: #2d3748;" wrappingWidth="280" />
+                            </VBox>
+                            <Text text="۱۰:۳۱ ق.ظ" style="-fx-font-size: 9px; -fx-fill: #a0aec0; -fx-padding: 0 0 0 5;" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Received Message -->
+                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 0 0 40;">
+                        <VBox spacing="2" alignment="TOP_RIGHT" style="-fx-max-width: 320;">
+                            <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;">
+                                <Text text="می خواستم در مورد آگهی آیفون ۱۳ که ثبت کردید اطلاعات بیشتری بگیرم" style="-fx-font-size: 13px; -fx-fill: #2d3748;" wrappingWidth="280" />
+                            </VBox>
+                            <Text text="۱۰:۳۲ ق.ظ" style="-fx-font-size: 9px; -fx-fill: #a0aec0; -fx-padding: 0 5 0 0;" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Sent Message -->
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 0 40 0 0;">
+                        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-max-width: 320;">
+                            <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: #bee3f8; -fx-background-radius: 12 12 12 4;">
+                                <Text text="بله حتما، گوشی در حد نو هست و فقط ۳ ماه استفاده شده. گارانتی هم داره." style="-fx-font-size: 13px; -fx-fill: #2d3748;" wrappingWidth="280" />
+                            </VBox>
+                            <Text text="۱۰:۳۳ ق.ظ" style="-fx-font-size: 9px; -fx-fill: #a0aec0; -fx-padding: 0 0 0 5;" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Received Message -->
+                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 0 0 40;">
+                        <VBox spacing="2" alignment="TOP_RIGHT" style="-fx-max-width: 320;">
+                            <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;">
+                                <Text text="میشه چند تا عکس از گوشی بفرستید؟" style="-fx-font-size: 13px; -fx-fill: #2d3748;" wrappingWidth="280" />
+                            </VBox>
+                            <Text text="۱۰:۳۴ ق.ظ" style="-fx-font-size: 9px; -fx-fill: #a0aec0; -fx-padding: 0 5 0 0;" />
+                        </VBox>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+
+            <!-- Message Input -->
+            <HBox spacing="8" alignment="CENTER" style="-fx-padding: 10 15; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
+                <TextField fx:id="messageField" promptText="پیام خود را بنویسید..." styleClass="input-field" HBox.hgrow="ALWAYS" style="-fx-background-radius: 20; -fx-padding: 8 15; -fx-font-size: 13px;" />
+                <Button onAction="#onSendMessage" style="-fx-background-color: #3182ce; -fx-background-radius: 50%; -fx-padding: 7; -fx-min-width: 34; -fx-min-height: 34; -fx-max-width: 34; -fx-max-height: 34;">
+                    <graphic><FontIcon iconLiteral="fas-paper-plane" iconSize="13" iconColor="white" /></graphic>
+                </Button>
+            </HBox>
+        </VBox>
     </center>
 </BorderPane>
