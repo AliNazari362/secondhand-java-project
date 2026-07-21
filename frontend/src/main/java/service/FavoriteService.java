@@ -1,7 +1,10 @@
 package service;
 
 import model.response.AdvertisementSummaryDto;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service class for managing user favorites.
@@ -25,13 +28,15 @@ public class FavoriteService {
 
     /**
      * Adds an advertisement to the user's favorites.
+     * Sends a JSON object with key "advId".
      *
      * @param advId the ID of the advertisement to add
      * @throws Exception if the API call fails
      */
     public void addFavorite(String advId) throws Exception {
-        // ارسال advId به‌عنوان body (یا می‌توانید از query parameter استفاده کنید)
-        api.post("/favorites/add-favorite", advId);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("advId", advId);
+        api.post("/favorites/add-favorite", payload);
     }
 
     /**

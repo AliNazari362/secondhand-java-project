@@ -79,6 +79,7 @@ public class AdvService {
     // ==================== DETAIL ====================
 
     public static AdvertisementDetailDto getAdvDetail(String advId) throws Exception {
+        System.out.println("🌐 AdvService.getAdvDetail: advId = " + advId);
         String response = api.get("/advs/" + advId);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }

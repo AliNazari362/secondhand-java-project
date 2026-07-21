@@ -29,8 +29,16 @@ import java.util.UUID;
 
 /**
  * Controller for the advertisement detail page.
+ * <p>
  * Displays full information about an advertisement including images, options,
  * comments, and allows actions like chat, favorites, rating, edit, delete, and mark as sold.
+ * All FXML fields are null-checked to prevent NPE.
+ * </p>
+ *
+ * @author [Your Name]
+ * @version 1.0
+ * @see AdvService
+ * @see FavoriteService
  */
 public class AdDetailController implements DataReceiver {
 
@@ -74,21 +82,32 @@ public class AdDetailController implements DataReceiver {
     private final AdvService advService = new AdvService();
     private final FavoriteService favoriteService = new FavoriteService();
 
+    // ==================== DataReceiver Implementation ====================
+
     /**
      * Receives data passed from the previous page (the advertisement ID).
+     * Logs the received data for debugging.
      *
      * @param data the advertisement UUID
      */
     @Override
     public void receiveData(Object data) {
+        System.out.println("📥 [AdDetailController] receiveData called with: " + data);
         if (data instanceof UUID uuid) {
             this.advId = uuid;
+            System.out.println("✅ advId set to: " + advId);
             loadAdDetail();
+        } else {
+            System.err.println("❌ Data is not UUID: " + data);
+            showError("شناسه آگهی نامعتبر است.");
         }
     }
 
+    // ==================== Loading Methods ====================
+
     /**
      * Loads the full advertisement details from the backend.
+     * If the advId is null, shows an error and returns.
      */
     private void loadAdDetail() {
         if (advId == null) {
@@ -97,75 +116,112 @@ public class AdDetailController implements DataReceiver {
         }
 
         try {
+            System.out.println("🔄 Loading ad detail for ID: " + advId);
             currentAd = AdvService.getAdvDetail(advId.toString());
             Platform.runLater(this::displayAdDetail);
         } catch (Exception e) {
+            e.printStackTrace();
             showError("خطا در دریافت اطلاعات آگهی: " + e.getMessage());
         }
     }
 
+    // ==================== Display Methods ====================
+
     /**
      * Displays the loaded advertisement details in the UI.
+     * All FXML fields are null-checked to avoid NullPointerException.
      */
     private void displayAdDetail() {
-        if (currentAd == null) return;
-        System.out.println("🔥🔥🔥 AdDetailController NEW VERSION LOADED! 🔥🔥🔥");
-
-        // اطلاعات پایه
-        titleText.setText(currentAd.getFullName());
-        statusLabel.setText(translateStatus(currentAd.getStatus().name()));
-        statusLabel.getStyleClass().add("status-" + currentAd.getStatus().name().toLowerCase());
-
-        descriptionText.setText(currentAd.getDescription() != null ? currentAd.getDescription() : "توضیحاتی ثبت نشده است.");
-
-        // قیمت (از ProductDetail یا ServiceDetail)
-        if (currentAd.getProductDetail() != null) {
-            priceText.setText(formatPrice(currentAd.getProductDetail().getPrice()));
-            priceText.setVisible(true);
-        } else if (currentAd.getServiceDetail() != null) {
-            priceText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()) +
-                    " / " + currentAd.getServiceDetail().getTypeOfPart().name());
-            priceText.setVisible(true);
-        } else {
-            priceText.setVisible(false);
+        if (currentAd == null) {
+            System.err.println("❌ currentAd is null, cannot display.");
+            return;
         }
+        System.out.println("🔥🔥🔥 AdDetailController displayAdDetail() called 🔥🔥🔥");
 
-        cityText.setText(currentAd.getCity() != null ? currentAd.getCity().getPersianName() : "نامشخص");
-        addressText.setText(currentAd.getAddress() != null ? currentAd.getAddress() : "آدرسی ثبت نشده است.");
-        dateText.setText(currentAd.getCreationDate() != null ?
-                currentAd.getCreationDate().toLocalDate().toString() : "");
-        categoryText.setText(currentAd.getCategoryName() != null ? currentAd.getCategoryName() : "بدون دسته‌بندی");
+        try {
+            // ===== Basic Information =====
+            if (titleText != null) {
+                titleText.setText(currentAd.getFullName());
+            }
 
-        // مالک
-        UserSummaryDto owner = currentAd.getOwner();
-        if (owner != null) {
-            ownerText.setText(owner.getFullName() + " (" + owner.getEmail() + ")");
+            if (statusLabel != null) {
+                statusLabel.setText(translateStatus(currentAd.getStatus().name()));
+                statusLabel.getStyleClass().add("status-" + currentAd.getStatus().name().toLowerCase());
+            }
+
+            if (descriptionText != null) {
+                descriptionText.setText(currentAd.getDescription() != null
+                        ? currentAd.getDescription()
+                        : "توضیحاتی ثبت نشده است.");
+            }
+
+            // ===== Price =====
+            if (priceText != null) {
+                if (currentAd.getProductDetail() != null) {
+                    priceText.setText(formatPrice(currentAd.getProductDetail().getPrice()));
+                    priceText.setVisible(true);
+                } else if (currentAd.getServiceDetail() != null) {
+                    priceText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()) +
+                            " / " + currentAd.getServiceDetail().getTypeOfPart().name());
+                    priceText.setVisible(true);
+                } else {
+                    priceText.setVisible(false);
+                }
+            }
+
+            // ===== Location and Date =====
+            if (cityText != null) {
+                cityText.setText(currentAd.getCity() != null
+                        ? currentAd.getCity().getPersianName()
+                        : "نامشخص");
+            }
+
+            if (addressText != null) {
+                addressText.setText(currentAd.getAddress() != null
+                        ? currentAd.getAddress()
+                        : "آدرسی ثبت نشده است.");
+            }
+
+            if (dateText != null) {
+                dateText.setText(currentAd.getCreationDate() != null
+                        ? currentAd.getCreationDate().toLocalDate().toString()
+                        : "");
+            }
+
+            if (categoryText != null) {
+                categoryText.setText(currentAd.getCategoryName() != null
+                        ? currentAd.getCategoryName()
+                        : "بدون دسته‌بندی");
+            }
+
+            // ===== Owner =====
+            UserSummaryDto owner = currentAd.getOwner();
+            if (ownerText != null && owner != null) {
+                ownerText.setText(owner.getFullName() + " (" + owner.getEmail() + ")");
+            }
+
+            // ===== Sections =====
+            displayImages();
+            displayOptions();
+            displayTypeSpecificFields();
+            updateActionButtons();
+            checkFavoriteStatus();
+            displayComments();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtil.showError("خطا در نمایش آگهی: " + e.getMessage());
         }
-
-        // نمایش تصاویر
-        displayImages();
-
-        // نمایش ویژگی‌ها (Options)
-        displayOptions();
-
-        // نمایش فیلدهای اختصاصی (Product / Service)
-        displayTypeSpecificFields();
-
-        // نمایش دکمه‌های عملیاتی بر اساس مالکیت
-        updateActionButtons();
-
-        // بررسی وضعیت علاقه‌مندی (با فراخوانی API)
-        checkFavoriteStatus();
-
-        // نمایش نظرات (در صورت وجود)
-        displayComments();
     }
 
     /**
      * Displays images in a horizontal gallery.
+     * If no images, shows a placeholder label.
      */
     private void displayImages() {
+        if (imagesContainer == null) return;
         imagesContainer.getChildren().clear();
+
         if (currentAd.getImages() == null || currentAd.getImages().isEmpty()) {
             Label noImageLabel = new Label("تصویری برای این آگهی وجود ندارد.");
             noImageLabel.setStyle("-fx-text-fill: #a0aec0;");
@@ -186,12 +242,11 @@ public class AdDetailController implements DataReceiver {
                 if (file.exists()) {
                     imageView.setImage(new Image(file.toURI().toString()));
                 } else {
-                    // Try loading from server
                     String serverUrl = "http://localhost:8080/" + imagePath;
                     imageView.setImage(new Image(serverUrl));
                 }
             } catch (Exception e) {
-                // Ignore
+                // Ignore individual image load errors
             }
 
             VBox imageBox = new VBox(5);
@@ -205,9 +260,12 @@ public class AdDetailController implements DataReceiver {
 
     /**
      * Displays key-value options/attributes of the advertisement.
+     * Shows a placeholder if no options exist.
      */
     private void displayOptions() {
+        if (optionsContainer == null) return;
         optionsContainer.getChildren().clear();
+
         if (currentAd.getOptions() == null || currentAd.getOptions().isEmpty()) {
             Label noOptionLabel = new Label("ویژگی اضافی ثبت نشده است.");
             noOptionLabel.setStyle("-fx-text-fill: #a0aec0;");
@@ -231,31 +289,52 @@ public class AdDetailController implements DataReceiver {
 
     /**
      * Shows product-specific or service-specific fields.
+     * Hides both sections first, then shows the appropriate one.
      */
     private void displayTypeSpecificFields() {
-        productFields.setVisible(false);
-        serviceFields.setVisible(false);
+        if (productFields != null) productFields.setVisible(false);
+        if (serviceFields != null) serviceFields.setVisible(false);
 
         if (currentAd.getProductDetail() != null) {
-            productFields.setVisible(true);
-            productBrandText.setText(currentAd.getProductDetail().getBrand() != null ?
-                    currentAd.getProductDetail().getBrand() : "نامشخص");
-            productModelText.setText(currentAd.getProductDetail().getModel() != null ?
-                    currentAd.getProductDetail().getModel() : "نامشخص");
-            productStateText.setText(currentAd.getProductDetail().getStateOfProduct() != null ?
-                    currentAd.getProductDetail().getStateOfProduct().getPersianName() : "نامشخص");
-            productConstructorText.setText(currentAd.getProductDetail().getConstructor() != null ?
-                    currentAd.getProductDetail().getConstructor() : "نامشخص");
+            if (productFields != null) productFields.setVisible(true);
+            if (productBrandText != null) {
+                productBrandText.setText(currentAd.getProductDetail().getBrand() != null
+                        ? currentAd.getProductDetail().getBrand()
+                        : "نامشخص");
+            }
+            if (productModelText != null) {
+                productModelText.setText(currentAd.getProductDetail().getModel() != null
+                        ? currentAd.getProductDetail().getModel()
+                        : "نامشخص");
+            }
+            if (productStateText != null) {
+                productStateText.setText(currentAd.getProductDetail().getStateOfProduct() != null
+                        ? currentAd.getProductDetail().getStateOfProduct().getPersianName()
+                        : "نامشخص");
+            }
+            if (productConstructorText != null) {
+                productConstructorText.setText(currentAd.getProductDetail().getConstructor() != null
+                        ? currentAd.getProductDetail().getConstructor()
+                        : "نامشخص");
+            }
         } else if (currentAd.getServiceDetail() != null) {
-            serviceFields.setVisible(true);
-            serviceTypeText.setText(currentAd.getServiceDetail().getTypeOfPart() != null ?
-                    currentAd.getServiceDetail().getTypeOfPart().name() : "نامشخص");
-            serviceCostText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()));
+            if (serviceFields != null) serviceFields.setVisible(true);
+            if (serviceTypeText != null) {
+                serviceTypeText.setText(currentAd.getServiceDetail().getTypeOfPart() != null
+                        ? currentAd.getServiceDetail().getTypeOfPart().name()
+                        : "نامشخص");
+            }
+            if (serviceCostText != null) {
+                serviceCostText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()));
+            }
         }
     }
 
     /**
-     * Updates action buttons based on whether the current user is the owner.
+     * Updates action buttons based on ownership and admin status.
+     * - Chat, Favorite, and Rating are visible only for non-owners.
+     * - Edit, Delete are visible for owner or admin.
+     * - Sold button is visible for owner if status is ACTIVE.
      */
     private void updateActionButtons() {
         UUID currentUserId = SessionManager.getUserId();
@@ -263,50 +342,45 @@ public class AdDetailController implements DataReceiver {
                 currentAd.getOwner().getId().equals(currentUserId);
         boolean isAdmin = SessionManager.isAdmin();
 
-        // دکمه چت – فقط برای غیر مالک نمایش داده می‌شود
-        chatBtn.setVisible(!isOwner);
-        chatBtn.setManaged(!isOwner);
-
-        // دکمه علاقه‌مندی – فقط برای غیر مالک
-        favBtn.setVisible(!isOwner);
-        favBtn.setManaged(!isOwner);
-
-        // دکمه امتیاز – فقط برای غیر مالک
-        rateBtn.setVisible(!isOwner);
-        rateBtn.setManaged(!isOwner);
-
-        // دکمه ویرایش – فقط برای مالک
-        editBtn.setVisible(isOwner);
-        editBtn.setManaged(isOwner);
-
-        // دکمه حذف – برای مالک یا ادمین
-        deleteBtn.setVisible(isOwner || isAdmin);
-        deleteBtn.setManaged(isOwner || isAdmin);
-
-        // دکمه فروش رفته – فقط برای مالک و آگهی فعال
-        soldBtn.setVisible(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
-        soldBtn.setManaged(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
+        if (chatBtn != null) {
+            chatBtn.setVisible(!isOwner);
+            chatBtn.setManaged(!isOwner);
+        }
+        if (favBtn != null) {
+            favBtn.setVisible(!isOwner);
+            favBtn.setManaged(!isOwner);
+        }
+        if (rateBtn != null) {
+            rateBtn.setVisible(!isOwner);
+            rateBtn.setManaged(!isOwner);
+        }
+        if (editBtn != null) {
+            editBtn.setVisible(isOwner);
+            editBtn.setManaged(isOwner);
+        }
+        if (deleteBtn != null) {
+            deleteBtn.setVisible(isOwner || isAdmin);
+            deleteBtn.setManaged(isOwner || isAdmin);
+        }
+        if (soldBtn != null) {
+            soldBtn.setVisible(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
+            soldBtn.setManaged(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
+        }
     }
 
     /**
      * Checks if the current advertisement is in the user's favorites.
      * If the user is not logged in, favorite status is set to false.
+     * If the API call fails, it gracefully falls back to false.
      */
     private void checkFavoriteStatus() {
-        if (!SessionManager.isLoggedIn()) {
-            isFavorite = false;
-            updateFavoriteButton();
-            return;
-        }
-
-        if (advId == null) {
+        if (!SessionManager.isLoggedIn() || advId == null) {
             isFavorite = false;
             updateFavoriteButton();
             return;
         }
 
         try {
-            // فراخوانی API برای بررسی وضعیت علاقه‌مندی
             isFavorite = favoriteService.isFavorite(advId.toString());
         } catch (Exception e) {
             System.err.println("❌ خطا در بررسی وضعیت علاقه‌مندی: " + e.getMessage());
@@ -319,6 +393,7 @@ public class AdDetailController implements DataReceiver {
      * Updates the favorite button text and style based on favorite status.
      */
     private void updateFavoriteButton() {
+        if (favBtn == null) return;
         if (isFavorite) {
             favBtn.setText("❤️ حذف از علاقه‌مندی");
             favBtn.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold;");
@@ -330,9 +405,12 @@ public class AdDetailController implements DataReceiver {
 
     /**
      * Displays comments for the advertisement.
+     * Shows a placeholder if no comments exist.
      */
     private void displayComments() {
+        if (commentsContainer == null) return;
         commentsContainer.getChildren().clear();
+
         if (currentAd.getComments() == null || currentAd.getComments().isEmpty()) {
             Label noCommentLabel = new Label("هنوز نظری ثبت نشده است.");
             noCommentLabel.setStyle("-fx-text-fill: #a0aec0;");
@@ -348,14 +426,17 @@ public class AdDetailController implements DataReceiver {
             HBox header = new HBox(10);
             header.setAlignment(Pos.CENTER_LEFT);
 
-            Text authorText = new Text(comment.getAuthor() != null ? comment.getAuthor().getFullName() : "ناشناس");
+            Text authorText = new Text(comment.getAuthor() != null
+                    ? comment.getAuthor().getFullName()
+                    : "ناشناس");
             authorText.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-fill: #2d3748;");
 
             Text ratingText = new Text("⭐ " + comment.getRate() + "/5");
             ratingText.setStyle("-fx-font-size: 12px; -fx-fill: #f6ad55;");
 
-            Text dateText = new Text(comment.getDate() != null ?
-                    comment.getDate().toLocalDate().toString() : "");
+            Text dateText = new Text(comment.getDate() != null
+                    ? comment.getDate().toLocalDate().toString()
+                    : "");
             dateText.setStyle("-fx-font-size: 11px; -fx-fill: #a0aec0;");
 
             header.getChildren().addAll(authorText, ratingText, dateText);
@@ -371,23 +452,25 @@ public class AdDetailController implements DataReceiver {
 
     // ==================== Action Methods ====================
 
+    /**
+     * Opens the chat page with the advertisement ID.
+     * Shows an error if advId is null.
+     */
     @FXML
     public void onChat() {
         if (advId == null) {
             AlertUtil.showError("شناسه آگهی نامعتبر است.");
             return;
         }
-        // رفتن به صفحه چت با شناسه آگهی
         SceneManager.showPage(Pages.CHAT, null, advId);
     }
 
     /**
-     * Handles add/remove favorite button click.
      * Toggles the favorite status of the current advertisement.
+     * Shows appropriate messages and updates the button.
      */
     @FXML
     public void onAddFavorite() {
-        // بررسی لاگین بودن کاربر
         if (!SessionManager.isLoggedIn()) {
             AlertUtil.showWarning("لطفاً ابتدا وارد حساب کاربری خود شوید.");
             SceneManager.showPage(Pages.LOGIN, null);
@@ -401,28 +484,32 @@ public class AdDetailController implements DataReceiver {
 
         try {
             if (isFavorite) {
-                // حذف از علاقه‌مندی
                 favoriteService.removeFavorite(advId.toString());
                 isFavorite = false;
                 AlertUtil.showSuccess("آگهی از علاقه‌مندی‌ها حذف شد.");
             } else {
-                // افزودن به علاقه‌مندی
                 favoriteService.addFavorite(advId.toString());
                 isFavorite = true;
                 AlertUtil.showSuccess("آگهی به علاقه‌مندی‌ها اضافه شد.");
             }
             updateFavoriteButton();
         } catch (Exception e) {
-            AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
             e.printStackTrace();
+            AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
         }
     }
 
+    /**
+     * Shows a placeholder for rating functionality.
+     */
     @FXML
     public void onRate() {
         AlertUtil.showWarning("قابلیت امتیازدهی در حال توسعه است.");
     }
 
+    /**
+     * Navigates to the edit advertisement page with the current advId.
+     */
     @FXML
     public void onEdit() {
         if (advId != null) {
@@ -430,6 +517,10 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Deletes the advertisement after confirmation.
+     * Uses AdvService.deleteAdv and navigates back on success.
+     */
     @FXML
     public void onDelete() {
         boolean confirm = AlertUtil.showConfirmation(
@@ -447,6 +538,10 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Marks the advertisement as sold after confirmation.
+     * Reloads the ad detail after successful update.
+     */
     @FXML
     public void onMarkAsSold() {
         boolean confirm = AlertUtil.showConfirmation(
@@ -458,12 +553,15 @@ public class AdDetailController implements DataReceiver {
         try {
             AdvService.markAsSold(advId.toString());
             AlertUtil.showSuccess("وضعیت آگهی به فروخته‌شده تغییر کرد.");
-            loadAdDetail(); // بارگذاری مجدد
+            loadAdDetail();
         } catch (Exception e) {
             AlertUtil.showError("خطا در تغییر وضعیت: " + e.getMessage());
         }
     }
 
+    /**
+     * Navigates back to the dashboard.
+     */
     @FXML
     public void goBack() {
         SceneManager.showPage(Pages.DASHBOARD, null);
@@ -471,6 +569,12 @@ public class AdDetailController implements DataReceiver {
 
     // ==================== Utility Methods ====================
 
+    /**
+     * Translates an English status code to Persian.
+     *
+     * @param status the status enum name (e.g., "ACTIVE")
+     * @return the Persian translation
+     */
     private String translateStatus(String status) {
         return switch (status) {
             case "ACTIVE" -> "فعال";
@@ -482,11 +586,22 @@ public class AdDetailController implements DataReceiver {
         };
     }
 
+    /**
+     * Formats a BigDecimal price to a readable Persian string.
+     *
+     * @param price the price to format
+     * @return formatted price string (e.g., "۱,۰۰۰,۰۰۰ تومان")
+     */
     private String formatPrice(java.math.BigDecimal price) {
         if (price == null) return "۰ تومان";
         return String.format("%,d تومان", price.longValue());
     }
 
+    /**
+     * Shows an error message and navigates back to the dashboard.
+     *
+     * @param message the error message to display
+     */
     private void showError(String message) {
         Platform.runLater(() -> {
             AlertUtil.showError(message);
