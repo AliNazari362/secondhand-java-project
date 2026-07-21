@@ -17,38 +17,38 @@
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
             <FontIcon iconLiteral="fas-file-alt" iconSize="20" iconColor="#2d3748" />
-            <Text fx:id="titleText" text="عنوان آگهی: آیفون ۱۳ پرو مکس ۲۵۶ گیگ" styleClass="header-title" />
+            <Text fx:id="titleText" styleClass="header-title" />
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="15">
                 <!-- Views and Rating Info -->
                 <HBox spacing="20" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
                     <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #ebf4ff; -fx-background-radius: 20;">
                         <FontIcon iconLiteral="fas-eye" iconSize="14" iconColor="#3182ce" />
-                        <Text text="۱,۲۳۴ بازدید" style="-fx-font-size: 12px; -fx-fill: #3182ce; -fx-font-weight: bold;" />
+                        <Text fx:id="viewsText" style="-fx-font-size: 12px; -fx-fill: #3182ce; -fx-font-weight: bold;" />
                     </HBox>
                     <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #fffaf0; -fx-background-radius: 20;">
                         <FontIcon iconLiteral="fas-star" iconSize="14" iconColor="#f6ad55" />
-                        <Text text="۴.۲ (۱۲ نظر)" style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;" />
+                        <Text fx:id="ratingText" style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;" />
                     </HBox>
                 </HBox>
                 <!-- Star Rating Section -->
                 <HBox spacing="3" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
-                    <Button  style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#f6ad55" /></graphic>
+                    <Button fx:id="rateBtn" style="-fx-background-color: transparent; -fx-padding: 2;" onAction="#onRate">
+                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
                     </Button>
-                    <Button style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#f6ad55" /></graphic>
+                    <Button fx:id="star2" style="-fx-background-color: transparent; -fx-padding: 2;">
+                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
                     </Button>
-                    <Button style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#f6ad55" /></graphic>
+                    <Button fx:id="star3" style="-fx-background-color: transparent; -fx-padding: 2;">
+                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
                     </Button>
-                    <Button style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#f6ad55" /></graphic>
+                    <Button fx:id="star4" style="-fx-background-color: transparent; -fx-padding: 2;">
+                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
                     </Button>
-                    <Button style="-fx-background-color: transparent; -fx-padding: 2;">
+                    <Button fx:id="star5" style="-fx-background-color: transparent; -fx-padding: 2;">
                         <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" />
                         </graphic>
                     </Button>
-                    <Button text="ثبت امتیاز" styleClass="primary-btn" style="-fx-padding: 3 8;" />
+                    <Button fx:id="submitRatingBtn" text="ثبت امتیاز" styleClass="primary-btn" style="-fx-padding: 3 8;" />
                 </HBox>
                 <Button onAction="#goBack">
                     <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="16" /></graphic>
@@ -63,70 +63,59 @@
 
                     <!-- Status and Type Badges Row -->
                     <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label fx:id="statusLabel" text="فعال" styleClass="status-badge" />
-                        <Label text="نوع آگهی: کالا" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-padding: 5 12; -fx-background-color: #bee3f8; -fx-background-radius: 15;" />
+                        <Label fx:id="statusLabel" styleClass="status-badge" />
+                        <Label fx:id="typeLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-padding: 5 12; -fx-background-color: #bee3f8; -fx-background-radius: 15;" />
                     </HBox>
 
                     <!-- Image Gallery -->
-                    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
-                        <VBox spacing="5" alignment="CENTER" style="-fx-padding: 10; -fx-border-color: #cbd5e0; -fx-border-radius: 6; -fx-background-color: white; -fx-background-radius: 6; -fx-min-width: 140; -fx-min-height: 140;">
-                            <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#a0aec0" />
-                            <Text text="نمای جلو" style="-fx-font-size: 11px; -fx-fill: #718096;" />
-                        </VBox>
-                        <VBox spacing="5" alignment="CENTER" style="-fx-padding: 10; -fx-border-color: #cbd5e0; -fx-border-radius: 6; -fx-background-color: white; -fx-background-radius: 6; -fx-min-width: 140; -fx-min-height: 140;">
-                            <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#a0aec0" />
-                            <Text text="نمای عقب" style="-fx-font-size: 11px; -fx-fill: #718096;" />
-                        </VBox>
-                        <VBox spacing="5" alignment="CENTER" style="-fx-padding: 10; -fx-border-color: #cbd5e0; -fx-border-radius: 6; -fx-background-color: white; -fx-background-radius: 6; -fx-min-width: 140; -fx-min-height: 140;">
-                            <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#a0aec0" />
-                            <Text text="جعبه" style="-fx-font-size: 11px; -fx-fill: #718096;" />
-                        </VBox>
-                    </HBox>
+                    <ScrollPane fitToHeight="true" style="-fx-background: transparent;">
+                        <FlowPane fx:id="imagesContainer" hgap="10" vgap="10" alignment="CENTER" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 8;" />
+                    </ScrollPane>
 
                     <!-- Product Fields (Visible for Product Ads) -->
-                    <VBox fx:id="productDetailFields" spacing="12" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                    <VBox fx:id="productFields" spacing="12" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات کالا" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;" />
                         <HBox spacing="15">
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="قیمت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="۳۵,۰۰۰,۰۰۰ تومان" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                <Text fx:id="priceText" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
                             </VBox>
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="وضعیت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="در حد نو" style="-fx-font-size: 16px; -fx-fill: #38a169; -fx-font-weight: bold;" />
+                                <Text fx:id="productStateText" style="-fx-font-size: 16px; -fx-fill: #38a169; -fx-font-weight: bold;" />
                             </VBox>
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="برند" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="Apple" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                <Text fx:id="productBrandText" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
                             </VBox>
                         </HBox>
                         <HBox spacing="15">
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="مدل" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="iPhone 13 Pro Max" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                                <Text fx:id="productModelText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
                             </VBox>
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="دسته بندی" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="الکترونیک" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                                <Text fx:id="categoryText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
                             </VBox>
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="سازنده" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="Apple Inc." style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                                <Text fx:id="productConstructorText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
                             </VBox>
                         </HBox>
                     </VBox>
 
                     <!-- Service Fields (Visible for Service Ads) -->
-                    <VBox fx:id="serviceDetailFields" spacing="12" visible="false" managed="false" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                    <VBox fx:id="serviceFields" spacing="12" visible="false" managed="false" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات خدمت" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;" />
                         <HBox spacing="15">
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="نوع محاسبه" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="ساعتی" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                <Text fx:id="serviceTypeText" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
                             </VBox>
                             <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="هزینه" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text text="۵۰۰,۰۰۰ تومان" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                <Text fx:id="serviceCostText" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
                             </VBox>
                         </HBox>
                     </VBox>
@@ -138,21 +127,21 @@
                                 <FontIcon iconLiteral="fas-map-marker-alt" iconSize="14" iconColor="#e53e3e" />
                                 <Text text="شهر" style="-fx-font-size: 12px; -fx-fill: #718096;" />
                             </HBox>
-                            <Text text="تهران" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="cityText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
                         </VBox>
                         <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <FontIcon iconLiteral="fas-calendar-alt" iconSize="14" iconColor="#3182ce" />
                                 <Text text="تاریخ ثبت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
                             </HBox>
-                            <Text text="۱۴۰۲/۰۸/۲۵" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="dateText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
                         </VBox>
                         <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <FontIcon iconLiteral="fas-user" iconSize="14" iconColor="#718096" />
                                 <Text text="ثبت کننده" style="-fx-font-size: 12px; -fx-fill: #718096;" />
                             </HBox>
-                            <Text text="علی محمدی" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="ownerText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
                         </VBox>
                     </HBox>
 
@@ -162,7 +151,7 @@
                             <FontIcon iconLiteral="fas-map-pin" iconSize="14" iconColor="#e53e3e" />
                             <Text text="آدرس" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         </HBox>
-                        <Text text="تهران، خیابان ولیعصر، بالاتر از پارک وی، کوچه شهید فیاضی، پلاک ۱۲" style="-fx-font-size: 14px; -fx-fill: #2d3748; -fx-padding: 0 20 0 0;" />
+                        <Text fx:id="addressText" style="-fx-font-size: 14px; -fx-fill: #2d3748; -fx-padding: 0 20 0 0;" />
                     </VBox>
 
                     <!-- Description -->
@@ -171,7 +160,7 @@
                             <FontIcon iconLiteral="fas-align-left" iconSize="14" iconColor="#718096" />
                             <Text text="توضیحات" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
                         </HBox>
-                        <Text text="آیفون ۱۳ پرو مکس ۲۵۶ گیگابایت، رنگ طلایی، دارای گارانتی، بدون خط و خش، همراه با جعبه و شارژر اصلی. تنها ۳ ماه استفاده شده است." wrappingWidth="600" style="-fx-font-size: 14px; -fx-fill: #2d3748;" />
+                        <Text fx:id="descriptionText" wrappingWidth="600" style="-fx-font-size: 14px; -fx-fill: #2d3748;" />
                     </VBox>
 
                     <!-- Additional Options / Features -->
@@ -180,36 +169,24 @@
                             <FontIcon iconLiteral="fas-tags" iconSize="14" iconColor="#718096" />
                             <Text text="ویژگی های اضافی" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
                         </HBox>
-                        <FlowPane hgap="8" vgap="8">
-                            <HBox spacing="5" style="-fx-padding: 6 12; -fx-background-color: #edf2f7; -fx-background-radius: 8;">
-                                <Text text="وزن:" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
-                                <Text text="۲۴۰ گرم" style="-fx-font-size: 13px; -fx-fill: #2d3748;" />
-                            </HBox>
-                            <HBox spacing="5" style="-fx-padding: 6 12; -fx-background-color: #edf2f7; -fx-background-radius: 8;">
-                                <Text text="حافظه:" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
-                                <Text text="۲۵۶ گیگابایت" style="-fx-font-size: 13px; -fx-fill: #2d3748;" />
-                            </HBox>
-                            <HBox spacing="5" style="-fx-padding: 6 12; -fx-background-color: #edf2f7; -fx-background-radius: 8;">
-                                <Text text="رنگ:" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
-                                <Text text="طلایی" style="-fx-font-size: 13px; -fx-fill: #2d3748;" />
-                            </HBox>
-                        </FlowPane>
+                        <FlowPane fx:id="optionsContainer" hgap="8" vgap="8" />
                     </VBox>
 
                     <!-- Action Buttons -->
                     <HBox spacing="10" alignment="CENTER">
-                        <Button fx:id="chatBtn" onAction="#onChat" styleClass="primary-btn">
+                        <Button fx:id="chatBtn" onAction="#onChat" styleClass="primary-btn" text="💬 چت">
                             <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
                         </Button>
                         <Button fx:id="favBtn" onAction="#onAddFavorite" styleClass="primary-btn">
                             <graphic><FontIcon iconLiteral="fas-heart" iconSize="16" iconColor="#e53e3e" /></graphic>
                         </Button>
-                        <Button fx:id="editBtn" onAction="#onEdit" styleClass="primary-btn">
+                        <Button fx:id="editBtn" onAction="#onEdit" styleClass="primary-btn" text="✏️ ویرایش">
                             <graphic><FontIcon iconLiteral="fas-edit" iconSize="16" /></graphic>
                         </Button>
-                        <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="danger-btn">
+                        <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="danger-btn" text="🗑️ حذف">
                             <graphic><FontIcon iconLiteral="fas-trash" iconSize="16" /></graphic>
                         </Button>
+                        <Button fx:id="soldBtn" onAction="#onMarkAsSold" styleClass="success-btn" text="✅ فروخته شد" />
                     </HBox>
                 </VBox>
 
@@ -220,7 +197,7 @@
                         <Text text="نظر خود را بنویسید" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         <TextArea fx:id="commentArea" promptText="نظر خود را اینجا بنویسید..." styleClass="text-area-field" prefHeight="80.0" wrapText="true" />
                     </VBox>
-                    <Button text="ثبت نظر" styleClass="success-btn" maxWidth="150">
+                    <Button fx:id="submitCommentBtn" text="ثبت نظر" styleClass="success-btn" maxWidth="150">
                         <graphic><FontIcon iconLiteral="fas-paper-plane" iconSize="16" /></graphic>
                     </Button>
                 </VBox>
@@ -228,44 +205,7 @@
                 <!-- Comments Section -->
                 <VBox styleClass="card" spacing="15" prefWidth="700.0">
                     <Text text="نظرات کاربران" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
-
-                    <!-- Sample Comment 1 -->
-                    <VBox spacing="8" style="-fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-user-circle" iconSize="28" iconColor="#4a5568" />
-                            <VBox spacing="2">
-                                <Text text="سارا رضایی" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
-                                <HBox spacing="3">
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#e2e8f0" />
-                                </HBox>
-                            </VBox>
-                            <Text text="۲ روز پیش" style="-fx-font-size: 11px; -fx-fill: #a0aec0;" />
-                        </HBox>
-                        <Text text="گوشی بسیار تمیز و دقیقا همان چیزی که توضیح داده شده بود. از فروشنده محترم تشکر می کنم." wrappingWidth="600" style="-fx-font-size: 13px; -fx-fill: #2d3748;" />
-                    </VBox>
-
-                    <!-- Sample Comment 2 -->
-                    <VBox spacing="8" style="-fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-user-circle" iconSize="28" iconColor="#4a5568" />
-                            <VBox spacing="2">
-                                <Text text="محمد کریمی" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
-                                <HBox spacing="3">
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#f6ad55" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#e2e8f0" />
-                                    <FontIcon iconLiteral="fas-star" iconSize="12" iconColor="#e2e8f0" />
-                                </HBox>
-                            </VBox>
-                            <Text text="۱ هفته پیش" style="-fx-font-size: 11px; -fx-fill: #a0aec0;" />
-                        </HBox>
-                        <Text text="قیمت مناسب بود ولی ای کاش زودتر ارسال می شد. در کل راضی هستم." wrappingWidth="600" style="-fx-font-size: 13px; -fx-fill: #2d3748;" />
-                    </VBox>
+                    <VBox fx:id="commentsContainer" spacing="10" />
                 </VBox>
             </VBox>
         </ScrollPane>
