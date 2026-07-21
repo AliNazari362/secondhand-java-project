@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
@@ -25,6 +24,9 @@
 
     <!-- دسته‌بندی -->
     <Label fx:id="categoryLabel" style="-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold; -fx-padding: 2 8; -fx-background-color: #edf2f7; -fx-background-radius: 10;" />
+
+    <!-- وضعیت (برای نمایش فعال، در انتظار، و ...) -->
+    <Label fx:id="statusLabel" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 2 8; -fx-background-radius: 10;" />
 
     <!-- تاریخ -->
     <Label fx:id="dateLabel" styleClass="ad-date" />

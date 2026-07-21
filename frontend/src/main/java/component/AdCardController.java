@@ -14,10 +14,8 @@ import java.math.BigDecimal;
 /**
  * Controller for the advertisement card component.
  * Displays a summary of an advertisement in list/search views.
- * This card shows title, price, city, category, status, and a thumbnail image.
  */
 public class AdCardController {
-
     @FXML private Text titleText;
     @FXML private Label priceLabel;
     @FXML private Label cityLabel;
@@ -26,32 +24,29 @@ public class AdCardController {
     @FXML private ImageView imageView;
     @FXML private Label statusLabel;
 
+    // آدرس پایه سرور برای تصاویر (مطابق با بک‌اند)
+    private static final String BASE_IMAGE_URL = "http://localhost:8080/";
+
     /**
      * Sets the advertisement data to be displayed on the card.
      *
-     * @param ad the advertisement summary DTO containing all necessary fields
+     * @param ad the advertisement summary DTO
      */
     public void setData(AdvertisementSummaryDto ad) {
         try {
-            // عنوان
             titleText.setText(ad.getFullName() != null ? ad.getFullName() : "بدون عنوان");
 
-            // قیمت
             if (ad.getPrice() != null) {
                 priceLabel.setText(formatPrice(ad.getPrice()));
             } else {
                 priceLabel.setText("قیمت: توافقی");
             }
 
-            // شهر
             cityLabel.setText(ad.getCity() != null ? ad.getCity().getPersianName() : "نامشخص");
-
-            // تاریخ (فقط تاریخ، بدون ساعت)
             dateLabel.setText(ad.getCreationDate() != null
                     ? ad.getCreationDate().toLocalDate().toString()
                     : "");
 
-            // دسته‌بندی
             if (ad.getCategoryName() != null && !ad.getCategoryName().isEmpty()) {
                 categoryLabel.setText("📁 " + ad.getCategoryName());
                 categoryLabel.setVisible(true);
@@ -59,7 +54,6 @@ public class AdCardController {
                 categoryLabel.setVisible(false);
             }
 
-            // وضعیت (با ترجمه فارسی)
             if (ad.getStatus() != null) {
                 String statusText = switch (ad.getStatus()) {
                     case ACTIVE -> "فعال";
@@ -74,11 +68,32 @@ public class AdCardController {
                 statusLabel.setVisible(false);
             }
 
-            // تصویر (اگر مسیر معتبر باشد)
+            // ===== نمایش تصویر (با پشتیبانی از مسیر محلی و سرور) =====
             if (ad.getFirstImagePath() != null && !ad.getFirstImagePath().isEmpty()) {
-                File file = new File(ad.getFirstImagePath());
+                String imagePath = ad.getFirstImagePath();
+                Image image = null;
+
+                // ۱. ابتدا بررسی کنید که آیا فایل محلی وجود دارد (برای توسعه)
+                File file = new File(imagePath);
                 if (file.exists()) {
-                    Image image = new Image(file.toURI().toString(), 180, 120, true, true);
+                    image = new Image(file.toURI().toString(), 180, 120, true, true);
+                }
+
+                // ۲. اگر فایل محلی نبود، از سرور بارگذاری کنید
+                if (image == null || image.isError()) {
+                    // اگر مسیر با "uploads/" شروع نشود، آن را اضافه کنید
+                    String serverPath = imagePath;
+                    if (!serverPath.startsWith("uploads/") && !serverPath.startsWith("http")) {
+                        serverPath = "uploads/" + serverPath;
+                    }
+                    // اگر آدرس کامل نبود، آدرس سرور را اضافه کنید
+                    if (!serverPath.startsWith("http")) {
+                        serverPath = BASE_IMAGE_URL + serverPath;
+                    }
+                    image = new Image(serverPath, 180, 120, true, true);
+                }
+
+                if (image != null && !image.isError()) {
                     imageView.setImage(image);
                     imageView.setVisible(true);
                 } else {
@@ -89,15 +104,14 @@ public class AdCardController {
             }
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در نمایش آگهی: " + e.getMessage());
+            // خطا را نمایش ندهید تا کارت‌های دیگر به درستی نشان داده شوند
+            // فقط لاگ کنید
+            System.err.println("خطا در نمایش آگهی: " + e.getMessage());
         }
     }
 
     /**
      * Formats a BigDecimal price to a readable Persian string.
-     *
-     * @param price the price to format
-     * @return formatted price string (e.g., "۱,۰۰۰,۰۰۰ تومان")
      */
     private String formatPrice(BigDecimal price) {
         if (price == null) return "۰ تومان";

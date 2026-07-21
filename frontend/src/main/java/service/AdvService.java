@@ -17,6 +17,18 @@ public class AdvService {
 
     // ==================== SEARCH ====================
 
+    /**
+     * Searches for active advertisements with filters.
+     *
+     * @param keyword    optional keyword for title/description search
+     * @param city       optional city filter
+     * @param categoryId optional category ID filter
+     * @param sortBy     sorting criterion (newest, oldest, priceAsc, priceDesc, ratingDesc)
+     * @param minPrice   optional minimum price (only for products)
+     * @param maxPrice   optional maximum price (only for products)
+     * @return list of matching advertisements
+     * @throws Exception if the API call fails
+     */
     public static List<AdvertisementSummaryDto> getActiveAds(
             String keyword,
             City city,

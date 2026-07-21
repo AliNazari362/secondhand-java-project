@@ -24,11 +24,10 @@ public class CategoryService {
      * @throws Exception if the request fails
      */
     public List<Category> getAllCategories() throws Exception {
-        String response = api.get("/admin/categories");
+        String response = api.get("/categories/public");  // مسیر عمومی
         Category[] categories = api.fromJson(response, Category[].class);
         return Arrays.asList(categories);
     }
-
     /**
      * Retrieves a category by its ID.
      *

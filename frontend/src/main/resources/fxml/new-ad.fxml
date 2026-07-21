@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
@@ -37,13 +38,14 @@
                       style="-fx-padding: 15; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-border-style: dashed; -fx-border-width: 2; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
                     <FontIcon iconLiteral="fas-cloud-upload-alt" iconSize="36" iconColor="#a0aec0"/>
                     <Text text="تصاویر آگهی را اینجا بارگذاری کنید" style="-fx-font-size: 13px; -fx-fill: #718096;"/>
-                    <Text text="فرمت های مجاز: JPG, PNG (حداکثر ۵ عکس)"
+                    <Text text="فرمت های مجاز: JPG, PNG, GIF, BMP, WEBP (حداکثر ۵ عکس)"
                           style="-fx-font-size: 11px; -fx-fill: #a0aec0;"/>
-                    <Button text="انتخاب تصاویر" onAction="#onChooseImage" styleClass="success-btn">
+                    <Button text="انتخاب تصاویر" onAction="#onChooseImages" styleClass="success-btn">
                         <graphic>
                             <FontIcon iconLiteral="fas-images" iconSize="16"/>
                         </graphic>
                     </Button>
+                    <FlowPane fx:id="imagePreviewContainer" hgap="10" vgap="10" style="-fx-padding: 10 0 0 0;" />
                 </VBox>
 
                 <!-- Title -->
@@ -80,7 +82,7 @@
                               maxWidth="1.7976931348623157E308"/>
                 </VBox>
 
-                <!-- ===== دسته‌بندی (مشترک بین کالا و خدمت) ===== -->
+                <!-- Category (common for both) -->
                 <VBox spacing="5">
                     <Text text="دسته‌بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
                     <ComboBox fx:id="categoryCombo" promptText="انتخاب دسته‌بندی *" styleClass="input-field"

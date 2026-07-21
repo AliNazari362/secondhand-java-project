@@ -181,12 +181,17 @@ public class AdDetailController implements DataReceiver {
             imageView.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 8;");
 
             try {
-                File file = new File(imageDto.getPath());
+                String imagePath = imageDto.getPath();
+                File file = new File(imagePath);
                 if (file.exists()) {
                     imageView.setImage(new Image(file.toURI().toString()));
+                } else {
+                    // Try loading from server
+                    String serverUrl = "http://localhost:8080/" + imagePath;
+                    imageView.setImage(new Image(serverUrl));
                 }
             } catch (Exception e) {
-                // خطا در بارگذاری تصویر – نادیده گرفته می‌شود
+                // Ignore
             }
 
             VBox imageBox = new VBox(5);
@@ -197,7 +202,6 @@ public class AdDetailController implements DataReceiver {
             imagesContainer.getChildren().add(imageBox);
         }
     }
-
     /**
      * Displays key-value options/attributes of the advertisement.
      */
