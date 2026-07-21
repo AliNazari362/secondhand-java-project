@@ -90,8 +90,6 @@ public enum Pages {
         }
     },
 
-    // ================== صفحات جدید ==================
-
     PROFILE {
         @Override
         public String getTitle() {
@@ -122,6 +120,19 @@ public enum Pages {
         @Override
         public String getRoot() {
             return "admin";
+        }
+    },
+
+    // ================== New Page ==================
+
+    CATEGORY_MANAGEMENT {
+        @Override
+        public String getTitle() {
+            return "مدیریت دسته‌بندی‌ها";
+        }
+        @Override
+        public String getRoot() {
+            return "category-management";
         }
     },
 

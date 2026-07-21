@@ -2,6 +2,7 @@ package utils;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 
 import java.util.Optional;
 
@@ -45,5 +46,22 @@ public class AlertUtil {
         alert.setContentText(message);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    /**
+     * نمایش دیالوگ ورودی متن
+     *
+     * @param title        عنوان دیالوگ
+     * @param message      پیام راهنما
+     * @param defaultValue مقدار پیش‌فرض (می‌تواند null باشد)
+     * @return متن وارد شده توسط کاربر، یا null در صورت انصراف
+     */
+    public static String showInputDialog(String title, String message, String defaultValue) {
+        TextInputDialog dialog = new TextInputDialog(defaultValue);
+        dialog.setTitle(title);
+        dialog.setHeaderText(null);
+        dialog.setContentText(message);
+        Optional<String> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 }

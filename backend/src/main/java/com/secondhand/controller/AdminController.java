@@ -104,7 +104,7 @@ public class AdminController {
      * @param token the JWT bearer token from the {@code Authorization} request header (admin required)
      * @return a list of {@link AdvSummaryResponse} objects for pending advertisements
      */
-    @GetMapping("get-pendign-ads")
+    @GetMapping("get-pending-ads")
     public List<AdvSummaryResponse> getPendingAds(@RequestHeader("Authorization") String token) {
         checkAdmin(token);
         return adminService.getPendingAds();

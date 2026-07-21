@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -33,7 +32,6 @@
             <VBox styleClass="card" spacing="20" prefWidth="700.0">
                 <Text text="اطلاعات آگهی" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
 
-                <!--                TODO Image process-->
                 <!-- Image Upload Section -->
                 <VBox spacing="10" alignment="CENTER"
                       style="-fx-padding: 15; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-border-style: dashed; -fx-border-width: 2; -fx-background-color: #f7fafc; -fx-background-radius: 8;">
@@ -82,6 +80,13 @@
                               maxWidth="1.7976931348623157E308"/>
                 </VBox>
 
+                <!-- ===== دسته‌بندی (مشترک بین کالا و خدمت) ===== -->
+                <VBox spacing="5">
+                    <Text text="دسته‌بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
+                    <ComboBox fx:id="categoryCombo" promptText="انتخاب دسته‌بندی *" styleClass="input-field"
+                              maxWidth="1.7976931348623157E308"/>
+                </VBox>
+
                 <!-- Service Fields Section -->
                 <VBox fx:id="serviceFields" spacing="15">
                     <Text text="جزئیات خدمت"
@@ -123,11 +128,6 @@
                         <TextField fx:id="modelField" promptText="مدل" styleClass="input-field"/>
                     </VBox>
                     <VBox spacing="5">
-                        <Text text="دسته بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <ComboBox fx:id="categoryCombo" promptText="دسته بندی *" styleClass="input-field"
-                                  maxWidth="1.7976931348623157E308"/>
-                    </VBox>
-                    <VBox spacing="5">
                         <Text text="سازنده یا طراح"
                               style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
                         <TextField fx:id="manufacturerField" promptText="سازنده یا طراح" styleClass="input-field"/>
@@ -138,7 +138,7 @@
                 <VBox spacing="10">
                     <Text text="ویژگی های اضافی"
                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 5 0 0 0;"/>
-                    <Button onAction="#handleAddFeature"  text="افزودن ویژگی جدید" styleClass="primary-btn" maxWidth="200">
+                    <Button onAction="#handleAddFeature" text="افزودن ویژگی جدید" styleClass="primary-btn" maxWidth="200">
                         <graphic>
                             <FontIcon iconLiteral="fas-plus-circle" iconSize="16"/>
                         </graphic>

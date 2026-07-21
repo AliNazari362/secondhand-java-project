@@ -117,8 +117,10 @@ public class ApiClient {
      * @throws InterruptedException if the request is interrupted
      */
     public String get(String endpoint) throws Exception {
+        String fullUrl = BASE_URL + endpoint;
+        System.out.println("🟢 GET request to: " + fullUrl); // <-- اضافه کنید
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + endpoint))
+                .uri(URI.create(fullUrl))
                 .header("Authorization", getAuthHeader())
                 .GET()
                 .build();

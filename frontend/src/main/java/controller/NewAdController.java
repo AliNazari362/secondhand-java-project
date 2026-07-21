@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import model.Category;
 import model.enums.*;
 import model.request.ImageRequest;
 import model.request.OptionRequest;
@@ -26,56 +27,40 @@ import utils.SessionManager;
 import utils.ValidationUtil;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class NewAdController {
 
-    @FXML
-    private TextField titleField;
-    @FXML
-    private TextField addressField;
-    @FXML
-    private TextArea descArea;
-    @FXML
-    private ComboBox<String> cityCombo;
-    @FXML
-    private ComboBox<String> typeCombo;
-    @FXML
-    private TextField imagePathField;
-    @FXML
-    private VBox serviceFields;
-    @FXML
-    private VBox productFields;
-    @FXML
-    private ComboBox<String> serviceCalcTypeCombo;
-    @FXML
-    private TextField servicePriceField;
-    @FXML
-    private ComboBox<String> productConditionCombo;
-    @FXML
-    private ComboBox<String> categoryCombo;
-    @FXML
-    private TextField brandField;
-    @FXML
-    private TextField productPriceField;
-    @FXML
-    private TextField modelField;
-    @FXML
-    private TextField manufacturerField;
-    @FXML
-    private VBox optionsContainer;
+    @FXML private TextField titleField;
+    @FXML private TextField addressField;
+    @FXML private TextArea descArea;
+    @FXML private ComboBox<String> cityCombo;
+    @FXML private ComboBox<String> typeCombo;
+    @FXML private TextField imagePathField;
+    @FXML private VBox serviceFields;
+    @FXML private VBox productFields;
+    @FXML private ComboBox<String> serviceCalcTypeCombo;
+    @FXML private TextField servicePriceField;
+    @FXML private ComboBox<String> productConditionCombo;
+    @FXML private ComboBox<String> categoryCombo;   // ← این کامبوباکس برای نمایش دسته‌بندی‌ها
+    @FXML private TextField brandField;
+    @FXML private TextField productPriceField;
+    @FXML private TextField modelField;
+    @FXML private TextField manufacturerField;
+    @FXML private VBox optionsContainer;
 
     private List<OptionRequest> options;
     private AdvType selectedAdvType;
     private final CategoryService categoryService = new CategoryService();
-    private List<model.Category> categories;
+    private List<Category> allCategories;          // تمام دسته‌بندی‌ها از سرور
+    private Map<String, Long> categoryNameToIdMap; // نگاشت نام نمایشی به شناسه
 
     @FXML
     public void initialize() {
         options = new ArrayList<>();
 
-        // مقداردهی کامبوباکس شهر
+        // ===== شهرها =====
         cityCombo.getItems().addAll(
                 City.TEHRAN.getPersianName(),
                 City.ISFAHAN.getPersianName(),
@@ -91,10 +76,7 @@ public class NewAdController {
                 City.OTHER.getPersianName()
         );
 
-        // بارگذاری دسته‌بندی‌ها از بک‌اند
-        loadCategories();
-
-        // مقداردهی کامبوباکس وضعیت محصول
+        // ===== وضعیت محصول =====
         productConditionCombo.getItems().addAll(
                 ProductState.NEW.getPersianName(),
                 ProductState.LIKE_NEW.getPersianName(),
@@ -104,7 +86,7 @@ public class NewAdController {
                 ProductState.REFURBISHED.getPersianName()
         );
 
-        // مقداردهی کامبوباکس نوع محاسبه خدمت
+        // ===== نوع محاسبه خدمت =====
         serviceCalcTypeCombo.getItems().addAll(
                 ServiceType.HOURLY.getPersianName(),
                 ServiceType.DAILY.getPersianName(),
@@ -114,28 +96,87 @@ public class NewAdController {
                 ServiceType.FIXED.getPersianName()
         );
 
-        // مقداردهی کامبوباکس نوع آگهی
+        // ===== نوع آگهی =====
         typeCombo.getItems().addAll("خدمت", "کالا");
+        typeCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            onChooseType();
+        });
 
-        // مخفی کردن بخش‌های تخصصی تا زمانی که نوع آگهی انتخاب شود
+        // ===== مخفی کردن فیلدهای تخصصی در ابتدا =====
         productFields.setVisible(false);
         productFields.setManaged(false);
         serviceFields.setVisible(false);
         serviceFields.setManaged(false);
+
+        // ===== بارگذاری دسته‌بندی‌ها =====
+        loadCategories();
     }
 
+    // ================================
+    //  بارگذاری دسته‌بندی‌ها
+    // ================================
     private void loadCategories() {
         try {
-            categories = categoryService.getAllCategories();
-            categoryCombo.getItems().clear();
-            for (model.Category cat : categories) {
-                categoryCombo.getItems().add(cat.getName());
-            }
+            allCategories = categoryService.getAllCategories();
+            Platform.runLater(() -> {
+                // فیلتر بر اساس نوع آگهی انتخاب‌شده
+                AdvType filterType = selectedAdvType;
+                List<Category> filtered = allCategories.stream()
+                        .filter(cat -> filterType == null || cat.getType() == filterType)
+                        .collect(Collectors.toList());
+
+                // ساخت لیست نام‌های نمایشی با تورفتگی
+                categoryNameToIdMap = new LinkedHashMap<>();
+                List<String> displayNames = buildCategoryDisplayList(filtered);
+
+                categoryCombo.getItems().clear();
+                categoryCombo.getItems().addAll(displayNames);
+                categoryCombo.getSelectionModel().selectFirst();
+            });
         } catch (Exception e) {
             AlertUtil.showError("خطا در دریافت دسته‌بندی‌ها: " + e.getMessage());
         }
     }
 
+    /**
+     * ساخت لیست نام‌های نمایشی با تورفتگی برای نمایش سلسله‌مراتبی
+     */
+    private List<String> buildCategoryDisplayList(List<Category> categories) {
+        // پیدا کردن ریشه‌ها (دسته‌بندی‌های بدون والد)
+        List<Category> roots = categories.stream()
+                .filter(cat -> cat.getParent() == null)
+                .collect(Collectors.toList());
+
+        List<String> result = new ArrayList<>();
+        for (Category root : roots) {
+            traverseCategoryTree(root, 0, result, categories);
+        }
+        return result;
+    }
+
+    /**
+     * پیمایش درخت دسته‌بندی به صورت Depth-First و افزودن نام با تورفتگی
+     */
+    private void traverseCategoryTree(Category category, int depth, List<String> result, List<Category> all) {
+        // نام با تورفتگی (با فاصله یا خط تیره)
+        String indent = "  ".repeat(depth);
+        String displayName = indent + category.getName();
+        result.add(displayName);
+        categoryNameToIdMap.put(displayName, category.getId());
+
+        // پیدا کردن زیردسته‌ها
+        List<Category> children = all.stream()
+                .filter(c -> c.getParent() != null && c.getParent().getId().equals(category.getId()))
+                .collect(Collectors.toList());
+
+        for (Category child : children) {
+            traverseCategoryTree(child, depth + 1, result, all);
+        }
+    }
+
+    // ================================
+    //  تغییر نوع آگهی
+    // ================================
     @FXML
     public void onChooseType() {
         String selected = typeCombo.getValue();
@@ -147,17 +188,30 @@ public class NewAdController {
         serviceFields.setVisible(isService);
         serviceFields.setManaged(isService);
 
-        if (isProduct) selectedAdvType = AdvType.PRODUCT;
-        else if (isService) selectedAdvType = AdvType.SERVICE;
+        if (isProduct) {
+            selectedAdvType = AdvType.PRODUCT;
+        } else if (isService) {
+            selectedAdvType = AdvType.SERVICE;
+        } else {
+            selectedAdvType = null;
+        }
+
+        // بارگذاری مجدد دسته‌بندی‌ها با نوع جدید
+        loadCategories();
     }
 
+    // ================================
+    //  انتخاب تصویر (موقت)
+    // ================================
     @FXML
     public void onChooseImage() {
         System.out.println("انتخاب تصویر کلیک شد");
-        // TODO: پیاده‌سازی انتخاب فایل و آپلود
         AlertUtil.showWarning("این قابلیت در حال توسعه است");
     }
 
+    // ================================
+    //  افزودن ویژگی
+    // ================================
     @FXML
     public void handleAddFeature() {
         HBox featureBox = new HBox(10);
@@ -182,10 +236,21 @@ public class NewAdController {
         optionsContainer.getChildren().add(featureBox);
     }
 
+    // ================================
+    //  دریافت شناسه دسته‌بندی انتخاب‌شده
+    // ================================
+    private Long getSelectedCategoryId() {
+        String selectedDisplay = categoryCombo.getSelectionModel().getSelectedItem();
+        if (selectedDisplay == null) return null;
+        return categoryNameToIdMap.get(selectedDisplay);
+    }
+
+    // ================================
+    //  ثبت آگهی
+    // ================================
     @FXML
     public void onSubmit() {
         try {
-            // اعتبارسنجی فیلدهای ضروری
             ValidationUtil.isNotEmpty(
                     titleField.getText(),
                     addressField.getText(),
@@ -199,31 +264,25 @@ public class NewAdController {
                 return;
             }
 
-            // دریافت ویژگی‌های اضافی
             getAllFeatures();
-
             City city = City.fromPersianName(cityCombo.getValue());
+            Long categoryId = getSelectedCategoryId();
+
             AdvertisementDetailDto result;
 
             if (selectedAdvType == AdvType.PRODUCT) {
-                // اعتبارسنجی فیلدهای محصول
                 ValidationUtil.isNotEmpty(
                         productPriceField.getText(),
-                        productConditionCombo.getValue(),
-                        categoryCombo.getValue()
+                        productConditionCombo.getValue()
                 );
-
-                ProductCreateRequest request = createProductRequest(city);
+                ProductCreateRequest request = createProductRequest(city, categoryId);
                 result = AdvService.createProduct(request);
-
             } else {
-                // اعتبارسنجی فیلدهای خدمت
                 ValidationUtil.isNotEmpty(
                         servicePriceField.getText(),
                         serviceCalcTypeCombo.getValue()
                 );
-
-                ServiceCreateRequest request = createServiceRequest(city);
+                ServiceCreateRequest request = createServiceRequest(city, categoryId);
                 result = AdvService.createService(request);
             }
 
@@ -237,7 +296,10 @@ public class NewAdController {
         }
     }
 
-    private ProductCreateRequest createProductRequest(City city) {
+    // ================================
+    //  ساخت درخواست محصول
+    // ================================
+    private ProductCreateRequest createProductRequest(City city, Long categoryId) {
         ProductCreateRequest request = new ProductCreateRequest();
         request.setFullName(titleField.getText().trim());
         request.setDescription(descArea.getText().trim());
@@ -248,26 +310,16 @@ public class NewAdController {
         request.setBrand(brandField.getText().trim());
         request.setModel(modelField.getText().trim());
         request.setConstructor(manufacturerField.getText().trim());
+        request.setCategoryId(categoryId);  // ← استفاده از شناسه دسته‌بندی
         request.setOptions(options);
-
-        // تنظیم categoryId بر اساس نام انتخاب‌شده
-        String selectedCategory = categoryCombo.getValue();
-        if (selectedCategory != null && categories != null) {
-            for (model.Category cat : categories) {
-                if (cat.getName().equals(selectedCategory)) {
-                    request.setCategoryId(cat.getId());
-                    break;
-                }
-            }
-        }
-
-        // تصاویر (فعلاً خالی)
         request.setImages(new ArrayList<>());
-
         return request;
     }
 
-    private ServiceCreateRequest createServiceRequest(City city) {
+    // ================================
+    //  ساخت درخواست خدمت
+    // ================================
+    private ServiceCreateRequest createServiceRequest(City city, Long categoryId) {
         ServiceCreateRequest request = new ServiceCreateRequest();
         request.setFullName(titleField.getText().trim());
         request.setDescription(descArea.getText().trim());
@@ -275,25 +327,15 @@ public class NewAdController {
         request.setCity(city);
         request.setCostOfPart(new BigDecimal(servicePriceField.getText().trim()));
         request.setTypeOfPart(ServiceType.fromPersianName(serviceCalcTypeCombo.getValue()));
+        request.setCategoryId(categoryId);  // ← استفاده از شناسه دسته‌بندی
         request.setOptions(options);
-
-        // تنظیم categoryId بر اساس نام انتخاب‌شده
-        String selectedCategory = categoryCombo.getValue();
-        if (selectedCategory != null && categories != null) {
-            for (model.Category cat : categories) {
-                if (cat.getName().equals(selectedCategory)) {
-                    request.setCategoryId(cat.getId());
-                    break;
-                }
-            }
-        }
-
-        // تصاویر (فعلاً خالی)
         request.setImages(new ArrayList<>());
-
         return request;
     }
 
+    // ================================
+    //  دریافت ویژگی‌ها
+    // ================================
     private void getAllFeatures() {
         options.clear();
         for (Node node : optionsContainer.getChildren()) {
@@ -311,8 +353,9 @@ public class NewAdController {
         }
     }
 
-    // ==================== متدهایی که در FXML به آنها ارجاع داده شده ====================
-
+    // ================================
+    //  انصراف
+    // ================================
     @FXML
     public void onCancel() {
         SceneManager.showPage(Pages.LIST_ADS, null);

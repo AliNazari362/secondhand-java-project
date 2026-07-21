@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -10,7 +9,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<?import java.lang.String?>
 
 <VBox spacing="0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.EditAdController" nodeOrientation="RIGHT_TO_LEFT">
     <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
@@ -23,6 +21,7 @@
             </Button>
         </HBox>
     </HBox>
+
     <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
         <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
             <VBox styleClass="card" spacing="20" prefWidth="700.0">
@@ -54,20 +53,7 @@
                 <VBox spacing="5">
                     <Text text="شهر" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                     <ComboBox fx:id="cityCombo" promptText="شهر *" styleClass="input-field" maxWidth="1.7976931348623157E308">
-                        <items>
-                            <String fx:value="تهران" />
-                            <String fx:value="اصفهان" />
-                            <String fx:value="شیراز" />
-                            <String fx:value="مشهد" />
-                            <String fx:value="تبریز" />
-                            <String fx:value="اهواز" />
-                            <String fx:value="کرمان" />
-                            <String fx:value="رشت" />
-                            <String fx:value="یزد" />
-                            <String fx:value="قم" />
-                            <String fx:value="کرج" />
-                            <String fx:value="سایر" />
-                        </items>
+                        <!-- آیتم‌ها در کد جاوا پر می‌شوند -->
                     </ComboBox>
                 </VBox>
 
@@ -81,11 +67,14 @@
                 <VBox spacing="5">
                     <Text text="نوع آگهی" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
                     <ComboBox fx:id="typeCombo" promptText="انتخاب نوع آگهی (خدمت یا کالا) *" styleClass="input-field" maxWidth="1.7976931348623157E308">
-                        <items>
-                            <String fx:value="خدمت" />
-                            <String fx:value="کالا" />
-                        </items>
+                        <!-- آیتم‌ها در کد جاوا پر می‌شوند -->
                     </ComboBox>
+                </VBox>
+
+                <!-- ===== دسته‌بندی (مشترک بین کالا و خدمت) ===== -->
+                <VBox spacing="5">
+                    <Text text="دسته‌بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                    <ComboBox fx:id="categoryCombo" promptText="انتخاب دسته‌بندی *" styleClass="input-field" maxWidth="1.7976931348623157E308" />
                 </VBox>
 
                 <!-- Service Fields Section -->
@@ -94,14 +83,7 @@
                     <VBox spacing="5">
                         <Text text="نوع محاسبه خدمت" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         <ComboBox fx:id="serviceCalcTypeCombo" promptText="نوع محاسبه خدمت *" styleClass="input-field" maxWidth="1.7976931348623157E308">
-                            <items>
-                                <String fx:value="ساعتی" />
-                                <String fx:value="روزانه" />
-                                <String fx:value="هفتگی" />
-                                <String fx:value="ماهانه" />
-                                <String fx:value="سالانه" />
-                                <String fx:value="ثابت" />
-                            </items>
+                            <!-- آیتم‌ها در کد جاوا پر می‌شوند -->
                         </ComboBox>
                     </VBox>
                     <VBox spacing="5">
@@ -120,14 +102,7 @@
                     <VBox spacing="5">
                         <Text text="وضعیت محصول" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         <ComboBox fx:id="productConditionCombo" promptText="وضعیت محصول *" styleClass="input-field" maxWidth="1.7976931348623157E308">
-                            <items>
-                                <String fx:value="نو" />
-                                <String fx:value="در حد نو" />
-                                <String fx:value="خوب" />
-                                <String fx:value="قابل قبول" />
-                                <String fx:value="آسیب دیده" />
-                                <String fx:value="بازسازی شده" />
-                            </items>
+                            <!-- آیتم‌ها در کد جاوا پر می‌شوند -->
                         </ComboBox>
                     </VBox>
                     <VBox spacing="5">
@@ -137,22 +112,6 @@
                     <VBox spacing="5">
                         <Text text="مدل" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         <TextField fx:id="modelField" promptText="مدل" styleClass="input-field" />
-                    </VBox>
-                    <VBox spacing="5">
-                        <Text text="دسته بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
-                        <ComboBox fx:id="categoryCombo" promptText="دسته بندی *" styleClass="input-field" maxWidth="1.7976931348623157E308">
-                            <items>
-                                <String fx:value="الکترونیک" />
-                                <String fx:value="وسیله نقلیه" />
-                                <String fx:value="مبلمان" />
-                                <String fx:value="کتاب" />
-                                <String fx:value="پوشاک" />
-                                <String fx:value="املاک" />
-                                <String fx:value="ورزشی" />
-                                <String fx:value="اسباب بازی" />
-                                <String fx:value="سایر" />
-                            </items>
-                        </ComboBox>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="سازنده یا طراح" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
