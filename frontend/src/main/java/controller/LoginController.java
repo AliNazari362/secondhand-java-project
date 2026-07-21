@@ -5,13 +5,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import model.enums.UserType;
 import model.request.LoginRequest;
 import model.response.LoginResponse;
 import service.AuthService;
-import utils.AlertUtil;
-import utils.Pages;
-import utils.SceneManager;
-import utils.ValidationUtil;
+import utils.*;
 
 public class LoginController {
 
@@ -31,7 +29,13 @@ public class LoginController {
 
             LoginRequest request = new LoginRequest(email, passwordPlain);
             LoginResponse response = AuthService.login(request);
-            SceneManager.showPage(Pages.LIST_ADS, null);
+            SessionManager.setSession(
+                    response.getToken(),
+                    response.getUserId(),
+                    response.getFullName(),
+                    response.getRole().name()
+            );
+            SceneManager.showPage(Pages.NEW_AD, null);
 
             Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز خوش آمدید"));
         } catch (Exception e) {

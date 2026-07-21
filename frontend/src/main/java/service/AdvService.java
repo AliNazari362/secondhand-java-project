@@ -11,9 +11,9 @@ import java.util.List;
 
 public class AdvService {
 
-    private final ApiClient api = ApiClient.getInstance();
+    private static final ApiClient api = ApiClient.getInstance();
 
-    public List<AdvertisementSummaryDto> getActiveAds(String keyword, String city) throws Exception {
+    public static List<AdvertisementSummaryDto> getActiveAds(String keyword, String city) throws Exception {
         StringBuilder url = new StringBuilder("/advs/search");
         boolean isKeywordExist = keyword != null && !keyword.isBlank();
 
@@ -28,42 +28,42 @@ public class AdvService {
         return List.of(ads);
     }
 
-    public AdvertisementDetailDto getAdvDetail(String advId) throws Exception {
+    public static AdvertisementDetailDto getAdvDetail(String advId) throws Exception {
         String response = api.get("/advs/" + advId);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    public List<AdvertisementSummaryDto> getUserAds(String userId) throws Exception {
+    public static List<AdvertisementSummaryDto> getUserAds(String userId) throws Exception {
         String response = api.get("/advs/user" + userId);
         AdvertisementSummaryDto[] ads = api.fromJson(response, AdvertisementSummaryDto[].class);
         return List.of(ads);
     }
 
-    public AdvertisementDetailDto createProduct(ProductCreateRequest request) throws Exception {
+    public static AdvertisementDetailDto createProduct(ProductCreateRequest request) throws Exception {
         String response = api.post("/advs/create-product", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    public AdvertisementDetailDto createService(ServiceCreateRequest request) throws Exception {
+    public static AdvertisementDetailDto createService(ServiceCreateRequest request) throws Exception {
         String response = api.post("/advs/create-service", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    public AdvertisementDetailDto updateProduct(ProductUpdateRequest request) throws Exception {
+    public static AdvertisementDetailDto updateProduct(ProductUpdateRequest request) throws Exception {
         String response = api.put("/advs/update-product", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    public AdvertisementDetailDto updateService(ServiceUpdateRequest request) throws Exception {
+    public static AdvertisementDetailDto updateService(ServiceUpdateRequest request) throws Exception {
         String response = api.put("/advs/update-service", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    public String markAsSold(String advId) throws Exception {
+    public static String markAsSold(String advId) throws Exception {
         return api.put("/advs/" + advId + "/mark-as-sold", null);
     }
 
-    public String deleteAdv(String advId) throws Exception {
+    public static String deleteAdv(String advId) throws Exception {
         return api.delete("/advs/" + advId + "/delete-adv");
     }
 }
