@@ -1,6 +1,8 @@
 package component;
 
 import javafx.fxml.FXML;
+import utils.Pages;
+import utils.SceneManager;
 
 public class SidebarController {
 
@@ -20,8 +22,9 @@ public class SidebarController {
         System.out.println("Chat clicked!");
     }
 
-    @FXML public void onProfile() {
-        System.out.println("Profile clicked!");
+    @FXML
+    public void onProfile() {
+        SceneManager.showPage(Pages.PROFILE, null);  // به جای System.out.println
     }
 
     @FXML public void onLogout() {

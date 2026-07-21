@@ -3,6 +3,8 @@ package component;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
+import utils.Pages;
+import utils.SceneManager;
 
 public class HeaderController {
 
@@ -10,24 +12,37 @@ public class HeaderController {
     @FXML private Text userInfoText;
     @FXML private Button adminBtn;
 
+    // =============== متد initialize (اینجا قرار دهید) ===============
+    @FXML
+    public void initialize() {
+        System.out.println("✅ هدر با موفقیت بارگذاری شد!");
+    }
+    // ================================================================
+
     @FXML
     public void onNewAd() {
-        System.out.println("New ad clicked!");
+        SceneManager.showPage(Pages.NEW_AD, null);
     }
 
     @FXML
     public void onFavorites() {
-        System.out.println("Favorites clicked!");
+        SceneManager.showPage(Pages.FAVORITES, null);
     }
 
     @FXML
     public void onChat() {
-        System.out.println("Chat clicked!");
+        SceneManager.showPage(Pages.CHAT, null);
+    }
+
+    @FXML
+    public void onProfile() {
+        System.out.println("🔥 دکمه پروفایل کلیک شد!");
+        SceneManager.showPage(Pages.PROFILE, null);
     }
 
     @FXML
     public void onAdmin() {
-        System.out.println("Admin clicked!");
+        SceneManager.showPage(Pages.ADMIN, null);
     }
 
     @FXML

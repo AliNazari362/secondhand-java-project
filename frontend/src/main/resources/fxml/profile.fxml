@@ -12,46 +12,52 @@
 <VBox spacing="0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProfileController">
     <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
         <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
-        <FontIcon iconCode="USER_CIRCLE" iconSize="20" iconColor="#2d3748" />
+        <FontIcon iconLiteral="fas-user-circle" iconSize="20" iconColor="#2d3748" />
         <Text text="پروفایل کاربر" styleClass="header-title" />
         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
             <Button onAction="#goBack">
-                <graphic><FontIcon iconCode="ARROW_LEFT" iconSize="16" /></graphic>
+                <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="16" /></graphic>
             </Button>
         </HBox>
     </HBox>
     <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
         <VBox styleClass="card" spacing="15" prefWidth="500">
             <Text text="اطلاعات شخصی" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-                <FontIcon iconCode="USER" iconSize="16" iconColor="#718096" />
+                <FontIcon iconLiteral="fas-user" iconSize="16" iconColor="#718096" />
                 <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-                <FontIcon iconCode="ENVELOPE" iconSize="16" iconColor="#718096" />
+                <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#718096" />
                 <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-                <FontIcon iconCode="PHONE" iconSize="16" iconColor="#718096" />
+                <FontIcon iconLiteral="fas-phone" iconSize="16" iconColor="#718096" />
                 <TextField fx:id="phoneField" promptText="شماره تماس" styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
-            <Button onAction="#onUpdateProfile">
-                <graphic><FontIcon iconCode="SAVE" iconSize="16" /></graphic>
+
+            <Button onAction="#onUpdateProfile" styleClass="success-btn" maxWidth="200">
+                <graphic><FontIcon iconLiteral="fas-save" iconSize="16" /></graphic>
             </Button>
+
             <Text text="تغییر رمز عبور" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 10 0 0 0;" />
+
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-                <FontIcon iconCode="LOCK" iconSize="16" iconColor="#718096" />
+                <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
                 <PasswordField fx:id="currentPasswordField" promptText="رمز عبور فعلی" styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
-                <FontIcon iconCode="LOCK" iconSize="16" iconColor="#718096" />
+                <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
                 <PasswordField fx:id="newPasswordField" promptText="رمز عبور جدید" styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
-            <Button onAction="#onChangePassword">
-                <graphic><FontIcon iconCode="KEY" iconSize="16" /></graphic>
+
+            <Button onAction="#onChangePassword" styleClass="primary-btn" maxWidth="200">
+                <graphic><FontIcon iconLiteral="fas-key" iconSize="16" /></graphic>
             </Button>
-            <Button onAction="#onDeleteAccount" styleClass="danger-btn">
-                <graphic><FontIcon iconCode="TRASH" iconSize="16" /></graphic>
+
+            <Button onAction="#onDeleteAccount" styleClass="danger-btn" maxWidth="200">
+                <graphic><FontIcon iconLiteral="fas-trash" iconSize="16" /></graphic>
             </Button>
         </VBox>
     </VBox>

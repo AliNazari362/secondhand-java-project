@@ -268,7 +268,7 @@ public class ApiClient {
      */
     private String getAuthHeader() {
         if (SessionManager.isLoggedIn()) {
-            return SessionManager.getToken();
+            return "Bearer " + SessionManager.getToken();  // 👈 فقط اینجا "Bearer " را اضافه کنید
         }
         return "";
     }

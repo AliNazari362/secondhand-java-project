@@ -24,6 +24,12 @@
         <Button onAction="#onChat">
             <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
         </Button>
+
+        <!-- دکمه پروفایل (حساب کاربری) -->
+        <Button onAction="#onProfile">
+            <graphic><FontIcon iconLiteral="fas-user-circle" iconSize="16" /></graphic>
+        </Button>
+
         <Button fx:id="adminBtn" onAction="#onAdmin" visible="false">
             <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" /></graphic>
         </Button>

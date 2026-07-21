@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import model.enums.UserType;
 import model.request.LoginRequest;
 import model.response.LoginResponse;
 import service.AuthService;
@@ -35,7 +34,9 @@ public class LoginController {
                     response.getFullName(),
                     response.getRole().name()
             );
-            SceneManager.showPage(Pages.NEW_AD, null);
+
+            // ✅ تغییر اصلی: به صفحه داشبورد بروید که هدر را دارد
+            SceneManager.showPage(Pages.DASHBOARD, null);
 
             Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز خوش آمدید"));
         } catch (Exception e) {

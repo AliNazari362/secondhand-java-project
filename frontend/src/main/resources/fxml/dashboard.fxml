@@ -29,12 +29,12 @@
             <!-- نوار جستجو -->
             <HBox spacing="10" alignment="CENTER">
                 <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container" HBox.hgrow="ALWAYS">
-                    <FontIcon iconCode="SEARCH" iconSize="16" iconColor="#718096" />
+                    <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#718096" />
                     <TextField fx:id="searchField" promptText="جستجوی آگهی..." styleClass="input-field" HBox.hgrow="ALWAYS" />
                 </HBox>
                 <Button styleClass="primary-btn" onAction="#onSearch">
                     <graphic>
-                        <FontIcon iconCode="SEARCH" iconSize="16" />
+                        <FontIcon iconLiteral="fas-search" iconSize="16" />
                     </graphic>
                 </Button>
             </HBox>
