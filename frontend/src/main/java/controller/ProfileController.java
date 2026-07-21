@@ -164,6 +164,6 @@ public class ProfileController {
      */
     @FXML
     public void goBack() {
-        SceneManager.showPage(Pages.LIST_ADS, null);
+        SceneManager.showPage(Pages.DASHBOARD, null);
     }
 }

@@ -17,9 +17,6 @@ public class HeaderController {
 
     @FXML
     public void initialize() {
-        System.out.println("✅ هدر با موفقیت بارگذاری شد!");
-
-        // نمایش دکمه ادمین فقط برای کاربران ادمین
         if (SessionManager.isLoggedIn() && SessionManager.isAdmin()) {
             adminBtn.setVisible(true);
             adminBtn.setManaged(true);
@@ -28,7 +25,6 @@ public class HeaderController {
             adminBtn.setManaged(false);
         }
 
-        // نمایش نام کاربر
         if (SessionManager.isLoggedIn()) {
             String fullName = SessionManager.getFullName();
             if (fullName != null && !fullName.isEmpty()) {
@@ -39,13 +35,18 @@ public class HeaderController {
 
     @FXML
     public void onNewAd() {
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
+            SceneManager.showPage(Pages.LOGIN, null);
+            return;
+        }
         SceneManager.showPage(Pages.NEW_AD, null);
     }
 
     @FXML
     public void onFavorites() {
         if (!SessionManager.isLoggedIn()) {
-            AlertUtil.showWarning("لطفاً ابتدا وارد حساب کاربری خود شوید.");
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
             SceneManager.showPage(Pages.LOGIN, null);
             return;
         }
@@ -54,48 +55,43 @@ public class HeaderController {
 
     @FXML
     public void onChat() {
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
+            SceneManager.showPage(Pages.LOGIN, null);
+            return;
+        }
         SceneManager.showPage(Pages.CHAT, null);
     }
 
     @FXML
     public void onProfile() {
-        System.out.println("🔥 دکمه پروفایل کلیک شد!");
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
+            SceneManager.showPage(Pages.LOGIN, null);
+            return;
+        }
         SceneManager.showPage(Pages.PROFILE, null);
     }
 
     @FXML
     public void onAdmin() {
+        if (!SessionManager.isLoggedIn() || !SessionManager.isAdmin()) {
+            AlertUtil.showError("شما دسترسی ادمین ندارید.");
+            return;
+        }
         SceneManager.showPage(Pages.ADMIN, null);
     }
 
-    /**
-     * خروج از حساب کاربری
-     * پس از تأیید کاربر، جلسه پاک شده و به صفحه ورود هدایت می‌شود.
-     */
     @FXML
     public void onLogout() {
-        // نمایش پیام تأیید
-        boolean confirm = AlertUtil.showConfirmation(
-                "خروج از حساب",
-                "آیا از خروج از حساب کاربری خود اطمینان دارید؟"
-        );
-
-        if (!confirm) {
-            return; // کاربر انصراف داد
-        }
-
+        boolean confirm = AlertUtil.showConfirmation("خروج از حساب", "آیا از خروج از حساب کاربری خود اطمینان دارید؟");
+        if (!confirm) return;
         try {
-            // پاک کردن اطلاعات جلسه
             AuthService.logout();
-
-            // نمایش پیام موفقیت
             AlertUtil.showSuccess("شما با موفقیت خارج شدید.");
-
-            // هدایت به صفحه ورود
             SceneManager.showPage(Pages.LOGIN, null);
-
         } catch (Exception e) {
-            AlertUtil.showError("خطا در خروج از حساب: " + e.getMessage());
+            AlertUtil.showError("خطا در خروج: " + e.getMessage());
         }
     }
 }
