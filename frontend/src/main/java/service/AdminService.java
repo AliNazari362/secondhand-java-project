@@ -1,5 +1,6 @@
 package service;
 
+import model.DashboardStats;
 import model.response.AdvertisementSummaryDto;
 import model.response.UserSummaryDto;
 
@@ -45,5 +46,10 @@ public class AdminService {
 
     public String deleteAdv(String advId) throws Exception {
         return api.delete("/admin/delete-adv/" + advId);
+    }
+
+    public DashboardStats getDashboardStats() throws Exception {
+        String response = api.get("/admin/dashboard-stats");
+        return api.fromJson(response, DashboardStats.class);
     }
 }

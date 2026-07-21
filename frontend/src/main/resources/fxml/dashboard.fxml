@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -16,6 +17,16 @@
     </top>
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-background-color: #f0f4f8; -fx-padding: 20;">
+            <!-- فیلترهای پیشرفته -->
+            <HBox spacing="10" alignment="CENTER">
+                <ComboBox fx:id="categoryCombo" promptText="دسته بندی" styleClass="input-field" HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="sortCombo" promptText="مرتب سازی" styleClass="input-field" HBox.hgrow="ALWAYS" />
+                <TextField fx:id="minPriceField" promptText="قیمت از" styleClass="input-field" prefWidth="80" />
+                <TextField fx:id="maxPriceField" promptText="قیمت تا" styleClass="input-field" prefWidth="80" />
+                <ComboBox fx:id="cityCombo" promptText="شهر" styleClass="input-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+
+            <!-- نوار جستجو -->
             <HBox spacing="10" alignment="CENTER">
                 <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container" HBox.hgrow="ALWAYS">
                     <FontIcon iconCode="SEARCH" iconSize="16" iconColor="#718096" />
@@ -27,6 +38,8 @@
                     </graphic>
                 </Button>
             </HBox>
+
+            <!-- لیست آگهی‌ها -->
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
                 <FlowPane fx:id="adFlowPane" alignment="TOP_LEFT" hgap="15" vgap="15" />
             </ScrollPane>

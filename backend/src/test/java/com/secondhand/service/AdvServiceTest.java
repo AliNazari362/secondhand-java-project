@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +40,7 @@ class AdvServiceTest {
     private ProductRepository productRepository;
 
     @Mock
-    private ServiceRepository serviceRepository;  // <-- این را اضافه کردم
+    private ServiceRepository serviceRepository;
 
     @Mock
     private UserService userService;
@@ -58,6 +59,7 @@ class AdvServiceTest {
     private User testUser;
     private Category testCategory;
     private Product testProduct;
+    private Service testService;
     private ProductCreateRequest productCreateRequest;
 
     @BeforeEach
@@ -85,6 +87,17 @@ class AdvServiceTest {
         testProduct.setAdvType(AdvType.PRODUCT);
         testProduct.setCategory(testCategory);
         testProduct.setPrice(BigDecimal.valueOf(1000000));
+
+        testService = new Service();
+        testService.setId(UUID.randomUUID());
+        testService.setFullName("Test Service");
+        testService.setUser(testUser);
+        testService.setStatus(AdvStatus.ACTIVE);
+        testService.setAdvType(AdvType.SERVICE);
+        testService.setCategory(testCategory);
+        testService.setSpecialCategory("Cleaning");
+        testService.setCostOfPart(BigDecimal.valueOf(500000));
+        testService.setTypeOfPart(com.secondhand.entity.Service.ServiceType.HOURLY);
 
         productCreateRequest = new ProductCreateRequest(
                 "New Product",
@@ -153,7 +166,7 @@ class AdvServiceTest {
 
         when(userService.findUserById(userId)).thenReturn(testUser);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(testCategory));
-        when(serviceRepository.save(any(Service.class))).thenReturn(testService);  // <-- اینجا از serviceRepository استفاده شده
+        when(serviceRepository.save(any(Service.class))).thenReturn(testService);
 
         var response = advService.createService(serviceRequest, userId);
 
@@ -162,27 +175,28 @@ class AdvServiceTest {
         verify(serviceRepository).save(any(Service.class));
     }
 
-    // ==================== SEARCH TESTS ====================
+    // ==================== SEARCH TESTS (اصلاح‌شده) ====================
 
     @Test
     void getActiveAds_ShouldReturnFilteredResults() {
-        when(advRepository.search(any(), any(), any(), any(), any()))
+        // اصلاح: ارسال ۶ پارامتر به متد search (با minPrice و maxPrice = null)
+        when(advRepository.search(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of(testProduct));
 
-        var results = advService.getActiveAds("Samsung", City.TEHRAN, 1L, "newest");
+        var results = advService.getActiveAds("Samsung", City.TEHRAN, 1L, "newest", null, null);
 
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals("Test Product", results.get(0).fullName());
-        verify(advRepository).search("Samsung", City.TEHRAN, AdvStatus.ACTIVE, 1L, "newest");
+        verify(advRepository).search("Samsung", City.TEHRAN, AdvStatus.ACTIVE, 1L, "newest", null, null);
     }
 
     @Test
     void getActiveAds_ShouldReturnEmptyList_WhenNoResults() {
-        when(advRepository.search(any(), any(), any(), any(), any()))
+        when(advRepository.search(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of());
 
-        var results = advService.getActiveAds("nonexistent", null, null, "newest");
+        var results = advService.getActiveAds("nonexistent", null, null, "newest", null, null);
 
         assertNotNull(results);
         assertTrue(results.isEmpty());
@@ -190,26 +204,40 @@ class AdvServiceTest {
 
     @Test
     void getActiveAds_ShouldSortByPriceAsc() {
-        when(advRepository.search(any(), any(), any(), any(), eq("priceAsc")))
+        when(advRepository.search(any(), any(), any(), any(), eq("priceAsc"), any(), any()))
                 .thenReturn(List.of(testProduct));
 
-        var results = advService.getActiveAds(null, null, null, "priceAsc");
+        var results = advService.getActiveAds(null, null, null, "priceAsc", null, null);
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "priceAsc");
+        verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "priceAsc", null, null);
     }
 
     @Test
     void getActiveAds_ShouldSortByRatingDesc() {
-        when(advRepository.search(any(), any(), any(), any(), eq("ratingDesc")))
+        when(advRepository.search(any(), any(), any(), any(), eq("ratingDesc"), any(), any()))
                 .thenReturn(List.of(testProduct));
 
-        var results = advService.getActiveAds(null, null, null, "ratingDesc");
+        var results = advService.getActiveAds(null, null, null, "ratingDesc", null, null);
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "ratingDesc");
+        verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "ratingDesc", null, null);
+    }
+
+    @Test
+    void getActiveAds_ShouldFilterByPriceRange() {
+        BigDecimal minPrice = BigDecimal.valueOf(500000);
+        BigDecimal maxPrice = BigDecimal.valueOf(2000000);
+        when(advRepository.search(any(), any(), any(), any(), any(), eq(minPrice), eq(maxPrice)))
+                .thenReturn(List.of(testProduct));
+
+        var results = advService.getActiveAds(null, null, null, "newest", minPrice, maxPrice);
+
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "newest", minPrice, maxPrice);
     }
 
     // ==================== DETAIL TESTS ====================
@@ -309,38 +337,30 @@ class AdvServiceTest {
 
     @Test
     void updateProduct_ShouldThrowException_WhenNotProductType() {
-        Service testService = new Service();
-        testService.setId(UUID.randomUUID());
-        testService.setAdvType(AdvType.SERVICE);
+        Service service = new Service();
+        service.setId(UUID.randomUUID());
+        service.setAdvType(AdvType.SERVICE);
 
         ProductUpdateRequest updateRequest = new ProductUpdateRequest(
                 "Updated", null, null, null, null, null,
                 null, null, null, null, null
         );
 
-        when(advRepository.findById(testService.getId())).thenReturn(Optional.of(testService));
+        when(advRepository.findById(service.getId())).thenReturn(Optional.of(service));
 
         assertThrows(BadRequestException.class,
-                () -> advService.updateProduct(testService.getId(), updateRequest, userId));
+                () -> advService.updateProduct(service.getId(), updateRequest, userId));
     }
 
     @Test
     void updateService_ShouldSucceed_WhenOwnershipValid() {
-        Service testService = new Service();
-        testService.setId(UUID.randomUUID());
-        testService.setFullName("Test Service");
-        testService.setUser(testUser);
-        testService.setStatus(AdvStatus.ACTIVE);
-        testService.setAdvType(AdvType.SERVICE);
-        testService.setCategory(testCategory);
-
         ServiceUpdateRequest updateRequest = new ServiceUpdateRequest(
                 "Updated Service",
                 "Updated Description",
                 City.ISFAHAN,
                 "New Address",
                 "Premium Cleaning",
-                1L,  // <-- categoryId را اینجا اضافه کنید
+                1L,
                 BigDecimal.valueOf(600000),
                 com.secondhand.entity.Service.ServiceType.FIXED,
                 null
@@ -485,14 +505,15 @@ class AdvServiceTest {
                 () -> advService.findAdvById(UUID.randomUUID()));
     }
 
-    // ==================== DTO CONVERSION TESTS ====================
+    // ==================== DTO CONVERSION TESTS (اصلاح‌شده) ====================
 
     @Test
-    void toAdvSummaryResponse_ShouldIncludeCategoryName() {
+    void toAdvSummaryResponse_ShouldIncludeCategoryNameAndPrice() {
         var response = advService.toAdvSummaryResponse(testProduct);
 
         assertNotNull(response);
         assertEquals(testProduct.getCategory().getName(), response.categoryName());
+        assertEquals(testProduct.getPrice(), response.price()); // بررسی فیلد جدید
     }
 
     @Test
@@ -502,26 +523,17 @@ class AdvServiceTest {
         assertNotNull(response);
         assertEquals(testProduct.getCategory().getName(), response.categoryName());
         assertNotNull(response.productDetail());
+        assertEquals(testProduct.getPrice(), response.productDetail().price());
     }
 
     @Test
     void toAdvDetailResponse_ForService_ShouldIncludeCategoryName() {
-        Service testService = new Service();
-        testService.setId(UUID.randomUUID());
-        testService.setFullName("Test Service");
-        testService.setUser(testUser);
-        testService.setStatus(AdvStatus.ACTIVE);
-        testService.setAdvType(AdvType.SERVICE);
-        testService.setCategory(testCategory);
-        testService.setSpecialCategory("Cleaning");
-        testService.setCostOfPart(BigDecimal.valueOf(500000));
-        testService.setTypeOfPart(com.secondhand.entity.Service.ServiceType.HOURLY);
-
         var response = advService.toAdvDetailResponse(testService);
 
         assertNotNull(response);
         assertEquals(testService.getCategory().getName(), response.categoryName());
         assertNotNull(response.serviceDetail());
         assertEquals("Cleaning", response.serviceDetail().specialCategory());
+        assertEquals(testService.getCategory().getName(), response.serviceDetail().categoryName());
     }
 }

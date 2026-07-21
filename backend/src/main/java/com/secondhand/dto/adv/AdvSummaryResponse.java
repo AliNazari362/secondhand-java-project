@@ -3,6 +3,7 @@ package com.secondhand.dto.adv;
 import com.secondhand.entity.enums.AdvStatus;
 import com.secondhand.entity.enums.AdvType;
 import com.secondhand.entity.enums.City;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
  * @param creationDate   timestamp when the advertisement was posted
  * @param firstImagePath path of the first attached image, or null if none
  * @param categoryName   name of the category (derived from the new {@link com.secondhand.entity.Category} entity)
+ * @param price          asking price for product advertisements, or null for service advertisements
  */
 public record AdvSummaryResponse(
         /** Unique identifier of the advertisement. */
@@ -56,5 +58,14 @@ public record AdvSummaryResponse(
         String firstImagePath,
 
         /** Name of the category that classifies this advertisement. */
-        String categoryName  // <-- جدید
+        String categoryName,
+
+        /**
+         * Asking price in Iranian Tomans.
+         * <ul>
+         *   <li>For products: the actual price (BigDecimal)</li>
+         *   <li>For services: always {@code null} (use service-specific DTOs for pricing)</li>
+         * </ul>
+         */
+        BigDecimal price
 ) {}

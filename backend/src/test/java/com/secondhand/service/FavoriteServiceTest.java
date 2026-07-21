@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,8 @@ class FavoriteServiceTest {
         testAdv.setCity(City.TEHRAN);
         testAdv.setUser(seller);
         testAdv.setCreationDate(LocalDateTime.now());
+        // تنظیم قیمت برای محصول (برای استفاده در Mock)
+        ((Product) testAdv).setPrice(BigDecimal.valueOf(1000000));
     }
 
     @Test
@@ -129,7 +132,7 @@ class FavoriteServiceTest {
         testUser.getFavorites().add(testAdv);
         when(userService.findUserById(userId)).thenReturn(testUser);
 
-        // ✅ ایجاد یک پاسخ Mock به جای صدا زدن متد واقعی
+        // ✅ Mock پاسخ با ۱۱ آرگومان (شامل price)
         AdvSummaryResponse mockResponse = new AdvSummaryResponse(
                 testAdv.getId(),
                 testAdv.getFullName(),
@@ -140,7 +143,8 @@ class FavoriteServiceTest {
                 seller.getId(),
                 testAdv.getCreationDate(),
                 "image.jpg",
-                "Electronics"
+                "Electronics",
+                ((Product) testAdv).getPrice()  // فیلد price اضافه شد
         );
         when(advService.toAdvSummaryResponse(any(Adv.class))).thenReturn(mockResponse);
 

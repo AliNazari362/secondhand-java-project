@@ -12,12 +12,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import model.enums.*;
+import model.request.ImageRequest;
 import model.request.OptionRequest;
 import model.request.ProductCreateRequest;
 import model.request.ServiceCreateRequest;
 import model.response.AdvertisementDetailDto;
 import service.AdvService;
-import utils.*;
+import service.CategoryService;
+import utils.AlertUtil;
+import utils.Pages;
+import utils.SceneManager;
+import utils.SessionManager;
+import utils.ValidationUtil;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,14 +47,10 @@ public class NewAdController {
     private VBox serviceFields;
     @FXML
     private VBox productFields;
-
-    // Service
     @FXML
     private ComboBox<String> serviceCalcTypeCombo;
     @FXML
     private TextField servicePriceField;
-
-    // Product
     @FXML
     private ComboBox<String> productConditionCombo;
     @FXML
@@ -61,19 +63,19 @@ public class NewAdController {
     private TextField modelField;
     @FXML
     private TextField manufacturerField;
-
-    // Option
     @FXML
     private VBox optionsContainer;
 
-
     private List<OptionRequest> options;
     private AdvType selectedAdvType;
+    private final CategoryService categoryService = new CategoryService();
+    private List<model.Category> categories;
 
     @FXML
     public void initialize() {
         options = new ArrayList<>();
 
+        // مقداردهی کامبوباکس شهر
         cityCombo.getItems().addAll(
                 City.TEHRAN.getPersianName(),
                 City.ISFAHAN.getPersianName(),
@@ -88,17 +90,11 @@ public class NewAdController {
                 City.KARAJ.getPersianName(),
                 City.OTHER.getPersianName()
         );
-        categoryCombo.getItems().addAll(
-                Category.ELECTRONICS.getPersianName(),
-                Category.VEHICLE.getPersianName(),
-                Category.FURNITURE.getPersianName(),
-                Category.BOOKS.getPersianName(),
-                Category.CLOTHING.getPersianName(),
-                Category.REAL_ESTATE.getPersianName(),
-                Category.SPORTS.getPersianName(),
-                Category.TOYS.getPersianName(),
-                Category.OTHER.getPersianName()
-        );
+
+        // بارگذاری دسته‌بندی‌ها از بک‌اند
+        loadCategories();
+
+        // مقداردهی کامبوباکس وضعیت محصول
         productConditionCombo.getItems().addAll(
                 ProductState.NEW.getPersianName(),
                 ProductState.LIKE_NEW.getPersianName(),
@@ -107,6 +103,8 @@ public class NewAdController {
                 ProductState.DAMAGED.getPersianName(),
                 ProductState.REFURBISHED.getPersianName()
         );
+
+        // مقداردهی کامبوباکس نوع محاسبه خدمت
         serviceCalcTypeCombo.getItems().addAll(
                 ServiceType.HOURLY.getPersianName(),
                 ServiceType.DAILY.getPersianName(),
@@ -115,18 +113,32 @@ public class NewAdController {
                 ServiceType.ANNUAL.getPersianName(),
                 ServiceType.FIXED.getPersianName()
         );
+
+        // مقداردهی کامبوباکس نوع آگهی
         typeCombo.getItems().addAll("خدمت", "کالا");
 
+        // مخفی کردن بخش‌های تخصصی تا زمانی که نوع آگهی انتخاب شود
         productFields.setVisible(false);
         productFields.setManaged(false);
         serviceFields.setVisible(false);
         serviceFields.setManaged(false);
     }
 
+    private void loadCategories() {
+        try {
+            categories = categoryService.getAllCategories();
+            categoryCombo.getItems().clear();
+            for (model.Category cat : categories) {
+                categoryCombo.getItems().add(cat.getName());
+            }
+        } catch (Exception e) {
+            AlertUtil.showError("خطا در دریافت دسته‌بندی‌ها: " + e.getMessage());
+        }
+    }
+
     @FXML
     public void onChooseType() {
         String selected = typeCombo.getValue();
-
         boolean isProduct = "کالا".equals(selected);
         boolean isService = "خدمت".equals(selected);
 
@@ -139,86 +151,11 @@ public class NewAdController {
         else if (isService) selectedAdvType = AdvType.SERVICE;
     }
 
-
     @FXML
     public void onChooseImage() {
-        // TODO this section must implement
-        System.out.println("Choose image clicked!");
-    }
-
-    @FXML
-    public void onSubmit() {
-        ValidationUtil.isNotEmpty(
-                titleField.getText(),
-                addressField.getText(),
-                descArea.getText(),
-                cityCombo.getValue()
-        );
-
-        String advTypeStr = typeCombo.getValue();
-        if (advTypeStr == null) {
-            AlertUtil.showError("لطفاً نوع آگهی را انتخاب کنید");
-            return;
-        }
-        try {
-            getAllFeatures();
-            System.out.println(SessionManager.getToken());
-            City city = City.fromPersianName(cityCombo.getValue());
-            AdvertisementDetailDto ads;
-            if (selectedAdvType == AdvType.PRODUCT) {
-                ValidationUtil.isNotEmpty(
-                        productPriceField.getText(),
-                        productConditionCombo.getValue(),
-                        categoryCombo.getValue()
-                );
-
-                ProductCreateRequest newProduct = createProduct(city);
-                ads = AdvService.createProduct(newProduct);
-            } else {
-                ValidationUtil.isNotEmpty(
-                        servicePriceField.getText(),
-                        serviceCalcTypeCombo.getValue()
-                );
-
-                ServiceCreateRequest newService = createService(city);
-                ads = AdvService.createService(newService);
-            }
-            Platform.runLater(() -> AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد"));
-
-            SceneManager.showPage(Pages.AD_DETAIL, ads.getFullName(), ads.getId());
-        } catch (NumberFormatException e) {
-            AlertUtil.showError("قیمت باید عدد باشد");
-        } catch (Exception e) {
-            AlertUtil.showError(e.getMessage());
-        }
-    }
-
-    private ServiceCreateRequest createService(City city) {
-        ServiceCreateRequest newService = new ServiceCreateRequest();
-        newService.setFullName(titleField.getText().trim());
-        newService.setAddress(addressField.getText().trim());
-        newService.setDescription(descArea.getText().trim());
-        newService.setCity(city);
-        newService.setCostOfPart(BigDecimal.valueOf(Long.parseLong(productPriceField.getText().trim())));
-        newService.setTypeOfPart(ServiceType.fromPersianName(serviceCalcTypeCombo.getValue()));
-        newService.setOptions(options);
-        return newService;
-    }
-
-    private ProductCreateRequest createProduct(City city) {
-        ProductCreateRequest newProduct = new ProductCreateRequest();
-        newProduct.setFullName(titleField.getText().trim());
-        newProduct.setAddress(addressField.getText().trim());
-        newProduct.setDescription(descArea.getText().trim());
-        newProduct.setCity(city);
-        newProduct.setPrice(BigDecimal.valueOf(Long.parseLong(productPriceField.getText().trim())));
-        newProduct.setStateOfProduct(ProductState.fromPersianName(productConditionCombo.getValue()));
-        newProduct.setCategory(Category.fromPersianName(categoryCombo.getValue()));
-        newProduct.setBrand(brandField.getText().trim());
-        newProduct.setModel(modelField.getText().trim());
-        newProduct.setConstructor(manufacturerField.getText().trim());
-        newProduct.setOptions(options);
-        return newProduct;
+        System.out.println("انتخاب تصویر کلیک شد");
+        // TODO: پیاده‌سازی انتخاب فایل و آپلود
+        AlertUtil.showWarning("این قابلیت در حال توسعه است");
     }
 
     @FXML
@@ -246,25 +183,138 @@ public class NewAdController {
     }
 
     @FXML
-    public void onCancel() {
-        SceneManager.showPage(Pages.LIST_ADS, null);
+    public void onSubmit() {
+        try {
+            // اعتبارسنجی فیلدهای ضروری
+            ValidationUtil.isNotEmpty(
+                    titleField.getText(),
+                    addressField.getText(),
+                    descArea.getText(),
+                    cityCombo.getValue()
+            );
+
+            String advTypeStr = typeCombo.getValue();
+            if (advTypeStr == null) {
+                AlertUtil.showError("لطفاً نوع آگهی را انتخاب کنید");
+                return;
+            }
+
+            // دریافت ویژگی‌های اضافی
+            getAllFeatures();
+
+            City city = City.fromPersianName(cityCombo.getValue());
+            AdvertisementDetailDto result;
+
+            if (selectedAdvType == AdvType.PRODUCT) {
+                // اعتبارسنجی فیلدهای محصول
+                ValidationUtil.isNotEmpty(
+                        productPriceField.getText(),
+                        productConditionCombo.getValue(),
+                        categoryCombo.getValue()
+                );
+
+                ProductCreateRequest request = createProductRequest(city);
+                result = AdvService.createProduct(request);
+
+            } else {
+                // اعتبارسنجی فیلدهای خدمت
+                ValidationUtil.isNotEmpty(
+                        servicePriceField.getText(),
+                        serviceCalcTypeCombo.getValue()
+                );
+
+                ServiceCreateRequest request = createServiceRequest(city);
+                result = AdvService.createService(request);
+            }
+
+            Platform.runLater(() -> AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد"));
+            SceneManager.showPage(Pages.LIST_ADS, null);
+
+        } catch (NumberFormatException e) {
+            AlertUtil.showError("قیمت باید عدد باشد");
+        } catch (Exception e) {
+            AlertUtil.showError("خطا در ثبت آگهی: " + e.getMessage());
+        }
+    }
+
+    private ProductCreateRequest createProductRequest(City city) {
+        ProductCreateRequest request = new ProductCreateRequest();
+        request.setFullName(titleField.getText().trim());
+        request.setDescription(descArea.getText().trim());
+        request.setAddress(addressField.getText().trim());
+        request.setCity(city);
+        request.setPrice(new BigDecimal(productPriceField.getText().trim()));
+        request.setStateOfProduct(ProductState.fromPersianName(productConditionCombo.getValue()));
+        request.setBrand(brandField.getText().trim());
+        request.setModel(modelField.getText().trim());
+        request.setConstructor(manufacturerField.getText().trim());
+        request.setOptions(options);
+
+        // تنظیم categoryId بر اساس نام انتخاب‌شده
+        String selectedCategory = categoryCombo.getValue();
+        if (selectedCategory != null && categories != null) {
+            for (model.Category cat : categories) {
+                if (cat.getName().equals(selectedCategory)) {
+                    request.setCategoryId(cat.getId());
+                    break;
+                }
+            }
+        }
+
+        // تصاویر (فعلاً خالی)
+        request.setImages(new ArrayList<>());
+
+        return request;
+    }
+
+    private ServiceCreateRequest createServiceRequest(City city) {
+        ServiceCreateRequest request = new ServiceCreateRequest();
+        request.setFullName(titleField.getText().trim());
+        request.setDescription(descArea.getText().trim());
+        request.setAddress(addressField.getText().trim());
+        request.setCity(city);
+        request.setCostOfPart(new BigDecimal(servicePriceField.getText().trim()));
+        request.setTypeOfPart(ServiceType.fromPersianName(serviceCalcTypeCombo.getValue()));
+        request.setOptions(options);
+
+        // تنظیم categoryId بر اساس نام انتخاب‌شده
+        String selectedCategory = categoryCombo.getValue();
+        if (selectedCategory != null && categories != null) {
+            for (model.Category cat : categories) {
+                if (cat.getName().equals(selectedCategory)) {
+                    request.setCategoryId(cat.getId());
+                    break;
+                }
+            }
+        }
+
+        // تصاویر (فعلاً خالی)
+        request.setImages(new ArrayList<>());
+
+        return request;
     }
 
     private void getAllFeatures() {
         options.clear();
-
         for (Node node : optionsContainer.getChildren()) {
             if (node instanceof HBox box) {
-                TextField keyField = (TextField) box.getChildren().get(0);
-                TextField valueField = (TextField) box.getChildren().get(1);
-
-                String key = keyField.getText().trim();
-                String value = valueField.getText().trim();
-
-                if (!key.isEmpty() && !value.isEmpty()) {
-                    options.add(new OptionRequest(key, value));
+                if (box.getChildren().size() >= 3) {
+                    TextField keyField = (TextField) box.getChildren().get(0);
+                    TextField valueField = (TextField) box.getChildren().get(1);
+                    String key = keyField.getText().trim();
+                    String value = valueField.getText().trim();
+                    if (!key.isEmpty() && !value.isEmpty()) {
+                        options.add(new OptionRequest(key, value));
+                    }
                 }
             }
         }
+    }
+
+    // ==================== متدهایی که در FXML به آنها ارجاع داده شده ====================
+
+    @FXML
+    public void onCancel() {
+        SceneManager.showPage(Pages.LIST_ADS, null);
     }
 }

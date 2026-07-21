@@ -478,12 +478,23 @@ public class AdvService {
     /**
      * Converts an {@link Adv} entity to a lightweight {@link AdvSummaryResponse} DTO.
      *
+     * <p>Extracts the first image path (if any) for use as a thumbnail.
+     * The category name is extracted from the associated {@link Category} if present.
+     * The price is extracted only if the advertisement is a {@link Product};
+     * for services, the price field remains {@code null}.</p>
+     *
      * @param adv the advertisement entity to convert
-     * @return a {@link AdvSummaryResponse} with key summary fields
+     * @return a {@link AdvSummaryResponse} with key summary fields populated
      */
     public AdvSummaryResponse toAdvSummaryResponse(Adv adv) {
         String firstImage = adv.getImages().isEmpty() ? null : adv.getImages().get(0).getPath();
         String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null;
+
+        // استخراج قیمت فقط در صورتی که آگهی از نوع Product باشد
+        BigDecimal price = null;
+        if (adv instanceof Product product) {
+            price = product.getPrice();
+        }
 
         return new AdvSummaryResponse(
                 adv.getId(),
@@ -495,12 +506,18 @@ public class AdvService {
                 adv.getUser().getId(),
                 adv.getCreationDate(),
                 firstImage,
-                categoryName
+                categoryName,
+                price  // <-- فیلد جدید
         );
     }
 
     /**
      * Converts an {@link Adv} entity to a full {@link AdvDetailResponse} DTO.
+     *
+     * <p>Includes the owner summary, all images, all options, all comments, and—depending
+     * on the advertisement type—either a {@link ProductDetailResponse} or a
+     * {@link ServiceDetailResponse} with type-specific fields. The category name
+     * is extracted from the associated {@link Category} if present.</p>
      *
      * @param adv the advertisement entity to convert
      * @return a fully populated {@link AdvDetailResponse}
