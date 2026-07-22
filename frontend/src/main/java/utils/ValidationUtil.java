@@ -9,7 +9,7 @@ public class ValidationUtil {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern PHONE_PATTERN =
-            Pattern.compile("^\\+?[0-9]{7,15}$");
+            Pattern.compile("^(0|\\+98)?9[0-9]{9}$");
 
     public static void isValidEmail(String email) {
         if(email == null || !EMAIL_PATTERN.matcher(email).matches())
