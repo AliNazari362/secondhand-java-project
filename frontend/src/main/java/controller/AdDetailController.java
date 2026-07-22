@@ -16,10 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.request.CommentRequest;
-import model.response.AdvertisementDetailDto;
-import model.response.CommentResponseDto;
-import model.response.ImageResponseDto;
-import model.response.UserSummaryDto;
+import model.response.*;
 import service.AdvService;
 import service.CommentService;
 import service.FavoriteService;
@@ -30,6 +27,7 @@ import utils.SceneManager;
 import utils.SessionManager;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -396,20 +394,16 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
-    /**
-     * Checks if the current advertisement is in the user's favorites.
-     * If the user is not logged in, favorite status is set to false.
-     * If the API call fails, it gracefully falls back to false.
-     */
     private void checkFavoriteStatus() {
         if (!SessionManager.isLoggedIn() || advId == null) {
             isFavorite = false;
             updateFavoriteButton();
             return;
         }
-
         try {
-            isFavorite = favoriteService.isFavorite(advId.toString());
+            List<AdvertisementSummaryDto> favorites = favoriteService.getFavorites();
+            isFavorite = favorites.stream()
+                    .anyMatch(ad -> ad.getId().equals(advId));
         } catch (Exception e) {
             System.err.println("❌ خطا در بررسی وضعیت علاقه‌مندی: " + e.getMessage());
             isFavorite = false;
@@ -493,10 +487,6 @@ public class AdDetailController implements DataReceiver {
         SceneManager.showPage(Pages.CHAT, null, advId);
     }
 
-    /**
-     * Toggles the favorite status of the current advertisement.
-     * Shows appropriate messages and updates the button.
-     */
     @FXML
     public void onAddFavorite() {
         if (!SessionManager.isLoggedIn()) {
@@ -504,12 +494,10 @@ public class AdDetailController implements DataReceiver {
             SceneManager.showPage(Pages.LOGIN, null);
             return;
         }
-
         if (advId == null) {
             AlertUtil.showError("شناسه آگهی نامعتبر است.");
             return;
         }
-
         try {
             if (isFavorite) {
                 favoriteService.removeFavorite(advId.toString());
@@ -522,8 +510,15 @@ public class AdDetailController implements DataReceiver {
             }
             updateFavoriteButton();
         } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
+            // اگر خطای 400 به خاطر تکراری بودن آگهی بود، وضعیت را اصلاح کن
+            if (e.getMessage().contains("پیش از این ثبت شده است")) {
+                isFavorite = true;
+                updateFavoriteButton();
+                AlertUtil.showWarning("این آگهی قبلاً به علاقه‌مندی‌ها اضافه شده است.");
+            } else {
+                e.printStackTrace();
+                AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
+            }
         }
     }
     /**

@@ -220,4 +220,15 @@ public class ApiClient {
             return "application/octet-stream";
         }
     }
+
+    public String deleteWithBody(String endpoint, Object body) throws Exception {
+        String jsonBody = (body instanceof String) ? (String) body : gson.toJson(body);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + endpoint))
+                .header("Content-Type", "application/json")
+                .header("Authorization", getAuthHeader())
+                .method("DELETE", BodyPublishers.ofString(jsonBody))
+                .build();
+        return sendRequest(request);
+    }
 }

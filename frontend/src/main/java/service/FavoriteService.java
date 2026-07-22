@@ -34,35 +34,28 @@ public class FavoriteService {
      * @throws Exception if the API call fails
      */
     public void addFavorite(String advId) throws Exception {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("advId", advId);
-        api.post("/favorites/add-favorite", payload);
+        String jsonBody = "\"" + advId + "\"";
+        api.post("/favorites/add-favorite", jsonBody);
     }
 
-    /**
-     * Removes an advertisement from the user's favorites.
-     *
-     * @param advId the ID of the advertisement to remove
-     * @throws Exception if the API call fails
-     */
     public void removeFavorite(String advId) throws Exception {
-        api.delete("/favorites/remove-favorite/" + advId);
+        String jsonBody = "\"" + advId + "\"";
+        api.deleteWithBody("/favorites/delete-favorite", jsonBody);
     }
-
-    /**
-     * Checks if an advertisement is in the user's favorites.
-     * If the API endpoint is not available (e.g., returns 404/500), it returns false.
-     *
-     * @param advId the ID of the advertisement
-     * @return true if the advertisement is in favorites, false otherwise
-     */
-    public boolean isFavorite(String advId) {
-        try {
-            String response = api.get("/favorites/is-favorite/" + advId);
-            return Boolean.parseBoolean(response);
-        } catch (Exception e) {
-            System.err.println("⚠️ isFavorite API failed, returning false: " + e.getMessage());
-            return false;
-        }
-    }
+//    /**
+//     * Checks if an advertisement is in the user's favorites.
+//     * If the API endpoint is not available (e.g., returns 404/500), it returns false.
+//     *
+//     * @param advId the ID of the advertisement
+//     * @return true if the advertisement is in favorites, false otherwise
+//     */
+//    public boolean isFavorite(String advId) {
+//        try {
+//            String response = api.get("/favorites/is-favorite/" + advId);
+//            return Boolean.parseBoolean(response);
+//        } catch (Exception e) {
+//            System.err.println("⚠️ isFavorite API failed, returning false: " + e.getMessage());
+//            return false;
+//        }
+//    }
 }
