@@ -2,6 +2,8 @@ package controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
+import config.DataReceiver;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -48,23 +50,26 @@ import java.util.stream.Collectors;
  * Supports hierarchical category display with indentation.
  * </p>
  */
-public class EditAdController {
+public class EditAdController implements DataReceiver {
 
     // ===== FXML Fields =====
     @FXML private TextField titleField;
     @FXML private TextArea descArea;
-    @FXML private TextField priceField;
+    @FXML private TextField productPriceField;
+    @FXML private TextField servicePriceField;
     @FXML private ComboBox<String> cityCombo;
     @FXML private ComboBox<String> typeCombo;
     @FXML private ComboBox<String> categoryCombo;
-    @FXML private ComboBox<String> conditionCombo;
-    @FXML private ComboBox<String> serviceTypeCombo;
+    @FXML private ComboBox<String> productConditionCombo;
+    @FXML private ComboBox<String> serviceCalcTypeCombo;
     @FXML private TextField brandField;
     @FXML private TextField modelField;
     @FXML private TextField manufacturerField;
     @FXML private TextField addressField;
     @FXML private VBox optionsContainer;
     @FXML private FlowPane imagePreviewContainer;
+    @FXML private VBox productFields;
+    @FXML private VBox serviceFields;
 
     // ===== Internal State =====
     private UUID adId;
@@ -113,14 +118,21 @@ public class EditAdController {
         typeCombo.getItems().clear();
         typeCombo.getItems().addAll("خدمت", "کالا");
 
-        conditionCombo.getItems().clear();
+        productConditionCombo.getItems().clear();
         for (ProductState state : ProductState.values()) {
-            conditionCombo.getItems().add(state.getPersianName());
+            productConditionCombo.getItems().add(state.getPersianName());
         }
 
-        serviceTypeCombo.getItems().clear();
+        serviceCalcTypeCombo.getItems().clear();
         for (ServiceType type : ServiceType.values()) {
-            serviceTypeCombo.getItems().add(type.getPersianName());
+            serviceCalcTypeCombo.getItems().add(type.getPersianName());
+        }
+    }
+
+    @Override
+    public void receiveData(Object data) {
+        if (data instanceof UUID) {
+            setAdId((UUID) data);
         }
     }
 
@@ -392,6 +404,7 @@ public class EditAdController {
     private void populateForm() {
         if (currentAd == null) return;
 
+        // ===== اطلاعات مشترک =====
         titleField.setText(currentAd.getFullName());
         descArea.setText(currentAd.getDescription());
         addressField.setText(currentAd.getAddress());
@@ -400,27 +413,45 @@ public class EditAdController {
             cityCombo.getSelectionModel().select(currentAd.getCity().getPersianName());
         }
 
+        // ===== مدیریت نوع آگهی و نمایش بخش مربوطه =====
         if (currentAd.getAdvType() == AdvType.PRODUCT) {
+            // نمایش بخش کالا، مخفی کردن بخش خدمت
+            productFields.setVisible(true);
+            productFields.setManaged(true);
+            serviceFields.setVisible(false);
+            serviceFields.setManaged(false);
+
             typeCombo.getSelectionModel().select("کالا");
+
             if (currentAd.getProductDetail() != null) {
-                priceField.setText(currentAd.getProductDetail().getPrice().toString());
-                conditionCombo.getSelectionModel().select(
-                        currentAd.getProductDetail().getStateOfProduct().getPersianName()
+                var detail = currentAd.getProductDetail();
+                productPriceField.setText(detail.getPrice().toString());
+                productConditionCombo.getSelectionModel().select(
+                        detail.getStateOfProduct().getPersianName()
                 );
-                brandField.setText(currentAd.getProductDetail().getBrand());
-                modelField.setText(currentAd.getProductDetail().getModel());
-                manufacturerField.setText(currentAd.getProductDetail().getConstructor());
+                brandField.setText(detail.getBrand());
+                modelField.setText(detail.getModel());
+                manufacturerField.setText(detail.getConstructor());
             }
         } else if (currentAd.getAdvType() == AdvType.SERVICE) {
+            // نمایش بخش خدمت، مخفی کردن بخش کالا
+            serviceFields.setVisible(true);
+            serviceFields.setManaged(true);
+            productFields.setVisible(false);
+            productFields.setManaged(false);
+
             typeCombo.getSelectionModel().select("خدمت");
+
             if (currentAd.getServiceDetail() != null) {
-                priceField.setText(currentAd.getServiceDetail().getCostOfPart().toString());
-                serviceTypeCombo.getSelectionModel().select(
-                        currentAd.getServiceDetail().getTypeOfPart().getPersianName()
+                var detail = currentAd.getServiceDetail();
+                servicePriceField.setText(detail.getCostOfPart().toString());
+                serviceCalcTypeCombo.getSelectionModel().select(
+                        detail.getTypeOfPart().getPersianName()
                 );
             }
         }
 
+        // ===== ویژگی‌های اضافی =====
         if (currentAd.getOptions() != null) {
             for (var opt : currentAd.getOptions()) {
                 addExistingOption(opt.getOption(), opt.getValue());
@@ -455,6 +486,7 @@ public class EditAdController {
     @FXML
     public void onUpdate() {
         try {
+            // 1. اعتبارسنجی اولیه
             ValidationUtil.isNotEmpty(
                     titleField.getText(),
                     addressField.getText(),
@@ -468,25 +500,83 @@ public class EditAdController {
                 return;
             }
 
+            // 2. دریافت ویژگی‌های اضافی
             getAllFeatures();
 
-            List<ImageRequest> newImages = new ArrayList<>();
+            // 3. آپلود تصاویر جدید (در صورت وجود)
+            List<ImageRequest> uploadedImages = new ArrayList<>();
             if (!newImageFiles.isEmpty()) {
-                newImages = uploadNewImages();
+                uploadedImages = uploadNewImages();
             }
 
-            // Keep existing images + add new ones
-            List<ImageRequest> allImages = new ArrayList<>();
-            for (String path : existingImagePaths) {
-                allImages.add(new ImageRequest(path));
-            }
-            allImages.addAll(newImages);
-
+            // 4. دریافت اطلاعات مشترک
             City city = City.fromPersianName(cityCombo.getValue());
             Long categoryId = getSelectedCategoryId();
 
-            // This is where you would call the update service
-            // For now, just show success
+            // 5. به‌روزرسانی بر اساس نوع آگهی
+            if ("کالا".equals(advTypeStr)) {
+                // اعتبارسنجی فیلدهای کالا
+                if (productPriceField.getText().trim().isEmpty()) {
+                    AlertUtil.showError("لطفاً قیمت کالا را وارد کنید.");
+                    return;
+                }
+                if (productConditionCombo.getValue() == null) {
+                    AlertUtil.showError("لطفاً وضعیت محصول را انتخاب کنید.");
+                    return;
+                }
+
+                // ساخت درخواست به‌روزرسانی کالا
+                ProductUpdateRequest request = new ProductUpdateRequest();
+                request.setFullName(titleField.getText().trim());
+                request.setDescription(descArea.getText().trim());
+                request.setAddress(addressField.getText().trim());
+                request.setCity(city);
+                request.setCategoryId(categoryId);
+                request.setOptions(options);
+
+                // فیلدهای اختصاصی کالا
+                request.setPrice(new BigDecimal(productPriceField.getText().trim()));
+                request.setStateOfProduct(ProductState.fromPersianName(productConditionCombo.getValue()));
+                request.setBrand(brandField.getText().trim());
+                request.setModel(modelField.getText().trim());
+                request.setConstructor(manufacturerField.getText().trim());
+
+                // ارسال به سرور
+                AdvService.updateProduct(adId.toString(), request);
+
+            } else if ("خدمت".equals(advTypeStr)) {
+                // اعتبارسنجی فیلدهای خدمت
+                if (servicePriceField.getText().trim().isEmpty()) {
+                    AlertUtil.showError("لطفاً هزینه خدمت را وارد کنید.");
+                    return;
+                }
+                if (serviceCalcTypeCombo.getValue() == null) {
+                    AlertUtil.showError("لطفاً نوع محاسبه خدمت را انتخاب کنید.");
+                    return;
+                }
+
+                // ساخت درخواست به‌روزرسانی خدمت
+                ServiceUpdateRequest request = new ServiceUpdateRequest();
+                request.setFullName(titleField.getText().trim());
+                request.setDescription(descArea.getText().trim());
+                request.setAddress(addressField.getText().trim());
+                request.setCity(city);
+                request.setCategoryId(categoryId);
+                request.setOptions(options);
+
+                // فیلدهای اختصاصی خدمت
+                request.setCostOfPart(new BigDecimal(servicePriceField.getText().trim()));
+                request.setTypeOfPart(ServiceType.fromPersianName(serviceCalcTypeCombo.getValue()));
+
+                // ارسال به سرور
+                AdvService.updateService(adId.toString(), request);
+
+            } else {
+                AlertUtil.showError("نوع آگهی نامعتبر است.");
+                return;
+            }
+
+            // 6. اگر به‌روزرسانی موفق بود
             AlertUtil.showSuccess("آگهی با موفقیت به‌روزرسانی شد.");
             SceneManager.showPage(Pages.AD_DETAIL, null, adId);
 
@@ -494,6 +584,7 @@ public class EditAdController {
             AlertUtil.showError("قیمت باید عدد باشد");
         } catch (Exception e) {
             AlertUtil.showError("خطا در به‌روزرسانی آگهی: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
