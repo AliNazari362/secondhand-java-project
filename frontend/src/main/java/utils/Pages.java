@@ -123,6 +123,17 @@ public enum Pages {
         }
     },
 
+    CHAT_LIST {
+        @Override
+        public String getTitle() {
+            return "لیست گفت و گوها";
+        }
+        @Override
+        public String getRoot() {
+            return "chat-list";
+        }
+    },
+
     // ================== New Page ==================
 
     CATEGORY_MANAGEMENT {

@@ -60,7 +60,7 @@ public class HeaderController {
             SceneManager.showPage(Pages.LOGIN, null);
             return;
         }
-        SceneManager.showPage(Pages.CHAT, null);
+        SceneManager.showPage(Pages.CHAT_LIST, null );
     }
 
     @FXML
