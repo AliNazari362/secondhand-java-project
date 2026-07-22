@@ -19,24 +19,24 @@
     <Text text="ثبت نام" styleClass="title" />
     <Text text="ایجاد حساب کاربری جدید" styleClass="subtitle" />
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-user" iconSize="16" iconColor="#718096" />
-        <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#718096" />
-        <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
-        <PasswordField fx:id="passwordField" promptText="رمز عبور (حداقل ۸ کاراکتر)" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <PasswordField fx:id="passwordField" promptText="رمز عبور (حداقل ۸ کاراکتر)" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-phone" iconSize="16" iconColor="#718096" />
-        <TextField fx:id="phoneField" promptText="شماره تماس (اختیاری)" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="phoneField" promptText="شماره تماس (اختیاری)" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <Button text="ثبت نام" styleClass="success-btn" onAction="#handleRegister">

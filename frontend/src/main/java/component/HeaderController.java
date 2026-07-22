@@ -1,19 +1,17 @@
 package component;
 
 import javafx.fxml.FXML;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
-import service.AuthService;
-import utils.AlertUtil;
-import utils.Pages;
-import utils.SceneManager;
-import utils.SessionManager;
+import utils.*;
 
 public class HeaderController {
 
-    @FXML private Text titleText;
-    @FXML private Text userInfoText;
-    @FXML private Button adminBtn;
+    @FXML
+    private Text userInfoText;
+    @FXML
+    private Button adminBtn;
 
     @FXML
     public void initialize() {
@@ -28,7 +26,8 @@ public class HeaderController {
         if (SessionManager.isLoggedIn()) {
             String fullName = SessionManager.getFullName();
             if (fullName != null && !fullName.isEmpty()) {
-                userInfoText.setText("خوش آمدید، " + fullName);
+                userInfoText.setText(fullName + " عزیز خوش آمدید");
+                userInfoText.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
             }
         }
     }
@@ -60,7 +59,7 @@ public class HeaderController {
             SceneManager.showPage(Pages.LOGIN, null);
             return;
         }
-        SceneManager.showPage(Pages.CHAT_LIST, null );
+        SceneManager.showPage(Pages.CHAT_LIST, null);
     }
 
     @FXML
@@ -84,14 +83,6 @@ public class HeaderController {
 
     @FXML
     public void onLogout() {
-        boolean confirm = AlertUtil.showConfirmation("خروج از حساب", "آیا از خروج از حساب کاربری خود اطمینان دارید؟");
-        if (!confirm) return;
-        try {
-            AuthService.logout();
-            AlertUtil.showSuccess("شما با موفقیت خارج شدید.");
-            SceneManager.showPage(Pages.LOGIN, null);
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در خروج: " + e.getMessage());
-        }
+        Utils.logout();
     }
 }

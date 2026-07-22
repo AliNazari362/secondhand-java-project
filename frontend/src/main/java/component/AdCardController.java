@@ -1,18 +1,22 @@
 package component;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.response.AdvertisementSummaryDto;
 import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
+import utils.Utils;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.UUID;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Controller for the advertisement card component.
@@ -21,45 +25,68 @@ import java.util.UUID;
  */
 public class AdCardController {
 
-    @FXML private Text titleText;
-    @FXML private Label priceLabel;
-    @FXML private Label cityLabel;
-    @FXML private Label dateLabel;
-    @FXML private Label categoryLabel;
-    @FXML private ImageView imageView;
-    @FXML private Label statusLabel;
+    @FXML
+    private Text titleText;
+    @FXML
+    private Label priceLabel;
+    @FXML
+    private Label cityLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label categoryLabel;
+    @FXML
+    private ImageView imageView;
+    @FXML
+    private Label statusLabel;
 
-    // شناسه آگهی – این مقدار باید برای هر کارت منحصر‌به‌فرد باشد
-    private UUID adId;
+    private AdvertisementSummaryDto adv;
 
-    // آدرس پایه سرور برای تصاویر
     private static final String BASE_IMAGE_URL = "http://localhost:8080/";
 
-    /**
-     * تنظیم داده‌های آگهی روی کارت.
-     * شناسه آگهی (adId) در اینجا ذخیره می‌شود.
-     *
-     * @param ad شیء خلاصه آگهی از سرور
-     */
-    public void setData(AdvertisementSummaryDto ad) {
-        // ===== ذخیره شناسه آگهی =====
-        this.adId = ad.getId();
-        System.out.println("🆔 [AdCardController] setData called with adId: " + adId);
+    private void setData(AdvertisementSummaryDto ad) {
+        this.adv = ad;
+        fillElement(ad);
+        setStatus(ad);
+        setImage(ad);
+    }
 
-        // ===== نمایش اطلاعات =====
+    private void setImage(AdvertisementSummaryDto ad) {
+        String imagePath;
+        if (ad.getFirstImagePath() != null && !ad.getFirstImagePath().isEmpty()) {
+            imagePath = ad.getFirstImagePath();
+            if (!Files.exists(Path.of(imagePath))) {
+                String serverPath = imagePath.startsWith("uploads/") ? imagePath : "uploads/" + imagePath;
+                imagePath = BASE_IMAGE_URL + serverPath;
+            }
+        } else imagePath = ("/images/placeholder.png");
+
+        Image image = new Image(imagePath, 180, 120, true, true);
+        if (!image.isError()) {
+            imageView.setImage(image);
+            imageView.setVisible(true);
+        } else imageView.setVisible(false);
+    }
+
+    private void fillElement(AdvertisementSummaryDto ad) {
         titleText.setText(ad.getFullName() != null ? ad.getFullName() : "بدون عنوان");
-        priceLabel.setText(ad.getPrice() != null ? formatPrice(ad.getPrice()) : "قیمت: توافقی");
+        priceLabel.setText(ad.getPrice() != null ? Utils.formatPrice(ad.getPrice()) : "قیمت: توافقی");
         cityLabel.setText(ad.getCity() != null ? ad.getCity().getPersianName() : "نامشخص");
-        dateLabel.setText(ad.getCreationDate() != null ? ad.getCreationDate().toLocalDate().toString() : "");
+        dateLabel.setText(ad.getCreationDate() != null ? ad.getCreationDate().format(Utils.FORMATTER) : "");
 
         if (ad.getCategoryName() != null && !ad.getCategoryName().isEmpty()) {
-            categoryLabel.setText("📁 " + ad.getCategoryName());
+            categoryLabel.setText(ad.getCategoryName());
             categoryLabel.setVisible(true);
         } else {
             categoryLabel.setVisible(false);
         }
 
-        if (ad.getStatus() != null) {
+    }
+
+    private void setStatus(AdvertisementSummaryDto ad) {
+        boolean isStatusExist = ad.getStatus() != null;
+        statusLabel.setVisible(isStatusExist);
+        if (isStatusExist) {
             String statusText = switch (ad.getStatus()) {
                 case ACTIVE -> "فعال";
                 case PENDING -> "در انتظار بررسی";
@@ -68,54 +95,39 @@ public class AdCardController {
                 case DELETED -> "حذف شده";
             };
             statusLabel.setText(statusText);
-            statusLabel.setVisible(true);
-        } else {
-            statusLabel.setVisible(false);
-        }
-
-        // ===== نمایش تصویر =====
-        if (ad.getFirstImagePath() != null && !ad.getFirstImagePath().isEmpty()) {
-            String imagePath = ad.getFirstImagePath();
-            Image image = null;
-            File file = new File(imagePath);
-            if (file.exists()) {
-                image = new Image(file.toURI().toString(), 180, 120, true, true);
-            }
-            if (image == null || image.isError()) {
-                String serverPath = imagePath.startsWith("uploads/") ? imagePath : "uploads/" + imagePath;
-                image = new Image(BASE_IMAGE_URL + serverPath, 180, 120, true, true);
-            }
-            if (image != null && !image.isError()) {
-                imageView.setImage(image);
-                imageView.setVisible(true);
-            } else {
-                imageView.setVisible(false);
-            }
-        } else {
-            imageView.setVisible(false);
         }
     }
 
-    /**
-     * کلیک روی کارت – هدایت به صفحه جزئیات آگهی.
-     * این متد توسط FXML با رویداد onMouseClicked فراخوانی می‌شود.
-     */
+    public static VBox createAdCard(AdvertisementSummaryDto ad) {
+        try {
+            FXMLLoader loader = new FXMLLoader(AdCardController.class.getResource("/fxml/components/ad-card.fxml"));
+            VBox card = loader.load();
+
+            AdCardController controller = loader.getController();
+            controller.setData(ad);
+
+            return card;
+
+        } catch (IOException e) {
+            VBox fallback = new VBox(5);
+            fallback.setPadding(new Insets(10));
+            fallback.setStyle(
+                    "-fx-background-color: white; " +
+                            "-fx-background-radius: 8; " +
+                            "-fx-border-color: #e2e8f0; " +
+                            "-fx-border-radius: 8;"
+            );
+            fallback.getChildren().add(new Text("خطا در بارگذاری کارت"));
+            return fallback;
+        }
+    }
+
     @FXML
     public void handleCardClick() {
-        System.out.println("🖱️ [AdCardController] handleCardClick called, adId: " + adId);
-        if (adId != null) {
-            // ارسال شناسه آگهی به صفحه جزئیات
-            SceneManager.showPage(Pages.AD_DETAIL, null, adId);
+        if (adv != null) {
+            SceneManager.showPage(Pages.AD_DETAIL, adv.getFullName(), adv.getId());
         } else {
             AlertUtil.showError("شناسه آگهی موجود نیست.");
         }
-    }
-
-    /**
-     * فرمت قیمت به صورت فارسی.
-     */
-    private String formatPrice(BigDecimal price) {
-        if (price == null) return "۰ تومان";
-        return String.format("%,d تومان", price.longValue());
     }
 }

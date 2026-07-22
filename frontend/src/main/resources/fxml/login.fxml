@@ -19,14 +19,14 @@
     <Text text="خوش آمدید" styleClass="title" />
     <Text text="وارد حساب کاربری خود شوید" styleClass="subtitle" />
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="far-envelope" iconSize="16" iconColor="#718096" />
-        <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
-        <PasswordField fx:id="passwordField" promptText="رمز عبور" styleClass="input-field" HBox.hgrow="ALWAYS" />
+        <PasswordField fx:id="passwordField" promptText="رمز عبور" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
     <Button text="ورود به حساب" styleClass="primary-btn" onAction="#handleLogin">

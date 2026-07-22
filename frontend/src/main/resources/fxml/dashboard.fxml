@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ScrollPane?>
@@ -10,37 +9,36 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DashboardController">
+<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.DashboardController">
     <top>
-        <fx:include source="components/header.fxml" />
+        <fx:include source="components/header.fxml"/>
     </top>
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-background-color: #f0f4f8; -fx-padding: 20;">
-            <!-- فیلترهای پیشرفته -->
             <HBox spacing="10" alignment="CENTER">
-                <ComboBox fx:id="categoryCombo" promptText="دسته بندی" styleClass="input-field" HBox.hgrow="ALWAYS" />
-                <ComboBox fx:id="sortCombo" promptText="مرتب سازی" styleClass="input-field" HBox.hgrow="ALWAYS" />
-                <TextField fx:id="minPriceField" promptText="قیمت از" styleClass="input-field" prefWidth="80" />
-                <TextField fx:id="maxPriceField" promptText="قیمت تا" styleClass="input-field" prefWidth="80" />
-                <ComboBox fx:id="cityCombo" promptText="شهر" styleClass="input-field" HBox.hgrow="ALWAYS" />
+                <ComboBox fx:id="categoryCombo" promptText="دسته بندی" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="sortCombo" promptText="مرتب سازی" styleClass="input-field" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="minPriceField" promptText="قیمت از" styleClass="input-field" prefWidth="120"/>
+                <TextField fx:id="maxPriceField" promptText="قیمت تا" styleClass="input-field" prefWidth="120"/>
+                <ComboBox fx:id="cityCombo" promptText="شهر" styleClass="input-field" HBox.hgrow="ALWAYS"/>
             </HBox>
 
-            <!-- نوار جستجو -->
             <HBox spacing="10" alignment="CENTER">
-                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container" HBox.hgrow="ALWAYS">
-                    <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#718096" />
-                    <TextField fx:id="searchField" promptText="جستجوی آگهی..." styleClass="input-field" HBox.hgrow="ALWAYS" />
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container" HBox.hgrow="ALWAYS">
+                    <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#718096"/>
+                    <TextField fx:id="searchField" promptText="جستجوی آگهی..." styleClass="input-no-border-field"
+                               HBox.hgrow="ALWAYS"/>
                 </HBox>
                 <Button styleClass="primary-btn" onAction="#onSearch">
                     <graphic>
-                        <FontIcon iconLiteral="fas-search" iconSize="16" />
+                        <FontIcon iconLiteral="fas-search" iconSize="16"/>
                     </graphic>
                 </Button>
             </HBox>
 
-            <!-- لیست آگهی‌ها (فقط از سرور) -->
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
-                <FlowPane fx:id="adFlowPane" alignment="TOP_LEFT" hgap="15" vgap="15" />
+                <FlowPane fx:id="adFlowPane" hgap="15" vgap="15"/>
             </ScrollPane>
         </VBox>
     </center>

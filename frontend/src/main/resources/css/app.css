@@ -19,10 +19,7 @@
     -fx-fill: #718096;
 }
 
-/* ========================= */
-/*       فیلدهای ورودی       */
-/* ========================= */
-.input-container {
+.input-no-border-container {
     -fx-background-color: white;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
@@ -34,19 +31,13 @@
     -fx-spacing: 10;
 }
 
-.input-container:focused {
+.input-no-border-container:focused {
     -fx-border-color: #4299e1;
     -fx-background-insets: 0, 1;
     -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.25), 8, 0, 0, 2);
 }
 
-.input-icon {
-    -fx-fill: #718096;
-    -fx-scale-x: 1.2;
-    -fx-scale-y: 1.2;
-}
-
-.input-field {
+.input-no-border-field {
     -fx-background-color: transparent;
     -fx-border-width: 0;
     -fx-padding: 0;
@@ -56,9 +47,43 @@
     -fx-max-width: 9999;
 }
 
-.input-field:focused {
+.input-no-border-field:focused {
     -fx-border-color: transparent;
     -fx-effect: none;
+}
+
+/* ========================= */
+/*       فیلدهای ورودی       */
+/* ========================= */
+.input-container {
+    -fx-padding: 0 10;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-pref-height: 45;
+}
+
+.input-container:focused {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
+}
+
+.input-field {
+    -fx-padding: 0 10;
+    -fx-background-color: white;
+    /*-fx-background-radius: 8;*/
+    /*-fx-border-radius: 8;*/
+    /*-fx-border-color: #e2e8f0;*/
+    -fx-border-width: 0;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45;
+}
+
+.input-field:focused {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
 }
 
 /* ========================= */

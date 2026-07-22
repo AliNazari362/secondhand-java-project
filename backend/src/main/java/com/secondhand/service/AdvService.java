@@ -16,6 +16,7 @@ import com.secondhand.exception.ResourceNotFoundException;
 import com.secondhand.repository.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -224,10 +225,27 @@ public class AdvService {
     public List<AdvSummaryResponse> getAds(String keyword, City city, AdvStatus status,
                                            Long categoryId, String sortBy,
                                            BigDecimal minPrice, BigDecimal maxPrice) {
-        List<Adv> ads = advRepository.search(keyword, city, status, categoryId, sortBy, minPrice, maxPrice);
+
+        List<Long> categoryIds = null;
+
+        if (categoryId != null) {
+            categoryIds = new ArrayList<>();
+            categoryIds.add(categoryId);
+            findAllSubCategoriesRecursive(categoryId, categoryIds);
+        }
+
+        List<Adv> ads = advRepository.search(keyword, city, status, categoryIds, sortBy, minPrice, maxPrice);
         return ads.stream()
                 .map(this::toAdvSummaryResponse)
                 .collect(Collectors.toList());
+    }
+
+    private void findAllSubCategoriesRecursive(Long parentId, List<Long> ids) {
+        List<Category> subCategories = categoryRepository.findByParentId(parentId);
+        for (Category sub : subCategories) {
+            ids.add(sub.getId());
+            findAllSubCategoriesRecursive(sub.getId(), ids);
+        }
     }
 
     /**
@@ -326,10 +344,9 @@ public class AdvService {
      */
     public AdvDetailResponse updateProduct(UUID advId, ProductUpdateRequest request, UUID userId) {
         Adv foundAdv = findAdvById(advId);
-        if (!(foundAdv instanceof Product)) {
+        if (!(foundAdv instanceof Product product)) {
             throw new BadRequestException("این آگهی از نوع محصول نیست");
         }
-        Product product = (Product) foundAdv;
         updateAdv(product,
                 request.fullName(), request.description(),
                 request.city(), request.address(),
@@ -357,10 +374,9 @@ public class AdvService {
      */
     public AdvDetailResponse updateService(UUID advId, ServiceUpdateRequest request, UUID userId) {
         Adv foundAdv = findAdvById(advId);
-        if (!(foundAdv instanceof Service)) {
+        if (!(foundAdv instanceof Service service)) {
             throw new BadRequestException("این آگهی از نوع خدمات نیست");
         }
-        Service service = (Service) foundAdv;
         updateAdv(service,
                 request.fullName(), request.description(),
                 request.city(), request.address(),

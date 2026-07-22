@@ -15,7 +15,7 @@ import java.util.List;
  * @see ApiClient
  */
 public class CategoryService {
-    private final ApiClient api = ApiClient.getInstance();
+    private static final ApiClient api = ApiClient.getInstance();
 
     /**
      * Retrieves all categories from the backend.
@@ -23,7 +23,7 @@ public class CategoryService {
      * @return list of all categories
      * @throws Exception if the request fails
      */
-    public List<Category> getAllCategories() throws Exception {
+    public static List<Category> getAllCategories() throws Exception {
         String response = api.get("/categories/public");  // مسیر عمومی
         Category[] categories = api.fromJson(response, Category[].class);
         return Arrays.asList(categories);
@@ -35,7 +35,7 @@ public class CategoryService {
      * @return the category with the given ID
      * @throws Exception if the request fails
      */
-    public Category getCategoryById(Long id) throws Exception {
+    public static Category getCategoryById(Long id) throws Exception {
         String response = api.get("/admin/categories/" + id);
         return api.fromJson(response, Category.class);
     }
@@ -47,7 +47,7 @@ public class CategoryService {
      * @return the created category with its ID
      * @throws Exception if the request fails
      */
-    public Category createCategory(Category category) throws Exception {
+    public static Category createCategory(Category category) throws Exception {
         String response = api.post("/admin/categories", category);
         return api.fromJson(response, Category.class);
     }
@@ -60,7 +60,7 @@ public class CategoryService {
      * @return the updated category
      * @throws Exception if the request fails
      */
-    public Category updateCategory(Long id, Category category) throws Exception {
+    public static Category updateCategory(Long id, Category category) throws Exception {
         String response = api.put("/admin/categories/" + id, category);
         return api.fromJson(response, Category.class);
     }
@@ -71,7 +71,7 @@ public class CategoryService {
      * @param id the ID of the category to delete
      * @throws Exception if the request fails
      */
-    public void deleteCategory(Long id) throws Exception {
+    public static void deleteCategory(Long id) throws Exception {
         api.delete("/admin/categories/" + id);
     }
 }

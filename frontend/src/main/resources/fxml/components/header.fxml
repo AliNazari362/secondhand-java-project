@@ -11,7 +11,7 @@
         <Insets top="15" right="25" bottom="15" left="25" />
     </padding>
 
-    <Text fx:id="titleText" text="لیست آگهی ها" styleClass="header-title" />
+    <Text text="لیست آگهی ها" styleClass="header-title" />
     <Text fx:id="userInfoText" text="خوش آمدید، کاربر" styleClass="header-subtitle" />
 
     <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
@@ -25,7 +25,6 @@
             <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
         </Button>
 
-        <!-- دکمه پروفایل (حساب کاربری) -->
         <Button onAction="#onProfile">
             <graphic><FontIcon iconLiteral="fas-user-circle" iconSize="16" /></graphic>
         </Button>

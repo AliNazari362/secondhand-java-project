@@ -37,8 +37,6 @@ public class ChatController implements DataReceiver {
     @FXML
     private Button submitBtn;
 
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("d MMMM HH:mm").withLocale(Locale.forLanguageTag("fa-IR"));
     private AdvertisementDetailDto adv;
     private String chatId;
 
@@ -129,7 +127,7 @@ public class ChatController implements DataReceiver {
         bottomRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
         // Time label
-        Text timeText = new Text(message.getDate().format(FORMATTER));
+        Text timeText = new Text(message.getDate().format(Utils.FORMATTER));
         timeText.setStyle("-fx-font-size: 9px; -fx-fill: #a0aec0;");
 
         bottomRow.getChildren().add(timeText);

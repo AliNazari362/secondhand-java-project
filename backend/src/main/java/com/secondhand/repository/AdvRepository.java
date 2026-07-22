@@ -81,7 +81,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
      * @param keyword    optional text to match against the title or description (case-insensitive)
      * @param city       optional city to restrict results to
      * @param status     optional lifecycle status to restrict results to
-     * @param categoryId optional category ID to restrict results to
+     * @param categoryIds </categoryId> optional category ID to restrict results to
      * @param sortBy     sorting criterion (default: "newest")
      * @param minPrice   optional minimum price filter (inclusive, only for products)
      * @param maxPrice   optional maximum price filter (inclusive, only for products)
@@ -92,7 +92,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
             "LOWER(a.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND (:city IS NULL OR a.city = :city) " +
             "AND (:status IS NULL OR a.status = :status) " +
-            "AND (:categoryId IS NULL OR a.category.id = :categoryId) " +
+            "AND (:categoryIds IS NULL OR a.category.id IN :categoryIds) " +
             "AND (:minPrice IS NULL OR (SELECT p.price FROM Product p WHERE p.id = a.id) >= :minPrice) " +
             "AND (:maxPrice IS NULL OR (SELECT p.price FROM Product p WHERE p.id = a.id) <= :maxPrice) " +
             "AND a.status != 'DELETED' AND a.status != 'REJECTED' " +
@@ -105,8 +105,7 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
     List<Adv> search(@Param("keyword") String keyword,
                      @Param("city") City city,
                      @Param("status") AdvStatus status,
-                     @Param("categoryId") Long categoryId,
+                     @Param("categoryIds") List<Long> categoryIds,
                      @Param("sortBy") String sortBy,
                      @Param("minPrice") BigDecimal minPrice,
-                     @Param("maxPrice") BigDecimal maxPrice);
-}
+                     @Param("maxPrice") BigDecimal maxPrice);}

@@ -1,11 +1,7 @@
 package component;
 
 import javafx.fxml.FXML;
-import service.AuthService;
-import utils.AlertUtil;
-import utils.Pages;
-import utils.SceneManager;
-import utils.SessionManager;
+import utils.*;
 
 public class SidebarController {
 
@@ -56,14 +52,6 @@ public class SidebarController {
 
     @FXML
     public void onLogout() {
-        boolean confirm = AlertUtil.showConfirmation("خروج از حساب", "آیا از خروج از حساب کاربری خود اطمینان دارید؟");
-        if (!confirm) return;
-        try {
-            AuthService.logout();
-            AlertUtil.showSuccess("شما با موفقیت خارج شدید.");
-            SceneManager.showPage(Pages.LOGIN, null);
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در خروج: " + e.getMessage());
-        }
+        Utils.logout();
     }
 }

@@ -40,18 +40,18 @@ public class FavoritesController {
      */
     private void loadFavorites() {
         try {
-            List<AdvertisementSummaryDto> favorites = favoriteService.getFavorites();
+            List<AdvertisementSummaryDto> favorites = FavoriteService.getFavorites();
 
             Platform.runLater(() -> {
                 favoritesFlowPane.getChildren().clear();
 
-                if (favorites == null || favorites.isEmpty()) {
+                if (favorites.isEmpty()) {
                     showEmptyMessage();
                     return;
                 }
 
                 for (AdvertisementSummaryDto ad : favorites) {
-                    VBox card = createAdCard(ad);
+                    VBox card = AdCardController.createAdCard(ad);
                     favoritesFlowPane.getChildren().add(card);
                 }
             });
@@ -73,34 +73,6 @@ public class FavoritesController {
         message.setStyle("-fx-font-size: 18px; -fx-fill: #a0aec0;");
         emptyMessage.getChildren().add(message);
         favoritesFlowPane.getChildren().add(emptyMessage);
-    }
-
-    /**
-     * Creates an ad card component for a favorite advertisement.
-     */
-    private VBox createAdCard(AdvertisementSummaryDto ad) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/ad-card.fxml"));
-            VBox card = loader.load();
-
-            AdCardController controller = loader.getController();
-            controller.setData(ad);
-
-            return card;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            VBox fallback = new VBox(5);
-            fallback.setPadding(new Insets(10));
-            fallback.setStyle(
-                    "-fx-background-color: white; " +
-                            "-fx-background-radius: 8; " +
-                            "-fx-border-color: #e2e8f0; " +
-                            "-fx-border-radius: 8;"
-            );
-            fallback.getChildren().add(new Text("خطا در بارگذاری کارت"));
-            return fallback;
-        }
     }
 
     /**

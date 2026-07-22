@@ -1,10 +1,9 @@
 package controller;
 
 import component.AdCardController;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
@@ -18,12 +17,10 @@ import service.AdvService;
 import service.CategoryService;
 import utils.AlertUtil;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Controller for the main dashboard page.
@@ -37,18 +34,22 @@ import java.util.stream.Collectors;
 public class DashboardController {
 
     // ===== FXML Fields =====
-    @FXML private TextField searchField;
-    @FXML private ComboBox<String> cityCombo;
-    @FXML private ComboBox<String> categoryCombo;
-    @FXML private ComboBox<String> sortCombo;
-    @FXML private TextField minPriceField;
-    @FXML private TextField maxPriceField;
-    @FXML private FlowPane adFlowPane;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> cityCombo;
+    @FXML
+    private ComboBox<String> categoryCombo;
+    @FXML
+    private ComboBox<String> sortCombo;
+    @FXML
+    private TextField minPriceField;
+    @FXML
+    private TextField maxPriceField;
+    @FXML
+    private FlowPane adFlowPane;
 
-    // ===== Services =====
-    private final CategoryService categoryService = new CategoryService();
-    private List<Category> categories;
-    private Map<String, Long> categoryNameToIdMap = new LinkedHashMap<>();
+    private Map<String, Long> categoryNameToIdMap;
 
 
     /**
@@ -66,10 +67,10 @@ public class DashboardController {
 
         // ===== Sort ComboBox =====
         sortCombo.getItems().addAll(
-                "جدیدترین",
-                "قدیمی‌ترین",
-                "ارزان‌ترین",
-                "گران‌ترین",
+                "جدید ترین",
+                "قدیمی ترین",
+                "ارزان ترین",
+                "گران ترین",
                 "بالاترین امتیاز"
         );
         sortCombo.getSelectionModel().selectFirst();
@@ -87,21 +88,16 @@ public class DashboardController {
      */
     private void loadCategories() {
         try {
-            categories = categoryService.getAllCategories();
 
-            // ---- فیلتر: فقط برگ‌ها (دسته‌بندی‌های بدون زیردسته) ----
-            List<Category> leafCategories = categories.stream()
+            List<Category> leafCategories = CategoryService.getAllCategories().stream()
                     .filter(cat -> cat.getSubCategories() == null || cat.getSubCategories().isEmpty())
-                    .collect(Collectors.toList());
+                    .toList();
 
             categoryCombo.getItems().clear();
-            categoryCombo.getItems().add("همه دسته‌بندی‌ها");
-
-            // برای نگاشت نام نمایشی به شناسه
+            categoryCombo.getItems().add("همه دسته بندی ها");
             categoryNameToIdMap = new LinkedHashMap<>();
 
             for (Category cat : leafCategories) {
-                // نام نمایشی: "نام دسته‌بندی (نوع)"
                 String displayName = cat.getName() + " (" + (cat.getType() == AdvType.PRODUCT ? "کالا" : "خدمت") + ")";
                 categoryCombo.getItems().add(displayName);
                 categoryNameToIdMap.put(displayName, cat.getId());
@@ -110,7 +106,7 @@ public class DashboardController {
             categoryCombo.getSelectionModel().selectFirst();
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در دریافت دسته‌بندی‌ها: " + e.getMessage());
+            AlertUtil.showError("خطا در دریافت دسته بندی ها: " + e.getMessage());
         }
     }
 
@@ -141,22 +137,12 @@ public class DashboardController {
             // ===== Category =====
             String categoryDisplay = categoryCombo.getSelectionModel().getSelectedItem();
             Long categoryId = null;
-            if (categoryDisplay != null && !categoryDisplay.equals("همه دسته‌بندی‌ها")) {
+            if (categoryDisplay != null && !categoryDisplay.equals("همه دسته بندی ها")) {
                 categoryId = categoryNameToIdMap.get(categoryDisplay);
             }
 
             // ===== Sort =====
-            String sortPersian = sortCombo.getSelectionModel().getSelectedItem();
-            String sortBy = "newest";
-            if (sortPersian != null) {
-                switch (sortPersian) {
-                    case "جدیدترین" -> sortBy = "newest";
-                    case "قدیمی‌ترین" -> sortBy = "oldest";
-                    case "ارزان‌ترین" -> sortBy = "priceAsc";
-                    case "گران‌ترین" -> sortBy = "priceDesc";
-                    case "بالاترین امتیاز" -> sortBy = "ratingDesc";
-                }
-            }
+            String sortBy = getSort();
 
             // ===== Price Range =====
             BigDecimal minPrice = null;
@@ -169,6 +155,7 @@ public class DashboardController {
             }
 
             // ===== Execute Search =====
+
             List<AdvertisementSummaryDto> ads = AdvService.getActiveAds(
                     keyword,
                     cityEnum,
@@ -182,11 +169,25 @@ public class DashboardController {
             displayAds(ads);
 
         } catch (NumberFormatException e) {
-            AlertUtil.showError("لطفاً قیمت را به صورت عدد وارد کنید.");
+            AlertUtil.showError("لطفا قیمت را به صورت عدد وارد کنید.");
         } catch (Exception e) {
             AlertUtil.showError("خطا در جستجو: " + e.getMessage());
-            e.printStackTrace();
         }
+    }
+
+    private String getSort() {
+        String sortPersian = sortCombo.getSelectionModel().getSelectedItem();
+        String sortBy = "newest";
+        if (sortPersian != null) {
+            switch (sortPersian) {
+                case "جدید ترین" -> sortBy = "newest";
+                case "قدیمی ترین" -> sortBy = "oldest";
+                case "ارزان ترین" -> sortBy = "priceAsc";
+                case "گران ترین" -> sortBy = "priceDesc";
+                case "بالاترین امتیاز" -> sortBy = "ratingDesc";
+            }
+        }
+        return sortBy;
     }
 
     /**
@@ -197,46 +198,20 @@ public class DashboardController {
 
         if (ads == null || ads.isEmpty()) {
             VBox emptyMessage = new VBox();
-            emptyMessage.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyMessage.setAlignment(Pos.CENTER);
             emptyMessage.setPadding(new Insets(50));
             Text message = new Text("هیچ آگهی با این فیلترها یافت نشد.");
             message.setStyle("-fx-font-size: 18px; -fx-fill: #a0aec0;");
             emptyMessage.getChildren().add(message);
             adFlowPane.getChildren().add(emptyMessage);
+            adFlowPane.setAlignment(Pos.CENTER);
             return;
         }
 
         for (AdvertisementSummaryDto ad : ads) {
-            VBox card = createAdCard(ad);
+            VBox card = AdCardController.createAdCard(ad);
             adFlowPane.getChildren().add(card);
-        }
-    }
-
-    /**
-     * Creates an ad card component for a single advertisement.
-     */
-    private VBox createAdCard(AdvertisementSummaryDto ad) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/ad-card.fxml"));
-            VBox card = loader.load();
-
-            AdCardController controller = loader.getController();
-            controller.setData(ad);
-
-            return card;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            VBox fallback = new VBox(5);
-            fallback.setPadding(new Insets(10));
-            fallback.setStyle(
-                    "-fx-background-color: white; " +
-                            "-fx-background-radius: 8; " +
-                            "-fx-border-color: #e2e8f0; " +
-                            "-fx-border-radius: 8;"
-            );
-            fallback.getChildren().add(new Text("خطا در بارگذاری کارت"));
-            return fallback;
+            adFlowPane.setAlignment(Pos.CENTER_LEFT);
         }
     }
 }
