@@ -11,6 +11,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.Category;
+import model.enums.AdvType;
 import model.enums.City;
 import model.response.AdvertisementSummaryDto;
 import service.AdvService;
@@ -19,7 +20,10 @@ import utils.AlertUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the main dashboard page.
@@ -44,6 +48,8 @@ public class DashboardController {
     // ===== Services =====
     private final CategoryService categoryService = new CategoryService();
     private List<Category> categories;
+    private Map<String, Long> categoryNameToIdMap = new LinkedHashMap<>();
+
 
     /**
      * Initializes the controller.
@@ -76,17 +82,31 @@ public class DashboardController {
     }
 
     /**
-     * Loads categories from the backend and populates the category combo box.
+     * بارگذاری دسته‌بندی‌ها از سرور و پر کردن کامبوباکس با برگ‌ها (leaf nodes).
+     * هر آیتم به صورت "نام دسته‌بندی (نوع)" نمایش داده می‌شود.
      */
     private void loadCategories() {
         try {
             categories = categoryService.getAllCategories();
+
+            // ---- فیلتر: فقط برگ‌ها (دسته‌بندی‌های بدون زیردسته) ----
+            List<Category> leafCategories = categories.stream()
+                    .filter(cat -> cat.getSubCategories() == null || cat.getSubCategories().isEmpty())
+                    .collect(Collectors.toList());
+
             categoryCombo.getItems().clear();
             categoryCombo.getItems().add("همه دسته‌بندی‌ها");
 
-            for (Category cat : categories) {
-                categoryCombo.getItems().add(cat.getName());
+            // برای نگاشت نام نمایشی به شناسه
+            categoryNameToIdMap = new LinkedHashMap<>();
+
+            for (Category cat : leafCategories) {
+                // نام نمایشی: "نام دسته‌بندی (نوع)"
+                String displayName = cat.getName() + " (" + (cat.getType() == AdvType.PRODUCT ? "کالا" : "خدمت") + ")";
+                categoryCombo.getItems().add(displayName);
+                categoryNameToIdMap.put(displayName, cat.getId());
             }
+
             categoryCombo.getSelectionModel().selectFirst();
 
         } catch (Exception e) {
@@ -119,15 +139,10 @@ public class DashboardController {
             }
 
             // ===== Category =====
-            String categoryName = categoryCombo.getSelectionModel().getSelectedItem();
+            String categoryDisplay = categoryCombo.getSelectionModel().getSelectedItem();
             Long categoryId = null;
-            if (categoryName != null && !categoryName.equals("همه دسته‌بندی‌ها") && categories != null) {
-                for (Category cat : categories) {
-                    if (cat.getName().equals(categoryName)) {
-                        categoryId = cat.getId();
-                        break;
-                    }
-                }
+            if (categoryDisplay != null && !categoryDisplay.equals("همه دسته‌بندی‌ها")) {
+                categoryId = categoryNameToIdMap.get(categoryDisplay);
             }
 
             // ===== Sort =====

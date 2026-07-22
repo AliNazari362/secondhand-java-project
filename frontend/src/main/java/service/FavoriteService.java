@@ -51,13 +51,18 @@ public class FavoriteService {
 
     /**
      * Checks if an advertisement is in the user's favorites.
+     * If the API endpoint is not available (e.g., returns 404/500), it returns false.
      *
      * @param advId the ID of the advertisement
      * @return true if the advertisement is in favorites, false otherwise
-     * @throws Exception if the API call fails
      */
-    public boolean isFavorite(String advId) throws Exception {
-        String response = api.get("/favorites/is-favorite/" + advId);
-        return Boolean.parseBoolean(response);
+    public boolean isFavorite(String advId) {
+        try {
+            String response = api.get("/favorites/is-favorite/" + advId);
+            return Boolean.parseBoolean(response);
+        } catch (Exception e) {
+            System.err.println("⚠️ isFavorite API failed, returning false: " + e.getMessage());
+            return false;
+        }
     }
 }

@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -14,17 +15,22 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import model.request.CommentRequest;
 import model.response.AdvertisementDetailDto;
+import model.response.CommentResponseDto;
 import model.response.ImageResponseDto;
 import model.response.UserSummaryDto;
 import service.AdvService;
+import service.CommentService;
 import service.FavoriteService;
+import service.RatingService;
 import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
 import utils.SessionManager;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -81,6 +87,9 @@ public class AdDetailController implements DataReceiver {
 
     private final AdvService advService = new AdvService();
     private final FavoriteService favoriteService = new FavoriteService();
+
+    private final CommentService commentService = new CommentService();
+    private final RatingService ratingService = new RatingService();
 
     // ==================== DataReceiver Implementation ====================
 
@@ -200,6 +209,7 @@ public class AdDetailController implements DataReceiver {
                 ownerText.setText(owner.getFullName() + " (" + owner.getEmail() + ")");
             }
 
+            loadRatingInfo();
             // ===== Sections =====
             displayImages();
             displayOptions();
@@ -329,7 +339,25 @@ public class AdDetailController implements DataReceiver {
             }
         }
     }
-
+    /**
+     * بارگذاری اطلاعات امتیاز (میانگین و تعداد) از سرور.
+     */
+    private void loadRatingInfo() {
+        try {
+            double avg = ratingService.getAverageRating(advId.toString());
+            long count = ratingService.getRatingCount(advId.toString());
+            if (ratingValueText != null) {
+                ratingValueText.setText(String.format("%.1f", avg));
+            }
+            if (ratingCountText != null) {
+                ratingCountText.setText("(" + count + " نظر)");
+            }
+        } catch (Exception e) {
+            // در صورت خطا، مقدار پیش‌فرض نمایش داده شود
+            if (ratingValueText != null) ratingValueText.setText("۰");
+            if (ratingCountText != null) ratingCountText.setText("(۰ نظر)");
+        }
+    }
     /**
      * Updates action buttons based on ownership and admin status.
      * - Chat, Favorite, and Rating are visible only for non-owners.
@@ -498,13 +526,85 @@ public class AdDetailController implements DataReceiver {
             AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
         }
     }
+    /**
+     * ثبت نظر جدید برای آگهی.
+     */
+    @FXML
+    public void onSubmitComment() {
+        // بررسی لاگین بودن کاربر
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
+            return;
+        }
+
+        // دریافت متن نظر
+        String text = commentArea.getText().trim();
+        if (text.isEmpty()) {
+            AlertUtil.showError("لطفاً متن نظر را وارد کنید.");
+            return;
+        }
+
+        // (اختیاری) دریافت امتیاز از کاربر – فعلاً ۵ پیش‌فرض
+        int rate = 5;
+
+        try {
+            CommentRequest request = new CommentRequest(text, rate);
+            CommentResponseDto comment = commentService.createComment(advId.toString(), request);
+
+            // اضافه کردن نظر به لیست و به‌روزرسانی UI
+            if (currentAd.getComments() == null) {
+                currentAd.setComments(new java.util.ArrayList<>());
+            }
+            currentAd.getComments().add(0, comment); // قرار دادن در ابتدا
+            displayComments();
+            commentArea.clear();
+            AlertUtil.showSuccess("نظر شما با موفقیت ثبت شد.");
+
+            // به‌روزرسانی امتیاز
+            loadRatingInfo();
+
+        } catch (Exception e) {
+            AlertUtil.showError("خطا در ثبت نظر: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     /**
-     * Shows a placeholder for rating functionality.
+     * نمایش دیالوگ انتخاب امتیاز و ثبت آن.
      */
     @FXML
     public void onRate() {
-        AlertUtil.showWarning("قابلیت امتیازدهی در حال توسعه است.");
+        if (!SessionManager.isLoggedIn()) {
+            AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
+            return;
+        }
+
+        if (advId == null) {
+            AlertUtil.showError("شناسه آگهی نامعتبر است.");
+            return;
+        }
+
+        // دیالوگ انتخاب امتیاز ۱ تا ۵
+        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(5, 1, 2, 3, 4, 5);
+        dialog.setTitle("امتیازدهی");
+        dialog.setHeaderText("به این آگهی امتیاز دهید");
+        dialog.setContentText("امتیاز (۱ تا ۵):");
+
+        Optional<Integer> result = dialog.showAndWait();
+        result.ifPresent(rate -> {
+            try {
+                // ⚠️ مهم: متن را خالی نفرستید – یک متن پیش‌فرض بگذارید
+                CommentRequest request = new CommentRequest("امتیاز " + rate, rate);
+                ratingService.rateAdvertisement(advId.toString(), request);
+
+                AlertUtil.showSuccess("امتیاز شما با موفقیت ثبت شد.");
+                loadAdDetail(); // بارگذاری مجدد برای نمایش امتیاز جدید
+
+            } catch (Exception e) {
+                AlertUtil.showError("خطا در ثبت امتیاز: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
