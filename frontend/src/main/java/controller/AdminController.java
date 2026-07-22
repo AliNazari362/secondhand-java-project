@@ -1,16 +1,19 @@
 package controller;
 
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TabPane;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import model.DashboardStats;
+import model.response.AdvertisementDetailDto;
 import model.response.AdvertisementSummaryDto;
 import model.response.UserSummaryDto;
 import service.AdminService;
+import service.AdvService;
 import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
@@ -25,42 +28,51 @@ import java.util.Map;
  */
 public class AdminController {
 
-    @FXML private TabPane tabPane;
-    @FXML private ListView<String> pendingListView;
-    @FXML private ListView<String> usersListView;
-    @FXML private Label totalUsersLabel;
-    @FXML private Label activeUsersLabel;
-    @FXML private Label bannedUsersLabel;
-    @FXML private Label deletedUsersLabel;
-    @FXML private Label totalAdsLabel;
-    @FXML private Label pendingAdsLabel;
-    @FXML private Label activeAdsLabel;
-    @FXML private Label soldAdsLabel;
-    @FXML private Label rejectedAdsLabel;
-    @FXML private Label totalMessagesLabel;
-    @FXML private Label totalCommentsLabel;
+    @FXML
+    private TabPane tabPane;
+    @FXML
+    private ListView<String> pendingListView;
+    @FXML
+    private ListView<String> usersListView;
+    @FXML
+    private Label totalUsersLabel;
+    @FXML
+    private Label activeUsersLabel;
+    @FXML
+    private Label bannedUsersLabel;
+    @FXML
+    private Label deletedUsersLabel;
+    @FXML
+    private Label totalAdsLabel;
+    @FXML
+    private Label pendingAdsLabel;
+    @FXML
+    private Label activeAdsLabel;
+    @FXML
+    private Label soldAdsLabel;
+    @FXML
+    private Label rejectedAdsLabel;
+    @FXML
+    private Label totalMessagesLabel;
+    @FXML
+    private Label totalCommentsLabel;
 
     private final AdminService adminService = new AdminService();
 
-    // لیست‌های قابل مشاهده در UI
     private final ObservableList<String> userDisplayList = FXCollections.observableArrayList();
     private final ObservableList<String> pendingAdDisplayList = FXCollections.observableArrayList();
 
-    // نقشه‌های نگاشت نام نمایشی به شناسه
     private final Map<String, String> userIdMap = new HashMap<>();
     private final Map<String, String> advIdMap = new HashMap<>();
 
     @FXML
     public void initialize() {
-        // اتصال لیست‌ها به ListView
         usersListView.setItems(userDisplayList);
         pendingListView.setItems(pendingAdDisplayList);
 
-        // بارگذاری اولیه داده‌ها
         loadUsers();
         loadPendingAds();
 
-        // شنونده برای تغییر تب
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             if (newTab == null) return;
             String tabText = newTab.getText();
@@ -74,9 +86,6 @@ public class AdminController {
         });
     }
 
-    // ================================
-    //  بارگذاری لیست کاربران
-    // ================================
     private void loadUsers() {
         try {
             java.util.List<UserSummaryDto> users = adminService.getAllUsers();
@@ -94,113 +103,132 @@ public class AdminController {
         }
     }
 
-    // ================================
-    //  بارگذاری آگهی‌های در انتظار
-    // ================================
     private void loadPendingAds() {
         try {
             java.util.List<AdvertisementSummaryDto> ads = adminService.getPendingAds();
             Platform.runLater(() -> {
                 pendingAdDisplayList.clear();
                 advIdMap.clear();
+
                 for (AdvertisementSummaryDto ad : ads) {
                     String display = ad.getFullName() + " - " + ad.getCity().getPersianName();
                     pendingAdDisplayList.add(display);
                     advIdMap.put(display, ad.getId().toString());
                 }
+
+                setUIPendingList();
             });
         } catch (Exception e) {
             AlertUtil.showError("خطا در بارگذاری آگهی‌های در انتظار: " + e.getMessage());
         }
     }
 
-    // ================================
-    //  عملیات بن/آن‌بن کاربر
-    // ================================
-    @FXML
-    public void onBanUser() {
+    private void setUIPendingList() {
+        pendingListView.setCellFactory(param -> new ListCell<>() {
+            private final Button viewButton = new Button("مشاهده");
+            private final Button approveButton = new Button("تایید");
+            private final Button rejectButton = new Button("رد");
+            private final HBox container = new HBox(10, viewButton, approveButton, rejectButton);
+
+            {
+                viewButton.setStyle("-fx-background-color: white;-fx-text-fill: #4299e1; -fx-border-color: #4299e1; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
+                viewButton.setCursor(javafx.scene.Cursor.HAND);
+
+                approveButton.setStyle("-fx-background-color: #38a169; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
+                approveButton.setCursor(javafx.scene.Cursor.HAND);
+
+                rejectButton.setStyle("-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
+                rejectButton.setCursor(javafx.scene.Cursor.HAND);
+
+                container.setAlignment(Pos.CENTER_LEFT);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    setText(item);
+                    String advId = advIdMap.get(item);
+
+                    viewButton.setOnAction(event -> {
+                        try {
+                            AdvertisementDetailDto ad = AdvService.getAdvDetail(advId);
+                            SceneManager.showPage(Pages.AD_DETAIL, ad.getFullName(), ad.getId());
+                        } catch (Exception e) {
+                            ExceptionHandler.handle(e);
+                        }
+                    });
+
+                    approveButton.setOnAction(e -> onApproveAd());
+                    rejectButton.setOnAction(e -> onRejectAd());
+                    setGraphic(container);
+                }
+            }
+        });
+    }
+
+    private String getIdForAction(String forWhat, String action, Map<String, String> map) {
         String selected = usersListView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            AlertUtil.showWarning("لطفاً یک کاربر را انتخاب کنید.");
-            return;
+            AlertUtil.showWarning("لطفا یک " + forWhat + " انتخاب کنید");
+            return null;
         }
-        String userId = userIdMap.get(selected);
-        if (userId == null) {
-            AlertUtil.showError("شناسه کاربر یافت نشد.");
-            return;
+        String id = map.get(selected);
+        if (id == null) {
+            AlertUtil.showError("شناسه " + forWhat + " یافت نشد");
+            return null;
         }
-
         boolean confirm = AlertUtil.showConfirmation(
-                "بن کردن کاربر",
-                "آیا از بن کردن کاربر '" + selected + "' اطمینان دارید؟"
+                action + " " + forWhat,
+                "آیا از " + action + " " + forWhat + " اطمینان دارید؟"
         );
-        if (!confirm) return;
+        if (!confirm) return null;
+        return id;
+    }
 
-        try {
-            adminService.banUser(userId);
-            AlertUtil.showSuccess("کاربر با موفقیت بن شد.");
-            loadUsers(); // به‌روزرسانی لیست
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در بن کردن کاربر: " + e.getMessage());
+    @FXML
+    public void onBanUser() {
+        String userId = getIdForAction("کاربر", "بن کردن", userIdMap);
+        if (userId != null) {
+            try {
+                adminService.banUser(userId);
+                AlertUtil.showSuccess("کاربر با موفقیت بن شد.");
+                loadUsers(); // به‌روزرسانی لیست
+            } catch (Exception e) {
+                AlertUtil.showError("خطا در بن کردن کاربر: " + e.getMessage());
+            }
         }
     }
 
     @FXML
     public void onUnbanUser() {
-        String selected = usersListView.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            AlertUtil.showWarning("لطفاً یک کاربر را انتخاب کنید.");
-            return;
-        }
-        String userId = userIdMap.get(selected);
-        if (userId == null) {
-            AlertUtil.showError("شناسه کاربر یافت نشد.");
-            return;
-        }
-
-        boolean confirm = AlertUtil.showConfirmation(
-                "رفع بن کاربر",
-                "آیا از رفع بن کاربر '" + selected + "' اطمینان دارید؟"
-        );
-        if (!confirm) return;
-
-        try {
-            adminService.unbanUser(userId);
-            AlertUtil.showSuccess("بن کاربر با موفقیت برداشته شد.");
-            loadUsers();
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در رفع بن کاربر: " + e.getMessage());
+        String userId = getIdForAction("کاربر", "آن بن کردن", userIdMap);
+        if (userId != null) {
+            try {
+                adminService.unbanUser(userId);
+                AlertUtil.showSuccess("بن کاربر با موفقیت برداشته شد.");
+                loadUsers();
+            } catch (Exception e) {
+                AlertUtil.showError("خطا در رفع بن کاربر: " + e.getMessage());
+            }
         }
     }
 
-    // ================================
-    //  عملیات تایید/رد آگهی
-    // ================================
     @FXML
     public void onApproveAd() {
-        String selected = pendingListView.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            AlertUtil.showWarning("لطفاً یک آگهی را انتخاب کنید.");
-            return;
-        }
-        String advId = advIdMap.get(selected);
-        if (advId == null) {
-            AlertUtil.showError("شناسه آگهی یافت نشد.");
-            return;
-        }
-
-        boolean confirm = AlertUtil.showConfirmation(
-                "تایید آگهی",
-                "آیا از تایید آگهی '" + selected + "' اطمینان دارید؟"
-        );
-        if (!confirm) return;
-
-        try {
-            adminService.approveAdv(advId);
-            AlertUtil.showSuccess("آگهی با موفقیت تایید شد.");
-            loadPendingAds();
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در تایید آگهی: " + e.getMessage());
+        String advId = getIdForAction("آگهی", "تایید آگهی", advIdMap);
+        if (advId != null) {
+            try {
+                adminService.approveAdv(advId);
+                AlertUtil.showSuccess("آگهی با موفقیت تایید شد.");
+                loadPendingAds();
+            } catch (Exception e) {
+                AlertUtil.showError("خطا در تایید آگهی: " + e.getMessage());
+            }
         }
     }
 
@@ -227,7 +255,6 @@ public class AdminController {
             return; // کاربر انصراف داده
         }
 
-        // اگر دلیل خالی بود، باز هم می‌توانیم ادامه دهیم یا پیام خطا بدهیم
         if (reason.trim().isEmpty()) {
             boolean confirm = AlertUtil.showConfirmation(
                     "رد بدون دلیل",
@@ -237,9 +264,6 @@ public class AdminController {
         }
 
         try {
-            // توجه: متد rejectAdv فعلاً فقط advId را می‌گیرد.
-            // اگر بک‌اند نیاز به دلیل داشته باشد، باید متد را تغییر دهیم.
-            // برای نمونه فعلی، دلیل را نادیده می‌گیریم.
             adminService.rejectAdv(advId);
             AlertUtil.showSuccess("آگهی با موفقیت رد شد.");
             loadPendingAds();
@@ -248,11 +272,7 @@ public class AdminController {
         }
     }
 
-    // ================================
-    //  بارگذاری آمار داشبورد
-    // ================================
-    @FXML
-    private void loadDashboardStats() {
+    private boolean loadDashboardStats() {
         try {
             DashboardStats stats = adminService.getDashboardStats();
             Platform.runLater(() -> {
@@ -268,14 +288,19 @@ public class AdminController {
                 totalMessagesLabel.setText(String.valueOf(stats.getTotalMessages()));
                 totalCommentsLabel.setText(String.valueOf(stats.getTotalComments()));
             });
+            return true;
         } catch (Exception e) {
             AlertUtil.showError("خطا در دریافت آمار: " + e.getMessage());
+            return false;
         }
     }
 
-    // ================================
-    //  ناوبری
-    // ================================
+    @FXML
+    private void onStateClicked() {
+        if (loadDashboardStats())
+            Platform.runLater(() -> AlertUtil.showSuccess("آمار با موفقیت بروز شد"));
+    }
+
     @FXML
     public void onManageCategories() {
         SceneManager.showPage(Pages.CATEGORY_MANAGEMENT, null);

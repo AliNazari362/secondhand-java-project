@@ -10,7 +10,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.DashboardController">
+            fx:controller="controller.DashboardController" nodeOrientation="RIGHT_TO_LEFT">
     <top>
         <fx:include source="components/header.fxml"/>
     </top>

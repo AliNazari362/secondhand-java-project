@@ -81,8 +81,9 @@ public class AdvController {
      * @return the {@link AdvDetailResponse} containing all details of the advertisement
      */
     @GetMapping("{advId}")
-    public AdvDetailResponse getAdvDetail(@PathVariable UUID advId) {
-        return advService.getAdvDetail(advId);
+    public AdvDetailResponse getAdvDetail(@PathVariable UUID advId,
+                                          @RequestHeader("Authorization") String token) {
+        return advService.getAdvDetail(advId, JwtUtil.getUserIdFromToken(token));
     }
 
     /**

@@ -249,7 +249,7 @@ class AdvServiceTest {
     void getAdvDetail_ShouldReturnDetails_WhenActive() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
 
-        var response = advService.getAdvDetail(testProduct.getId());
+        var response = advService.getAdvDetail(testProduct.getId(), userId);
 
         assertNotNull(response);
         assertEquals(testProduct.getFullName(), response.fullName());
@@ -262,7 +262,7 @@ class AdvServiceTest {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
 
         assertThrows(BadRequestException.class,
-                () -> advService.getAdvDetail(testProduct.getId()));
+                () -> advService.getAdvDetail(testProduct.getId(), userId));
     }
 
     @Test
@@ -270,7 +270,7 @@ class AdvServiceTest {
         when(advRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> advService.getAdvDetail(UUID.randomUUID()));
+                () -> advService.getAdvDetail(UUID.randomUUID(), UUID.randomUUID()));
     }
 
     // ==================== GET USER ADS TESTS ====================

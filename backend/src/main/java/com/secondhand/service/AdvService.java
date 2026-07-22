@@ -10,6 +10,7 @@ import com.secondhand.entity.*;
 import com.secondhand.entity.enums.AdvStatus;
 import com.secondhand.entity.enums.AdvType;
 import com.secondhand.entity.enums.City;
+import com.secondhand.entity.enums.UserType;
 import com.secondhand.exception.BadRequestException;
 import com.secondhand.exception.ForbiddenException;
 import com.secondhand.exception.ResourceNotFoundException;
@@ -271,9 +272,15 @@ public class AdvService {
      * @param advId the UUID of the advertisement to retrieve
      * @return a {@link AdvDetailResponse} for the specified advertisement
      */
-    public AdvDetailResponse getAdvDetail(UUID advId) {
+    public AdvDetailResponse getAdvDetail(UUID advId, UUID userId) {
         Adv adv = findAdvById(advId);
-        if (adv.getStatus() != AdvStatus.ACTIVE && adv.getStatus() != AdvStatus.SOLD) {
+        User user = userService.findUserById(userId);
+        if (user == null)
+            throw new ForbiddenException("برای مشاهده آگهی باید ابتدا وارد شوید");
+
+        boolean isAdminOrOwner = user.getUserType() == UserType.ADMIN ||
+                adv.getUser().getId().equals(user.getId());
+        if (!isAdminOrOwner && adv.getStatus() != AdvStatus.ACTIVE && adv.getStatus() != AdvStatus.SOLD) {
             throw new BadRequestException("این آگهی در دسترس عموم نیست");
         }
         return toAdvDetailResponse(adv);

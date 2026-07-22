@@ -297,7 +297,7 @@
 
 .tab {
     -fx-background-color: #edf2f7;
-    -fx-background-radius: 8 8 0 0;
+    -fx-background-radius: 0 0 0 0;
     -fx-padding: 10 20;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
