@@ -48,7 +48,7 @@
                         <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" />
                         </graphic>
                     </Button>
-                    <Button fx:id="submitRatingBtn" text="ثبت امتیاز" styleClass="primary-btn" style="-fx-padding: 3 8;" />
+                    <Button fx:id="submitRatingBtn" text="ثبت امتیاز" styleClass="primary-btn" style="-fx-padding: 3 8;" onAction="#onRate" />
                 </HBox>
                 <Button onAction="#goBack">
                     <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="16" /></graphic>
@@ -197,7 +197,7 @@
                         <Text text="نظر خود را بنویسید" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
                         <TextArea fx:id="commentArea" promptText="نظر خود را اینجا بنویسید..." styleClass="text-area-field" prefHeight="80.0" wrapText="true" />
                     </VBox>
-                    <Button fx:id="submitCommentBtn" text="ثبت نظر" styleClass="success-btn" maxWidth="150">
+                    <Button fx:id="submitCommentBtn" text="ثبت نظر" styleClass="success-btn" maxWidth="150" onAction="#onSubmitComment">
                         <graphic><FontIcon iconLiteral="fas-paper-plane" iconSize="16" /></graphic>
                     </Button>
                 </VBox>

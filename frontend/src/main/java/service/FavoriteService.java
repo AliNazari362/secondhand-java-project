@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class FavoriteService {
 
-    private final ApiClient api = ApiClient.getInstance();
+    private static final ApiClient api = ApiClient.getInstance();
 
     /**
      * Retrieves all favorite advertisements of the current user.
@@ -20,7 +20,7 @@ public class FavoriteService {
      * @return list of favorite advertisement summaries
      * @throws Exception if the API call fails
      */
-    public List<AdvertisementSummaryDto> getFavorites() throws Exception {
+    public static List<AdvertisementSummaryDto> getFavorites() throws Exception {
         String response = api.get("/favorites");
         AdvertisementSummaryDto[] ads = api.fromJson(response, AdvertisementSummaryDto[].class);
         return List.of(ads);
@@ -33,31 +33,29 @@ public class FavoriteService {
      * @param advId the ID of the advertisement to add
      * @throws Exception if the API call fails
      */
-    public void addFavorite(String advId) throws Exception {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("advId", advId);
-        api.post("/favorites/add-favorite", payload);
+    public static void addFavorite(String advId) throws Exception {
+        String jsonBody = "\"" + advId + "\"";
+        api.post("/favorites/add-favorite", jsonBody);
     }
 
-    /**
-     * Removes an advertisement from the user's favorites.
-     *
-     * @param advId the ID of the advertisement to remove
-     * @throws Exception if the API call fails
-     */
-    public void removeFavorite(String advId) throws Exception {
-        api.delete("/favorites/remove-favorite/" + advId);
+    public static void removeFavorite(String advId) throws Exception {
+        String jsonBody = "\"" + advId + "\"";
+        api.deleteWithBody("/favorites/delete-favorite", jsonBody);
     }
-
-    /**
-     * Checks if an advertisement is in the user's favorites.
-     *
-     * @param advId the ID of the advertisement
-     * @return true if the advertisement is in favorites, false otherwise
-     * @throws Exception if the API call fails
-     */
-    public boolean isFavorite(String advId) throws Exception {
-        String response = api.get("/favorites/is-favorite/" + advId);
-        return Boolean.parseBoolean(response);
-    }
+//    /**
+//     * Checks if an advertisement is in the user's favorites.
+//     * If the API endpoint is not available (e.g., returns 404/500), it returns false.
+//     *
+//     * @param advId the ID of the advertisement
+//     * @return true if the advertisement is in favorites, false otherwise
+//     */
+//    public boolean isFavorite(String advId) {
+//        try {
+//            String response = api.get("/favorites/is-favorite/" + advId);
+//            return Boolean.parseBoolean(response);
+//        } catch (Exception e) {
+//            System.err.println("⚠️ isFavorite API failed, returning false: " + e.getMessage());
+//            return false;
+//        }
+//    }
 }

@@ -285,6 +285,14 @@ public class ChatService {
         checkParticipant(room, userId);
 
         List<Message> messages = messageRepository.findByChatroomIdOrderByDateAsc(chatroomId);
+
+        messages.stream()
+                .filter(msg -> !msg.isSeen() && !msg.getSender().getId().equals(userId))
+                .forEach(msg -> {
+                    msg.setSeen(true);
+                });
+
+        messageRepository.saveAll(messages);
         return messages.stream()
                 .map(this::toMessageResponse)
                 .collect(Collectors.toList());
