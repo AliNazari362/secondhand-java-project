@@ -1,5 +1,6 @@
 package utils;
 
+import javafx.application.Platform;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -20,12 +21,14 @@ public class AlertUtil {
      * @param message the error message to be shown.
      */
     public static void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("خطا");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        applyRTL(alert);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("خطا");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            applyRTL(alert);
+            alert.showAndWait();
+        });
     }
 
     /**
@@ -34,12 +37,14 @@ public class AlertUtil {
      * @param message the success message to be shown.
      */
     public static void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("موفق");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        applyRTL(alert);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("موفق");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            applyRTL(alert);
+            alert.showAndWait();
+        });
     }
 
     /**
@@ -48,12 +53,14 @@ public class AlertUtil {
      * @param message the warning message to be shown.
      */
     public static void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("توجه");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        applyRTL(alert);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("توجه");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            applyRTL(alert);
+            alert.showAndWait();
+        });
     }
 
     /**

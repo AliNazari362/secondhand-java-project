@@ -1,5 +1,6 @@
 package controller;
 
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -68,7 +69,7 @@ public class CategoryManagementController {
 
     private void loadCategories() {
         try {
-            allCategories = categoryService.getAllCategories();
+            allCategories = CategoryService.getAllCategories();
 
             Map<Long, Category> categoryMap = new HashMap<>();
             for (Category cat : allCategories) {
@@ -100,8 +101,7 @@ public class CategoryManagementController {
             });
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در بارگذاری دسته‌بندی‌ها: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -247,8 +247,7 @@ public class CategoryManagementController {
             loadCategories();
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در ذخیره دسته‌بندی: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -274,8 +273,7 @@ public class CategoryManagementController {
             clearForm();
             loadCategories();
         } catch (Exception e) {
-            AlertUtil.showError("خطا در حذف دسته‌بندی: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 

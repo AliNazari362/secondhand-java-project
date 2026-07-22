@@ -12,46 +12,32 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane fx:id="rootPan" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController" nodeOrientation="RIGHT_TO_LEFT">
+<BorderPane fx:id="rootPan" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController"
+            nodeOrientation="RIGHT_TO_LEFT">
     <top>
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
-            <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
-            <FontIcon iconLiteral="fas-file-alt" iconSize="20" iconColor="#2d3748" />
-            <Text fx:id="titleText" styleClass="header-title" />
+            <padding>
+                <Insets top="15" right="25" bottom="15" left="25"/>
+            </padding>
+            <FontIcon iconLiteral="fas-file-alt" iconSize="20" iconColor="#2d3748"/>
+            <Text fx:id="titleText" styleClass="header-title"/>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="15">
                 <!-- Views and Rating Info -->
                 <HBox spacing="20" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
-                    <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #ebf4ff; -fx-background-radius: 20;">
-                        <FontIcon iconLiteral="fas-eye" iconSize="14" iconColor="#3182ce" />
-                        <Text fx:id="viewsText" style="-fx-font-size: 12px; -fx-fill: #3182ce; -fx-font-weight: bold;" />
+                    <HBox spacing="5" alignment="CENTER"
+                          style="-fx-padding: 5 12; -fx-background-color: #fffaf0; -fx-background-radius: 20;">
+                        <FontIcon iconLiteral="fas-star" iconSize="14" iconColor="yellow"/>
+                        <Text fx:id="ratingCountText"
+                              style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;"/>
+                        <Text fx:id="ratingValueText"
+                              style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;"/>
                     </HBox>
-                    <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #fffaf0; -fx-background-radius: 20;">
-                        <FontIcon iconLiteral="fas-star" iconSize="14" iconColor="#f6ad55" />
-                        <Text fx:id="ratingText" style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;" />
-                    </HBox>
-                </HBox>
-                <!-- Star Rating Section -->
-                <HBox spacing="3" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
-                    <Button fx:id="rateBtn" style="-fx-background-color: transparent; -fx-padding: 2;" onAction="#onRate">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
-                    </Button>
-                    <Button fx:id="star2" style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
-                    </Button>
-                    <Button fx:id="star3" style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
-                    </Button>
-                    <Button fx:id="star4" style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" /></graphic>
-                    </Button>
-                    <Button fx:id="star5" style="-fx-background-color: transparent; -fx-padding: 2;">
-                        <graphic><FontIcon iconLiteral="fas-star" iconSize="18" iconColor="#e2e8f0" />
-                        </graphic>
-                    </Button>
-                    <Button fx:id="submitRatingBtn" text="ثبت امتیاز" styleClass="primary-btn" style="-fx-padding: 3 8;" onAction="#onRate" />
                 </HBox>
                 <Button onAction="#goBack">
-                    <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="16" /></graphic>
+                    <graphic>
+                        <FontIcon iconLiteral="fas-arrow-right" iconSize="16"/>
+                    </graphic>
                 </Button>
             </HBox>
         </HBox>
@@ -63,149 +49,191 @@
 
                     <!-- Status and Type Badges Row -->
                     <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label fx:id="statusLabel" styleClass="status-badge" />
-                        <Label fx:id="typeLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-padding: 5 12; -fx-background-color: #bee3f8; -fx-background-radius: 15;" />
+                        <Label fx:id="statusLabel" styleClass="status-badge"/>
+                        <Label fx:id="typeLabel"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-padding: 5 12; -fx-background-color: #bee3f8; -fx-background-radius: 15;"/>
                     </HBox>
 
                     <!-- Image Gallery -->
-                    <ScrollPane fitToHeight="true" style="-fx-background: transparent;">
-                        <FlowPane fx:id="imagesContainer" hgap="10" vgap="10" alignment="CENTER" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 8;" />
+                    <ScrollPane fitToHeight="true" fitToWidth="true"
+                                style="-fx-background: transparent; -fx-background-color: transparent;">
+                        <FlowPane fx:id="imagesContainer"
+                                  hgap="10" vgap="10"
+                                  alignment="CENTER"
+                                  prefWrapLength="650"
+                                  style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8;"/>
                     </ScrollPane>
 
                     <!-- Product Fields (Visible for Product Ads) -->
-                    <VBox fx:id="productFields" spacing="12" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
-                        <Text text="مشخصات کالا" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;" />
+                    <VBox fx:id="productFields" spacing="12"
+                          style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                        <Text text="مشخصات کالا"
+                              style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>
                         <HBox spacing="15">
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="قیمت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="priceText" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="قیمت" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="priceText"
+                                      style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="وضعیت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="productStateText" style="-fx-font-size: 16px; -fx-fill: #38a169; -fx-font-weight: bold;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="وضعیت" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="productStateText"
+                                      style="-fx-font-size: 16px; -fx-fill: #38a169; -fx-font-weight: bold;"/>
                             </VBox>
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="برند" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="productBrandText" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="برند" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="productBrandText"
+                                      style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
                         </HBox>
                         <HBox spacing="15">
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="مدل" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="productModelText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="مدل" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="productModelText" style="-fx-font-size: 16px; -fx-fill: #2d3748;"/>
                             </VBox>
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="دسته بندی" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="categoryText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="دسته بندی" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="categoryText" style="-fx-font-size: 16px; -fx-fill: #2d3748;"/>
                             </VBox>
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="سازنده" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="productConstructorText" style="-fx-font-size: 16px; -fx-fill: #2d3748;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="سازنده" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="productConstructorText" style="-fx-font-size: 16px; -fx-fill: #2d3748;"/>
                             </VBox>
                         </HBox>
                     </VBox>
 
                     <!-- Service Fields (Visible for Service Ads) -->
-                    <VBox fx:id="serviceFields" spacing="12" visible="false" managed="false" style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
-                        <Text text="مشخصات خدمت" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;" />
+                    <VBox fx:id="serviceFields" spacing="12"
+                          style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                        <Text text="مشخصات خدمت"
+                              style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>
                         <HBox spacing="15">
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="نوع محاسبه" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="serviceTypeText" style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="نوع محاسبه" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="serviceTypeText"
+                                      style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
-                            <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
-                                <Text text="هزینه" style="-fx-font-size: 12px; -fx-fill: #718096;" />
-                                <Text fx:id="serviceCostText" style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                            <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                  style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
+                                <Text text="هزینه" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
+                                <Text fx:id="serviceCostText"
+                                      style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
                         </HBox>
                     </VBox>
 
                     <!-- Location and Date Info -->
                     <HBox spacing="15">
-                        <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-map-marker-alt" iconSize="14" iconColor="#e53e3e" />
-                                <Text text="شهر" style="-fx-font-size: 12px; -fx-fill: #718096;" />
+                                <FontIcon iconLiteral="fas-map-marker-alt" iconSize="14" iconColor="#e53e3e"/>
+                                <Text text="شهر" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                             </HBox>
-                            <Text fx:id="cityText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="cityText" style="-fx-font-size: 15px; -fx-fill: #2d3748;"/>
                         </VBox>
-                        <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-calendar-alt" iconSize="14" iconColor="#3182ce" />
-                                <Text text="تاریخ ثبت" style="-fx-font-size: 12px; -fx-fill: #718096;" />
+                                <FontIcon iconLiteral="fas-calendar-alt" iconSize="14" iconColor="#3182ce"/>
+                                <Text text="تاریخ ثبت" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                             </HBox>
-                            <Text fx:id="dateText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="dateText" style="-fx-font-size: 15px; -fx-fill: #2d3748;"/>
                         </VBox>
-                        <VBox spacing="3" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-user" iconSize="14" iconColor="#718096" />
-                                <Text text="ثبت کننده" style="-fx-font-size: 12px; -fx-fill: #718096;" />
+                                <FontIcon iconLiteral="fas-user" iconSize="14" iconColor="#718096"/>
+                                <Text text="ثبت کننده" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                             </HBox>
-                            <Text fx:id="ownerText" style="-fx-font-size: 15px; -fx-fill: #2d3748;" />
+                            <Text fx:id="ownerText" style="-fx-font-size: 15px; -fx-fill: #2d3748;"/>
                         </VBox>
                     </HBox>
 
                     <!-- Address -->
                     <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                         <HBox spacing="5" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-map-pin" iconSize="14" iconColor="#e53e3e" />
-                            <Text text="آدرس" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
+                            <FontIcon iconLiteral="fas-map-pin" iconSize="14" iconColor="#e53e3e"/>
+                            <Text text="آدرس" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
                         </HBox>
-                        <Text fx:id="addressText" style="-fx-font-size: 14px; -fx-fill: #2d3748; -fx-padding: 0 20 0 0;" />
+                        <Text fx:id="addressText"
+                              style="-fx-font-size: 14px; -fx-fill: #2d3748; -fx-padding: 0 20 0 0;"/>
                     </VBox>
 
                     <!-- Description -->
                     <VBox spacing="5">
                         <HBox spacing="5" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-align-left" iconSize="14" iconColor="#718096" />
-                            <Text text="توضیحات" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                            <FontIcon iconLiteral="fas-align-left" iconSize="14" iconColor="#718096"/>
+                            <Text text="توضیحات"
+                                  style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
                         </HBox>
-                        <Text fx:id="descriptionText" wrappingWidth="600" style="-fx-font-size: 14px; -fx-fill: #2d3748;" />
+                        <Text fx:id="descriptionText" wrappingWidth="600"
+                              style="-fx-font-size: 14px; -fx-fill: #2d3748;"/>
                     </VBox>
 
                     <!-- Additional Options / Features -->
                     <VBox spacing="10">
                         <HBox spacing="5" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-tags" iconSize="14" iconColor="#718096" />
-                            <Text text="ویژگی های اضافی" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                            <FontIcon iconLiteral="fas-tags" iconSize="14" iconColor="#718096"/>
+                            <Text text="ویژگی های اضافی"
+                                  style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
                         </HBox>
-                        <FlowPane fx:id="optionsContainer" hgap="8" vgap="8" />
+                        <FlowPane fx:id="optionsContainer" hgap="8" vgap="8"/>
                     </VBox>
 
                     <!-- Action Buttons -->
                     <HBox spacing="10" alignment="CENTER">
                         <Button fx:id="chatBtn" onAction="#onChat" styleClass="primary-btn" text="💬 چت">
-                            <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-comment" iconSize="16"/>
+                            </graphic>
                         </Button>
                         <Button fx:id="favBtn" onAction="#onAddFavorite" styleClass="primary-btn">
-                            <graphic><FontIcon iconLiteral="fas-heart" iconSize="16" iconColor="#e53e3e" /></graphic>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-heart" iconSize="16" iconColor="#e53e3e"/>
+                            </graphic>
                         </Button>
                         <Button fx:id="editBtn" onAction="#onEdit" styleClass="primary-btn" text="✏️ ویرایش">
-                            <graphic><FontIcon iconLiteral="fas-edit" iconSize="16" /></graphic>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-edit" iconSize="16"/>
+                            </graphic>
                         </Button>
                         <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="danger-btn" text="🗑️ حذف">
-                            <graphic><FontIcon iconLiteral="fas-trash" iconSize="16" /></graphic>
+                            <graphic>
+                                <FontIcon iconLiteral="fas-trash" iconSize="16"/>
+                            </graphic>
                         </Button>
-                        <Button fx:id="soldBtn" onAction="#onMarkAsSold" styleClass="success-btn" text="✅ فروخته شد" />
+                        <Button fx:id="soldBtn" onAction="#onMarkAsSold" styleClass="success-btn" text="✅ فروخته شد"/>
                     </HBox>
                 </VBox>
 
                 <!-- Submit Comment Section -->
                 <VBox styleClass="card" spacing="15" prefWidth="700.0">
-                    <Text text="ثبت نظر" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                    <Text text="ثبت نظر" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
                     <VBox spacing="5">
-                        <Text text="نظر خود را بنویسید" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;" />
-                        <TextArea fx:id="commentArea" promptText="نظر خود را اینجا بنویسید..." styleClass="text-area-field" prefHeight="80.0" wrapText="true" />
+                        <Text text="نظر خود را بنویسید"
+                              style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
+                        <TextArea fx:id="commentArea" promptText="نظر خود را اینجا بنویسید..."
+                                  styleClass="text-area-field" prefHeight="80.0" wrapText="true"/>
                     </VBox>
-                    <Button fx:id="submitCommentBtn" text="ثبت نظر" styleClass="success-btn" maxWidth="150" onAction="#onSubmitComment">
-                        <graphic><FontIcon iconLiteral="fas-paper-plane" iconSize="16" /></graphic>
+                    <Button text="ثبت نظر" styleClass="success-btn" maxWidth="150" onAction="#onSubmitComment">
+                        <graphic>
+                            <FontIcon iconLiteral="fas-paper-plane" iconSize="16"/>
+                        </graphic>
                     </Button>
                 </VBox>
 
                 <!-- Comments Section -->
                 <VBox styleClass="card" spacing="15" prefWidth="700.0">
-                    <Text text="نظرات کاربران" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
-                    <VBox fx:id="commentsContainer" spacing="10" />
+                    <Text text="نظرات کاربران" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
+                    <VBox fx:id="commentsContainer" spacing="10"/>
                 </VBox>
             </VBox>
         </ScrollPane>

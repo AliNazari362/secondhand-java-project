@@ -1,6 +1,7 @@
 package controller;
 
 import component.AdCardController;
+import exception.ExceptionHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -106,7 +107,7 @@ public class DashboardController {
             categoryCombo.getSelectionModel().selectFirst();
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در دریافت دسته بندی ها: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -171,7 +172,7 @@ public class DashboardController {
         } catch (NumberFormatException e) {
             AlertUtil.showError("لطفا قیمت را به صورت عدد وارد کنید.");
         } catch (Exception e) {
-            AlertUtil.showError("خطا در جستجو: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 

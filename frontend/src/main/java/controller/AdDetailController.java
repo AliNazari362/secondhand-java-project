@@ -1,6 +1,7 @@
 package controller;
 
 import config.DataReceiver;
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -11,20 +12,21 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import model.enums.AdvType;
 import model.request.CommentRequest;
 import model.response.*;
+import org.kordamp.ikonli.javafx.FontIcon;
 import service.AdvService;
 import service.CommentService;
 import service.FavoriteService;
 import service.RatingService;
-import utils.AlertUtil;
-import utils.Pages;
-import utils.SceneManager;
-import utils.SessionManager;
+import utils.*;
 
 import java.io.File;
 import java.util.List;
@@ -47,36 +49,67 @@ import java.util.UUID;
 public class AdDetailController implements DataReceiver {
 
     // ==================== FXML Fields ====================
-    @FXML private Text titleText;
-    @FXML private Label statusLabel;
-    @FXML private Text descriptionText;
-    @FXML private Text priceText;
-    @FXML private Text cityText;
-    @FXML private Text addressText;
-    @FXML private Text dateText;
-    @FXML private Text ownerText;
-    @FXML private Text categoryText;
-    @FXML private Text ratingValueText;
-    @FXML private Text ratingCountText;
-    @FXML private FlowPane imagesContainer;
-    @FXML private FlowPane optionsContainer;
-    @FXML private VBox commentsContainer;
-    @FXML private VBox productFields;
-    @FXML private VBox serviceFields;
-    @FXML private Text productBrandText;
-    @FXML private Text productModelText;
-    @FXML private Text productStateText;
-    @FXML private Text productConstructorText;
-    @FXML private Text serviceTypeText;
-    @FXML private Text serviceCostText;
+    @FXML
+    private BorderPane rootPan;
+    @FXML
+    private Text titleText;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label typeLabel;
+    @FXML
+    private Text descriptionText;
+    @FXML
+    private Text priceText;
+    @FXML
+    private Text cityText;
+    @FXML
+    private Text addressText;
+    @FXML
+    private Text dateText;
+    @FXML
+    private Text ownerText;
+    @FXML
+    private Text categoryText;
+    @FXML
+    private Text ratingValueText;
+    @FXML
+    private Text ratingCountText;
+    @FXML
+    private FlowPane imagesContainer;
+    @FXML
+    private FlowPane optionsContainer;
+    @FXML
+    private VBox commentsContainer;
+    @FXML
+    private VBox productFields;
+    @FXML
+    private VBox serviceFields;
+    @FXML
+    private Text productBrandText;
+    @FXML
+    private Text productModelText;
+    @FXML
+    private Text productStateText;
+    @FXML
+    private Text productConstructorText;
+    @FXML
+    private Text serviceTypeText;
+    @FXML
+    private Text serviceCostText;
 
-    @FXML private Button chatBtn;
-    @FXML private Button favBtn;
-    @FXML private Button rateBtn;
-    @FXML private Button editBtn;
-    @FXML private Button deleteBtn;
-    @FXML private Button soldBtn;
-    @FXML private TextArea commentArea;
+    @FXML
+    private Button chatBtn;
+    @FXML
+    private Button favBtn;
+    @FXML
+    private Button editBtn;
+    @FXML
+    private Button deleteBtn;
+    @FXML
+    private Button soldBtn;
+    @FXML
+    private TextArea commentArea;
 
     // ==================== Fields ====================
     private UUID advId;
@@ -92,15 +125,10 @@ public class AdDetailController implements DataReceiver {
      */
     @Override
     public void receiveData(Object data) {
-        System.out.println("📥 [AdDetailController] receiveData called with: " + data);
         if (data instanceof UUID uuid) {
             this.advId = uuid;
-            System.out.println("✅ advId set to: " + advId);
             loadAdDetail();
-        } else {
-            System.err.println("❌ Data is not UUID: " + data);
-            showError("شناسه آگهی نامعتبر است.");
-        }
+        } else AlertUtil.showError("شناسه آگهی نامعتبر است.");
     }
 
     // ==================== Loading Methods ====================
@@ -111,17 +139,15 @@ public class AdDetailController implements DataReceiver {
      */
     private void loadAdDetail() {
         if (advId == null) {
-            showError("شناسه آگهی معتبر نیست.");
+            AlertUtil.showError("شناسه آگهی معتبر نیست.");
             return;
         }
 
         try {
-            System.out.println("🔄 Loading ad detail for ID: " + advId);
             currentAd = AdvService.getAdvDetail(advId.toString());
             Platform.runLater(this::displayAdDetail);
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("خطا در دریافت اطلاعات آگهی: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -133,74 +159,17 @@ public class AdDetailController implements DataReceiver {
      */
     private void displayAdDetail() {
         if (currentAd == null) {
-            System.err.println("❌ currentAd is null, cannot display.");
+            show404Page();
             return;
         }
-        System.out.println("🔥🔥🔥 AdDetailController displayAdDetail() called 🔥🔥🔥");
 
         try {
-            // ===== Basic Information =====
-            if (titleText != null) {
-                titleText.setText(currentAd.getFullName());
-            }
-
-            if (statusLabel != null) {
-                statusLabel.setText(translateStatus(currentAd.getStatus().name()));
-                statusLabel.getStyleClass().add("status-" + currentAd.getStatus().name().toLowerCase());
-            }
-
-            if (descriptionText != null) {
-                descriptionText.setText(currentAd.getDescription() != null
-                        ? currentAd.getDescription()
-                        : "توضیحاتی ثبت نشده است.");
-            }
-
-            // ===== Price =====
-            if (priceText != null) {
-                if (currentAd.getProductDetail() != null) {
-                    priceText.setText(formatPrice(currentAd.getProductDetail().getPrice()));
-                    priceText.setVisible(true);
-                } else if (currentAd.getServiceDetail() != null) {
-                    priceText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()) +
-                            " / " + currentAd.getServiceDetail().getTypeOfPart().name());
-                    priceText.setVisible(true);
-                } else {
-                    priceText.setVisible(false);
-                }
-            }
-
-            // ===== Location and Date =====
-            if (cityText != null) {
-                cityText.setText(currentAd.getCity() != null
-                        ? currentAd.getCity().getPersianName()
-                        : "نامشخص");
-            }
-
-            if (addressText != null) {
-                addressText.setText(currentAd.getAddress() != null
-                        ? currentAd.getAddress()
-                        : "آدرسی ثبت نشده است.");
-            }
-
-            if (dateText != null) {
-                dateText.setText(currentAd.getCreationDate() != null
-                        ? currentAd.getCreationDate().toLocalDate().toString()
-                        : "");
-            }
-
-            if (categoryText != null) {
-                categoryText.setText(currentAd.getCategoryName() != null
-                        ? currentAd.getCategoryName()
-                        : "بدون دسته‌بندی");
-            }
-
-            // ===== Owner =====
+            getBasicInfo();
             UserSummaryDto owner = currentAd.getOwner();
             if (ownerText != null && owner != null) {
                 ownerText.setText(owner.getFullName() + " (" + owner.getEmail() + ")");
             }
 
-            // ===== Sections =====
             loadRatingInfo();
             displayImages();
             displayOptions();
@@ -208,11 +177,118 @@ public class AdDetailController implements DataReceiver {
             updateActionButtons();
             checkFavoriteStatus();
             displayComments();
-
         } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtil.showError("خطا در نمایش آگهی: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
+    }
+
+    private void getBasicInfo() {
+        if (typeLabel != null) {
+            typeLabel.setText(currentAd.getAdvType() == AdvType.PRODUCT ? "کالا" : "خدمت");
+        }
+
+        if (titleText != null) {
+            titleText.setText(currentAd.getFullName());
+        }
+
+        if (statusLabel != null) {
+            statusLabel.setText(Utils.translateStatus(currentAd.getStatus().name()));
+            statusLabel.getStyleClass().add("status-" + currentAd.getStatus().name().toLowerCase());
+        }
+
+        if (descriptionText != null) {
+            descriptionText.setText(currentAd.getDescription() != null
+                    ? currentAd.getDescription()
+                    : "توضیحاتی ثبت نشده است.");
+        }
+
+        if (priceText != null) {
+            if (currentAd.getProductDetail() != null) {
+                priceText.setText(Utils.formatPrice(currentAd.getProductDetail().getPrice()));
+                priceText.setVisible(true);
+            } else if (currentAd.getServiceDetail() != null) {
+                priceText.setText(Utils.formatPrice(currentAd.getServiceDetail().getCostOfPart()) +
+                        " / " + currentAd.getServiceDetail().getTypeOfPart().name());
+                priceText.setVisible(true);
+            } else {
+                priceText.setVisible(false);
+            }
+        }
+
+        if (cityText != null) {
+            cityText.setText(currentAd.getCity() != null
+                    ? currentAd.getCity().getPersianName()
+                    : "نامشخص");
+        }
+
+        if (addressText != null) {
+            addressText.setText(currentAd.getAddress() != null
+                    ? currentAd.getAddress()
+                    : "آدرسی ثبت نشده است.");
+        }
+
+        if (dateText != null) {
+            dateText.setText(currentAd.getCreationDate() != null
+                    ? currentAd.getCreationDate().format(Utils.FORMATTER)
+                    : "");
+        }
+
+        if (categoryText != null) {
+            categoryText.setText(currentAd.getCategoryName() != null
+                    ? currentAd.getCategoryName()
+                    : "بدون دسته‌بندی");
+        }
+    }
+
+    @FXML
+    private void show404Page() {
+        rootPan.getChildren().clear();
+
+        VBox container404 = new VBox(30);
+        container404.setAlignment(Pos.CENTER);
+        container404.setStyle("-fx-background-color: #f0f4f8; -fx-padding: 50;");
+
+        // 404 Icon
+        FontIcon icon404 = new FontIcon("fas-exclamation-triangle");
+        icon404.setIconSize(80);
+        icon404.setIconColor(Paint.valueOf("#e53e3e"));
+
+        // 404 Title
+        Text title404 = new Text("۴۰۴");
+        title404.setStyle("-fx-font-size: 72px; -fx-font-weight: bold; -fx-fill: #2d3748;");
+
+        // 404 Message
+        Text message404 = new Text("آگهی مورد نظر یافت نشد");
+        message404.setStyle("-fx-font-size: 24px; -fx-fill: #4a5568;");
+
+        // Description
+        Text desc404 = new Text("متاسفانه آگهی که به دنبال آن هستید وجود ندارد یا حذف شده است");
+        desc404.setStyle("-fx-font-size: 14px; -fx-fill: #718096;");
+
+        // Back Button
+        Button backBtn = createBackBtn();
+
+        container404.getChildren().addAll(icon404, title404, message404, desc404, backBtn);
+
+        rootPan.setCenter(container404);
+    }
+
+    private Button createBackBtn() {
+        Button backBtn = new Button("بازگشت به صفحه اصلی");
+        backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-size: 14px; " +
+                "-fx-padding: 10 25; -fx-background-radius: 8; -fx-cursor: hand;");
+        backBtn.setOnAction(e -> goBack());
+
+        // Hover effect
+        backBtn.setOnMouseEntered(e -> backBtn.setStyle("-fx-background-color: #2c5282; -fx-text-fill: white; " +
+                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
+        backBtn.setOnMouseExited(e -> backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; " +
+                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
+
+        FontIcon backIcon = new FontIcon("fas-arrow-right");
+        backIcon.setIconSize(16);
+        backBtn.setGraphic(backIcon);
+        return backBtn;
     }
 
     /**
@@ -231,24 +307,7 @@ public class AdDetailController implements DataReceiver {
         }
 
         for (ImageResponseDto imageDto : currentAd.getImages()) {
-            ImageView imageView = new ImageView();
-            imageView.setFitWidth(120);
-            imageView.setFitHeight(120);
-            imageView.setPreserveRatio(true);
-            imageView.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 8;");
-
-            try {
-                String imagePath = imageDto.getPath();
-                File file = new File(imagePath);
-                if (file.exists()) {
-                    imageView.setImage(new Image(file.toURI().toString()));
-                } else {
-                    String serverUrl = "http://localhost:8080/" + imagePath;
-                    imageView.setImage(new Image(serverUrl));
-                }
-            } catch (Exception e) {
-                // Ignore individual image load errors
-            }
+            ImageView imageView = getImage(imageDto);
 
             VBox imageBox = new VBox(5);
             imageBox.setAlignment(Pos.CENTER);
@@ -257,6 +316,28 @@ public class AdDetailController implements DataReceiver {
             imageBox.getChildren().add(imageView);
             imagesContainer.getChildren().add(imageBox);
         }
+    }
+
+    private static ImageView getImage(ImageResponseDto imageDto) {
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(120);
+        imageView.setFitHeight(120);
+        imageView.setPreserveRatio(true);
+        imageView.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 8;");
+
+        try {
+            String imagePath = imageDto.getPath();
+            File file = new File(imagePath);
+            if (file.exists()) {
+                imageView.setImage(new Image(file.toURI().toString()));
+            } else {
+                String serverUrl = "http://localhost:8080/" + imagePath;
+                imageView.setImage(new Image(serverUrl));
+            }
+        } catch (Exception e) {
+            // Ignore individual image load errors
+        }
+        return imageView;
     }
 
     /**
@@ -293,8 +374,14 @@ public class AdDetailController implements DataReceiver {
      * Hides both sections first, then shows the appropriate one.
      */
     private void displayTypeSpecificFields() {
-        if (productFields != null) productFields.setVisible(false);
-        if (serviceFields != null) serviceFields.setVisible(false);
+        if (productFields != null) {
+            productFields.setVisible(false);
+            productFields.setManaged(false);
+        }
+        if (serviceFields != null) {
+            serviceFields.setVisible(false);
+            serviceFields.setManaged(false);
+        }
 
         if (currentAd.getProductDetail() != null) {
             if (productFields != null) productFields.setVisible(true);
@@ -322,14 +409,15 @@ public class AdDetailController implements DataReceiver {
             if (serviceFields != null) serviceFields.setVisible(true);
             if (serviceTypeText != null) {
                 serviceTypeText.setText(currentAd.getServiceDetail().getTypeOfPart() != null
-                        ? currentAd.getServiceDetail().getTypeOfPart().name()
+                        ? currentAd.getServiceDetail().getTypeOfPart().getPersianName()
                         : "نامشخص");
             }
             if (serviceCostText != null) {
-                serviceCostText.setText(formatPrice(currentAd.getServiceDetail().getCostOfPart()));
+                serviceCostText.setText(Utils.formatPrice(currentAd.getServiceDetail().getCostOfPart()));
             }
         }
     }
+
     /**
      * بارگذاری اطلاعات امتیاز (میانگین و تعداد) از سرور.
      */
@@ -349,6 +437,7 @@ public class AdDetailController implements DataReceiver {
             if (ratingCountText != null) ratingCountText.setText("(۰ نظر)");
         }
     }
+
     /**
      * Updates action buttons based on ownership and admin status.
      * - Chat, Favorite, and Rating are visible only for non-owners.
@@ -359,7 +448,6 @@ public class AdDetailController implements DataReceiver {
         UUID currentUserId = SessionManager.getUserId();
         boolean isOwner = currentAd.getOwner() != null &&
                 currentAd.getOwner().getId().equals(currentUserId);
-        boolean isAdmin = SessionManager.isAdmin();
 
         if (chatBtn != null) {
             chatBtn.setVisible(!isOwner);
@@ -369,17 +457,13 @@ public class AdDetailController implements DataReceiver {
             favBtn.setVisible(!isOwner);
             favBtn.setManaged(!isOwner);
         }
-        if (rateBtn != null) {
-            rateBtn.setVisible(!isOwner);
-            rateBtn.setManaged(!isOwner);
-        }
         if (editBtn != null) {
             editBtn.setVisible(isOwner);
             editBtn.setManaged(isOwner);
         }
         if (deleteBtn != null) {
-            deleteBtn.setVisible(isOwner || isAdmin);
-            deleteBtn.setManaged(isOwner || isAdmin);
+            deleteBtn.setVisible(isOwner);
+            deleteBtn.setManaged(isOwner);
         }
         if (soldBtn != null) {
             soldBtn.setVisible(isOwner && currentAd.getStatus().name().equals("ACTIVE"));
@@ -398,7 +482,6 @@ public class AdDetailController implements DataReceiver {
             isFavorite = favorites.stream()
                     .anyMatch(ad -> ad.getId().equals(advId));
         } catch (Exception e) {
-            System.err.println("❌ خطا در بررسی وضعیت علاقه‌مندی: " + e.getMessage());
             isFavorite = false;
         }
         updateFavoriteButton();
@@ -410,10 +493,10 @@ public class AdDetailController implements DataReceiver {
     private void updateFavoriteButton() {
         if (favBtn == null) return;
         if (isFavorite) {
-            favBtn.setText("❤️ حذف از علاقه‌مندی");
+            favBtn.setText("❤️ حذف از علاقه مندی");
             favBtn.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold;");
         } else {
-            favBtn.setText("🤍 افزودن به علاقه‌مندی");
+            favBtn.setText("🤍 افزودن به علاقه مندی");
             favBtn.setStyle("-fx-text-fill: #2d3748;");
         }
     }
@@ -450,7 +533,7 @@ public class AdDetailController implements DataReceiver {
             ratingText.setStyle("-fx-font-size: 12px; -fx-fill: #f6ad55;");
 
             Text dateText = new Text(comment.getDate() != null
-                    ? comment.getDate().toLocalDate().toString()
+                    ? comment.getDate().format(Utils.FORMATTER)
                     : "");
             dateText.setStyle("-fx-font-size: 11px; -fx-fill: #a0aec0;");
 
@@ -496,11 +579,11 @@ public class AdDetailController implements DataReceiver {
             if (isFavorite) {
                 FavoriteService.removeFavorite(advId.toString());
                 isFavorite = false;
-                AlertUtil.showSuccess("آگهی از علاقه‌مندی‌ها حذف شد.");
+                AlertUtil.showSuccess("آگهی از علاقه مندی‌ها حذف شد.");
             } else {
                 FavoriteService.addFavorite(advId.toString());
                 isFavorite = true;
-                AlertUtil.showSuccess("آگهی به علاقه‌مندی‌ها اضافه شد.");
+                AlertUtil.showSuccess("آگهی به علاقه مندی‌ها اضافه شد.");
             }
             updateFavoriteButton();
         } catch (Exception e) {
@@ -508,92 +591,68 @@ public class AdDetailController implements DataReceiver {
             if (e.getMessage().contains("پیش از این ثبت شده است")) {
                 isFavorite = true;
                 updateFavoriteButton();
-                AlertUtil.showWarning("این آگهی قبلاً به علاقه‌مندی‌ها اضافه شده است.");
-            } else {
-                e.printStackTrace();
-                AlertUtil.showError("خطا در عملیات علاقه‌مندی: " + e.getMessage());
             }
+            ExceptionHandler.handle(e);
         }
     }
+
     /**
      * ثبت نظر جدید برای آگهی.
      */
     @FXML
     public void onSubmitComment() {
-        // بررسی لاگین بودن کاربر
         if (!SessionManager.isLoggedIn()) {
             AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
             return;
         }
 
-        // دریافت متن نظر
         String text = commentArea.getText().trim();
         if (text.isEmpty()) {
             AlertUtil.showError("لطفاً متن نظر را وارد کنید.");
             return;
         }
 
-        // (اختیاری) دریافت امتیاز از کاربر – فعلاً ۵ پیش‌فرض
-        int rate = 5;
+        Integer rate = onRate();
+        if (rate == null) {
+            AlertUtil.showError("لطفاً امتیاز خود را وارد کنید.");
+            return;
+        }
 
         try {
             CommentRequest request = new CommentRequest(text, rate);
             CommentResponseDto comment = CommentService.createComment(advId.toString(), request);
 
-            // اضافه کردن نظر به لیست و به‌روزرسانی UI
             if (currentAd.getComments() == null) {
                 currentAd.setComments(new java.util.ArrayList<>());
             }
-            currentAd.getComments().add(0, comment); // قرار دادن در ابتدا
+            currentAd.getComments().addFirst(comment); // قرار دادن در ابتدا
             displayComments();
             commentArea.clear();
             AlertUtil.showSuccess("نظر شما با موفقیت ثبت شد.");
 
-            // به‌روزرسانی امتیاز
             loadRatingInfo();
-
         } catch (Exception e) {
-            AlertUtil.showError("خطا در ثبت نظر: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
-    /**
-     * نمایش دیالوگ انتخاب امتیاز و ثبت آن.
-     */
-    @FXML
-    public void onRate() {
+    private Integer onRate() {
         if (!SessionManager.isLoggedIn()) {
             AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
-            return;
+            return null;
         }
 
         if (advId == null) {
             AlertUtil.showError("شناسه آگهی نامعتبر است.");
-            return;
+            return null;
         }
 
-        // دیالوگ انتخاب امتیاز ۱ تا ۵
         ChoiceDialog<Integer> dialog = new ChoiceDialog<>(5, 1, 2, 3, 4, 5);
         dialog.setTitle("امتیازدهی");
         dialog.setHeaderText("به این آگهی امتیاز دهید");
         dialog.setContentText("امتیاز (۱ تا ۵):");
-
         Optional<Integer> result = dialog.showAndWait();
-        result.ifPresent(rate -> {
-            try {
-                // ⚠️ مهم: متن را خالی نفرستید – یک متن پیش‌فرض بگذارید
-                CommentRequest request = new CommentRequest("امتیاز " + rate, rate);
-                RatingService.rateAdvertisement(advId.toString(), request);
-
-                AlertUtil.showSuccess("امتیاز شما با موفقیت ثبت شد.");
-                loadAdDetail(); // بارگذاری مجدد برای نمایش امتیاز جدید
-
-            } catch (Exception e) {
-                AlertUtil.showError("خطا در ثبت امتیاز: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
+        return result.orElse(null);
     }
 
     /**
@@ -623,7 +682,7 @@ public class AdDetailController implements DataReceiver {
             AlertUtil.showSuccess("آگهی با موفقیت حذف شد.");
             goBack();
         } catch (Exception e) {
-            AlertUtil.showError("خطا در حذف آگهی: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -644,7 +703,7 @@ public class AdDetailController implements DataReceiver {
             AlertUtil.showSuccess("وضعیت آگهی به فروخته‌شده تغییر کرد.");
             loadAdDetail();
         } catch (Exception e) {
-            AlertUtil.showError("خطا در تغییر وضعیت: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -654,47 +713,5 @@ public class AdDetailController implements DataReceiver {
     @FXML
     public void goBack() {
         SceneManager.showPage(Pages.DASHBOARD, null);
-    }
-
-    // ==================== Utility Methods ====================
-
-    /**
-     * Translates an English status code to Persian.
-     *
-     * @param status the status enum name (e.g., "ACTIVE")
-     * @return the Persian translation
-     */
-    private String translateStatus(String status) {
-        return switch (status) {
-            case "ACTIVE" -> "فعال";
-            case "PENDING" -> "در انتظار بررسی";
-            case "REJECTED" -> "رد شده";
-            case "SOLD" -> "فروخته شده";
-            case "DELETED" -> "حذف شده";
-            default -> status;
-        };
-    }
-
-    /**
-     * Formats a BigDecimal price to a readable Persian string.
-     *
-     * @param price the price to format
-     * @return formatted price string (e.g., "۱,۰۰۰,۰۰۰ تومان")
-     */
-    private String formatPrice(java.math.BigDecimal price) {
-        if (price == null) return "۰ تومان";
-        return String.format("%,d تومان", price.longValue());
-    }
-
-    /**
-     * Shows an error message and navigates back to the dashboard.
-     *
-     * @param message the error message to display
-     */
-    private void showError(String message) {
-        Platform.runLater(() -> {
-            AlertUtil.showError(message);
-            goBack();
-        });
     }
 }

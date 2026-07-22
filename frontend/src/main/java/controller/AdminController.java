@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import model.DashboardStats;
@@ -99,7 +98,7 @@ public class AdminController {
                 }
             });
         } catch (Exception e) {
-            AlertUtil.showError("خطا در بارگذاری کاربران: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -119,28 +118,18 @@ public class AdminController {
                 setUIPendingList();
             });
         } catch (Exception e) {
-            AlertUtil.showError("خطا در بارگذاری آگهی‌های در انتظار: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
     private void setUIPendingList() {
         pendingListView.setCellFactory(param -> new ListCell<>() {
             private final Button viewButton = new Button("مشاهده");
-            private final Button approveButton = new Button("تایید");
-            private final Button rejectButton = new Button("رد");
-            private final HBox container = new HBox(10, viewButton, approveButton, rejectButton);
+            private final HBox container = new HBox(10, viewButton);
 
             {
                 viewButton.setStyle("-fx-background-color: white;-fx-text-fill: #4299e1; -fx-border-color: #4299e1; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
                 viewButton.setCursor(javafx.scene.Cursor.HAND);
-
-                approveButton.setStyle("-fx-background-color: #38a169; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
-                approveButton.setCursor(javafx.scene.Cursor.HAND);
-
-                rejectButton.setStyle("-fx-background-color: #e53e3e; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 4 12; -fx-background-radius: 4;");
-                rejectButton.setCursor(javafx.scene.Cursor.HAND);
-
-                container.setAlignment(Pos.CENTER_LEFT);
             }
 
             @Override
@@ -163,16 +152,14 @@ public class AdminController {
                         }
                     });
 
-                    approveButton.setOnAction(e -> onApproveAd());
-                    rejectButton.setOnAction(e -> onRejectAd());
                     setGraphic(container);
                 }
             }
         });
     }
 
-    private String getIdForAction(String forWhat, String action, Map<String, String> map) {
-        String selected = usersListView.getSelectionModel().getSelectedItem();
+    private String getIdForAction(String forWhat, String action, Map<String, String> map, ListView<String> listView) {
+        String selected = listView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             AlertUtil.showWarning("لطفا یک " + forWhat + " انتخاب کنید");
             return null;
@@ -192,42 +179,42 @@ public class AdminController {
 
     @FXML
     public void onBanUser() {
-        String userId = getIdForAction("کاربر", "بن کردن", userIdMap);
+        String userId = getIdForAction("کاربر", "بن کردن", userIdMap, usersListView);
         if (userId != null) {
             try {
                 adminService.banUser(userId);
                 AlertUtil.showSuccess("کاربر با موفقیت بن شد.");
                 loadUsers(); // به‌روزرسانی لیست
             } catch (Exception e) {
-                AlertUtil.showError("خطا در بن کردن کاربر: " + e.getMessage());
+                ExceptionHandler.handle(e);
             }
         }
     }
 
     @FXML
     public void onUnbanUser() {
-        String userId = getIdForAction("کاربر", "آن بن کردن", userIdMap);
+        String userId = getIdForAction("کاربر", "آن بن کردن", userIdMap, usersListView);
         if (userId != null) {
             try {
                 adminService.unbanUser(userId);
                 AlertUtil.showSuccess("بن کاربر با موفقیت برداشته شد.");
                 loadUsers();
             } catch (Exception e) {
-                AlertUtil.showError("خطا در رفع بن کاربر: " + e.getMessage());
+                ExceptionHandler.handle(e);
             }
         }
     }
 
     @FXML
     public void onApproveAd() {
-        String advId = getIdForAction("آگهی", "تایید آگهی", advIdMap);
+        String advId = getIdForAction("آگهی", "تایید آگهی", advIdMap, pendingListView);
         if (advId != null) {
             try {
                 adminService.approveAdv(advId);
                 AlertUtil.showSuccess("آگهی با موفقیت تایید شد.");
                 loadPendingAds();
             } catch (Exception e) {
-                AlertUtil.showError("خطا در تایید آگهی: " + e.getMessage());
+                ExceptionHandler.handle(e);
             }
         }
     }
@@ -268,7 +255,7 @@ public class AdminController {
             AlertUtil.showSuccess("آگهی با موفقیت رد شد.");
             loadPendingAds();
         } catch (Exception e) {
-            AlertUtil.showError("خطا در رد آگهی: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -290,7 +277,7 @@ public class AdminController {
             });
             return true;
         } catch (Exception e) {
-            AlertUtil.showError("خطا در دریافت آمار: " + e.getMessage());
+            ExceptionHandler.handle(e);
             return false;
         }
     }

@@ -28,4 +28,15 @@ public class Utils {
         if (price == null) return "۰ تومان";
         return String.format("%,d تومان", price.longValue());
     }
+
+    public static String translateStatus(String status) {
+        return switch (status) {
+            case "ACTIVE" -> "فعال";
+            case "PENDING" -> "در انتظار بررسی";
+            case "REJECTED" -> "رد شده";
+            case "SOLD" -> "فروخته شده";
+            case "DELETED" -> "حذف شده";
+            default -> status;
+        };
+    }
 }

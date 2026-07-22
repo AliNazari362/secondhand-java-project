@@ -39,6 +39,18 @@
                 <Tab text="آگهی های در انتظار" closable="false">
                     <VBox spacing="10" style="-fx-padding: 15;">
                         <ListView fx:id="pendingListView" styleClass="list-view" prefHeight="350"/>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button onAction="#onApproveAd">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-check" iconSize="16"/>
+                                </graphic>
+                            </Button>
+                            <Button onAction="#onRejectAd" styleClass="danger-btn">
+                                <graphic>
+                                    <FontIcon iconLiteral="fas-times" iconSize="16"/>
+                                </graphic>
+                            </Button>
+                        </HBox>
                     </VBox>
                 </Tab>
                 <Tab text="کاربران" closable="false">

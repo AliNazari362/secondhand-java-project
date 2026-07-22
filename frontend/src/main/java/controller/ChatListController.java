@@ -1,5 +1,6 @@
 package controller;
 
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -49,8 +50,7 @@ public class ChatListController {
             chatRooms = ChatService.getUserChatRooms();
             Platform.runLater(this::displayChatRooms);
         } catch (Exception e) {
-            AlertUtil.showError("خطا در دریافت لیست چت‌ها: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
