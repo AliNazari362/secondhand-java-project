@@ -65,7 +65,7 @@
                     </ScrollPane>
 
                     <!-- Product Fields (Visible for Product Ads) -->
-                    <VBox fx:id="productFields" spacing="12"
+                    <VBox fx:id="productFields" spacing="12" visible="false" managed="false"
                           style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات کالا"
                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>
@@ -109,7 +109,7 @@
                     </VBox>
 
                     <!-- Service Fields (Visible for Service Ads) -->
-                    <VBox fx:id="serviceFields" spacing="12"
+                    <VBox fx:id="serviceFields" spacing="12" visible="false" managed="false"
                           style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات خدمت"
                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>

@@ -116,7 +116,7 @@ public class NewAdController {
      */
     private void loadCategories() {
         try {
-            allCategories = categoryService.getAllCategories();
+            allCategories = CategoryService.getAllCategories();
             System.out.println("🔍 [DEBUG] تعداد کل دسته‌بندی‌ها از سرور: " + allCategories.size());
 
             // ===== مرحله 1: ساخت Map از شناسه به شیء =====

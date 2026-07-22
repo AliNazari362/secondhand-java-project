@@ -6,18 +6,22 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.enums.AdvType;
 import model.request.CommentRequest;
 import model.response.*;
@@ -308,6 +312,7 @@ public class AdDetailController implements DataReceiver {
 
         for (ImageResponseDto imageDto : currentAd.getImages()) {
             ImageView imageView = getImage(imageDto);
+            imageView.setOnMouseClicked(e -> showFullImage(getImage(imageDto)));
 
             VBox imageBox = new VBox(5);
             imageBox.setAlignment(Pos.CENTER);
@@ -369,6 +374,86 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    private void showFullImage(ImageView thumbnailView) {
+        if (thumbnailView == null || thumbnailView.getImage() == null) {
+            AlertUtil.showError("تصویر در دسترس نیست.");
+            return;
+        }
+
+        // ساخت Stage جدید برای نمایش تمام صفحه
+        Stage fullScreenStage = new Stage();
+        fullScreenStage.initModality(Modality.APPLICATION_MODAL);
+        fullScreenStage.setFullScreen(true);
+
+        // ImageView برای عکس
+        ImageView fullImageView = new ImageView();
+        fullImageView.setPreserveRatio(true);
+        fullImageView.setSmooth(true);
+        fullImageView.setImage(thumbnailView.getImage());
+
+        // fit to screen
+        fullImageView.fitWidthProperty().bind(fullScreenStage.widthProperty());
+        fullImageView.fitHeightProperty().bind(fullScreenStage.heightProperty().subtract(80)); // فضا برای دکمه‌ها
+
+        // دکمه بستن
+        Button closeBtn = createCloseBtnForImageViewer(fullScreenStage);
+
+        // Layout
+        VBox fullScreenLayout = new VBox(20);
+        fullScreenLayout.setAlignment(Pos.CENTER);
+        fullScreenLayout.setStyle("-fx-background-color: black; -fx-padding: 20;");
+        fullScreenLayout.getChildren().addAll(fullImageView, closeBtn);
+
+        // Scene
+        Scene scene = new Scene(fullScreenLayout);
+        fullScreenStage.setScene(scene);
+
+        // بستن با Escape
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                fullScreenStage.close();
+            }
+        });
+
+        fullScreenStage.show();
+    }
+
+    private static Button createCloseBtnForImageViewer(Stage fullScreenStage) {
+        Button closeBtn = new Button("✕ بستن");
+        closeBtn.setStyle(
+                "-fx-background-color: #e53e3e; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-padding: 10 30; " +
+                        "-fx-background-radius: 8; " +
+                        "-fx-cursor: hand;"
+        );
+        closeBtn.setOnAction(e -> fullScreenStage.close());
+
+        // Hover effect
+        closeBtn.setOnMouseEntered(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: #c53030; " +
+                                "-fx-text-fill: white; " +
+                                "-fx-font-size: 16px; " +
+                                "-fx-padding: 10 30; " +
+                                "-fx-background-radius: 8; " +
+                                "-fx-cursor: hand;"
+                )
+        );
+        closeBtn.setOnMouseExited(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: #e53e3e; " +
+                                "-fx-text-fill: white; " +
+                                "-fx-font-size: 16px; " +
+                                "-fx-padding: 10 30; " +
+                                "-fx-background-radius: 8; " +
+                                "-fx-cursor: hand;"
+                )
+        );
+        return closeBtn;
+    }
+
     /**
      * Shows product-specific or service-specific fields.
      * Hides both sections first, then shows the appropriate one.
@@ -384,7 +469,10 @@ public class AdDetailController implements DataReceiver {
         }
 
         if (currentAd.getProductDetail() != null) {
-            if (productFields != null) productFields.setVisible(true);
+            if (productFields != null) {
+                productFields.setVisible(true);
+                productFields.setManaged(true);
+            }
             if (productBrandText != null) {
                 productBrandText.setText(currentAd.getProductDetail().getBrand() != null
                         ? currentAd.getProductDetail().getBrand()
@@ -406,7 +494,10 @@ public class AdDetailController implements DataReceiver {
                         : "نامشخص");
             }
         } else if (currentAd.getServiceDetail() != null) {
-            if (serviceFields != null) serviceFields.setVisible(true);
+            if (serviceFields != null) {
+                serviceFields.setVisible(true);
+                serviceFields.setManaged(true);
+            }
             if (serviceTypeText != null) {
                 serviceTypeText.setText(currentAd.getServiceDetail().getTypeOfPart() != null
                         ? currentAd.getServiceDetail().getTypeOfPart().getPersianName()
