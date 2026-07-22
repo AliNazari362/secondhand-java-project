@@ -229,8 +229,21 @@ public class NewAdController {
         if (children == null || children.isEmpty()) {
             isUpdating = true;
             categoryCombo.getItems().clear();
+
+            // گزینه بازگشت
+            categoryCombo.getItems().add("← بازگشت");
+            categoryNameToIdMap.put("← بازگشت", -1L);
+
+            // نام دسته‌بندی انتخاب‌شده
             categoryCombo.getItems().add(parent.getName() + " ✓");
-            categoryCombo.setDisable(true);
+            categoryNameToIdMap.put(parent.getName() + " ✓", parent.getId());
+
+            categoryCombo.setDisable(false);
+            categoryCombo.getSelectionModel().selectLast(); // انتخاب برگ
+
+            // ===== تنظیم currentSelectedCategory برای بازگشت =====
+            currentSelectedCategory = parent;
+
             System.out.println("🍃 [DEBUG] برگ انتخاب شد: " + parent.getName());
             isUpdating = false;
             return;
@@ -339,10 +352,15 @@ public class NewAdController {
     }
 
     private Long getSelectedCategoryId() {
-        if (currentSelectedCategory != null) {
-            return currentSelectedCategory.getId();
+        String selected = categoryCombo.getSelectionModel().getSelectedItem();
+        if (selected == null) return null;
+
+        // اگر گزینه با " ✓" باشد، شناسه را از Map بگیر
+        if (selected.endsWith(" ✓")) {
+            return categoryNameToIdMap.get(selected);
         }
-        return null;
+
+        return categoryNameToIdMap.get(selected);
     }
 
     // ================================
