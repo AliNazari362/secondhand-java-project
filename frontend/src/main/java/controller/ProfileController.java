@@ -1,5 +1,6 @@
 package controller;
 
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -40,18 +41,14 @@ public class ProfileController {
      */
     private void loadProfile() {
         try {
-            System.out.println("🟢 در حال دریافت اطلاعات پروفایل...");
             UserDto user = userService.getProfile();
-            System.out.println("🟢 اطلاعات دریافت شد: " + user.getFullName() + " - " + user.getEmail());
             Platform.runLater(() -> {
                 fullNameField.setText(user.getFullName());
                 emailField.setText(user.getEmail());
                 phoneField.setText(user.getPhoneNumber() != null ? user.getPhoneNumber() : "");
             });
         } catch (Exception e) {
-            System.err.println("🔴 خطا در دریافت پروفایل: " + e.getMessage());
-            e.printStackTrace(); // چاپ کامل خطا در کنسول
-            AlertUtil.showError("خطا در دریافت اطلاعات پروفایل: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -94,7 +91,7 @@ public class ProfileController {
             });
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در به‌روزرسانی پروفایل: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -128,7 +125,7 @@ public class ProfileController {
             });
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در تغییر رمز عبور: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -155,7 +152,7 @@ public class ProfileController {
                 SceneManager.showPage(Pages.LOGIN, null);
             });
         } catch (Exception e) {
-            AlertUtil.showError("خطا در حذف حساب: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 

@@ -17,16 +17,21 @@ import java.util.*;
 
 public class CategoryManagementController {
 
-    @FXML private TreeView<Category> categoryTreeView;
-    @FXML private TextField nameField;
-    @FXML private ComboBox<String> typeComboBox;
-    @FXML private ComboBox<Category> parentComboBox;
-    @FXML private Button saveButton;
-    @FXML private Button deleteButton;
-    @FXML private Button cancelButton;
-    @FXML private Label selectedCategoryLabel;
+    @FXML
+    private TreeView<Category> categoryTreeView;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private ComboBox<String> typeComboBox;
+    @FXML
+    private ComboBox<Category> parentComboBox;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button deleteButton;
+    @FXML
+    private Label selectedCategoryLabel;
 
-    private final CategoryService categoryService = new CategoryService();
     private Category selectedCategory;
     private List<Category> allCategories;
     private boolean isUpdating = false;
@@ -125,11 +130,7 @@ public class CategoryManagementController {
                 root.getChildren().add(item);
             } else {
                 TreeItem<Category> parentItem = itemMap.get(parent.getId());
-                if (parentItem != null) {
-                    parentItem.getChildren().add(item);
-                } else {
-                    root.getChildren().add(item);
-                }
+                Objects.requireNonNullElse(parentItem, root).getChildren().add(item);
             }
         }
 
@@ -179,11 +180,7 @@ public class CategoryManagementController {
 
         if (selectedCategory != null) {
             Category parent = selectedCategory.getParent();
-            if (parent != null) {
-                parentComboBox.getSelectionModel().select(parent);
-            } else {
-                parentComboBox.getSelectionModel().select(null);
-            }
+            parentComboBox.getSelectionModel().select(parent);
         } else {
             parentComboBox.getSelectionModel().selectFirst();
         }
@@ -236,11 +233,11 @@ public class CategoryManagementController {
             category.setSubCategories(null);
 
             if (selectedCategory == null) {
-                categoryService.createCategory(category);
+                CategoryService.createCategory(category);
                 AlertUtil.showSuccess("دسته‌بندی با موفقیت ایجاد شد.");
             } else {
                 category.setId(selectedCategory.getId());
-                categoryService.updateCategory(selectedCategory.getId(), category);
+                CategoryService.updateCategory(selectedCategory.getId(), category);
                 AlertUtil.showSuccess("دسته‌بندی با موفقیت ویرایش شد.");
             }
 
@@ -268,7 +265,7 @@ public class CategoryManagementController {
         if (!confirm) return;
 
         try {
-            categoryService.deleteCategory(selectedCategory.getId());
+            CategoryService.deleteCategory(selectedCategory.getId());
             AlertUtil.showSuccess("دسته‌بندی با موفقیت حذف شد.");
             clearForm();
             loadCategories();

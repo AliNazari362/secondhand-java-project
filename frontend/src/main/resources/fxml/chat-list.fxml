@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane fx:id="rootPane" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatListController" nodeOrientation="RIGHT_TO_LEFT">
+<BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatListController" nodeOrientation="RIGHT_TO_LEFT">
     <top>
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
@@ -38,7 +38,7 @@
     </top>
 
     <center>
-        <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background: #f0f4f8;">
+        <ScrollPane fitToWidth="true" style="-fx-background: #f0f4f8;">
             <VBox fx:id="chatListContainer" spacing="12" alignment="TOP_CENTER" style="-fx-padding: 20; -fx-background-color: #f0f4f8;">
                 <!-- Chat cards will be dynamically added here -->
             </VBox>

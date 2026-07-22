@@ -73,15 +73,31 @@
 .input-field {
     -fx-padding: 0 10;
     -fx-background-color: white;
-    /*-fx-background-radius: 8;*/
-    /*-fx-border-radius: 8;*/
-    /*-fx-border-color: #e2e8f0;*/
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
     -fx-border-width: 0;
     -fx-font-size: 14px;
     -fx-pref-height: 45;
 }
 
 .input-field:focused {
+    -fx-border-color: #4299e1;
+    -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
+}
+
+.ad-form-input {
+    -fx-padding: 0 15;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.5;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45;
+}
+
+.ad-form-input:focused {
     -fx-border-color: #4299e1;
     -fx-effect: dropshadow(gaussian, rgba(66,153,225,0.3), 8, 0, 0, 2);
 }

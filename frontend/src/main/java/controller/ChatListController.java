@@ -6,8 +6,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -29,7 +27,6 @@ public class ChatListController {
 
     // ===== FXML Fields =====
     @FXML private VBox chatListContainer;
-    @FXML private ScrollPane scrollPane;
     @FXML private Text totalChatsText;
     @FXML private Text unreadTotalText;
 

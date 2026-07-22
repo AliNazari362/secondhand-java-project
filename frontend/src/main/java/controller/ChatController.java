@@ -6,10 +6,7 @@ import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -116,10 +113,15 @@ public class ChatController implements DataReceiver {
                 "-fx-padding: 8 12; -fx-background-color: #bee3f8; -fx-background-radius: 12 12 12 4;" :
                 "-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;");
 
-        Text messageText = new Text(message.getText());
-        messageText.setStyle("-fx-font-size: 13px; -fx-fill: #2d3748;");
-        messageText.setWrappingWidth(280);
-
+        Label messageText = new Label(message.getText());
+        messageText.setWrapText(true);
+        messageText.setMaxWidth(280);
+        messageText.setAlignment(Pos.CENTER_RIGHT);
+        messageText.setStyle("""
+                    -fx-font-size:13px;
+                    -fx-text-fill:#2d3748;
+                """);
+        bubbleContent.setMaxWidth(300);
         bubbleContent.getChildren().add(messageText);
 
         // Bottom row: Time + Status ticks

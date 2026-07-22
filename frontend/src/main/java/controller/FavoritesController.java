@@ -1,20 +1,18 @@
 package controller;
 
 import component.AdCardController;
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.response.AdvertisementSummaryDto;
 import service.FavoriteService;
-import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -23,9 +21,8 @@ import java.util.List;
  */
 public class FavoritesController {
 
-    @FXML private FlowPane favoritesFlowPane;
-
-    private final FavoriteService favoriteService = new FavoriteService();
+    @FXML
+    private FlowPane favoritesFlowPane;
 
     /**
      * Initializes the controller. Loads and displays favorite advertisements.
@@ -57,8 +54,7 @@ public class FavoritesController {
             });
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در بارگذاری علاقه‌مندی‌ها: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -81,12 +77,5 @@ public class FavoritesController {
     @FXML
     public void goBack() {
         SceneManager.showPage(Pages.DASHBOARD, null);
-    }
-
-    /**
-     * Refreshes the favorites list.
-     */
-    public void refresh() {
-        loadFavorites();
     }
 }

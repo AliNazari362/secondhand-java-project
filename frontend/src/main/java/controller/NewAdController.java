@@ -1,40 +1,31 @@
 package controller;
 
+import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import model.Category;
 import model.enums.*;
 import model.request.ImageRequest;
 import model.request.OptionRequest;
 import model.request.ProductCreateRequest;
 import model.request.ServiceCreateRequest;
-import model.response.AdvertisementDetailDto;
 import service.AdvService;
 import service.CategoryService;
-import utils.AlertUtil;
-import utils.ImageUploadUtil;
-import utils.Pages;
-import utils.SceneManager;
-import utils.ValidationUtil;
+import utils.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Controller for creating a new advertisement.
@@ -43,28 +34,44 @@ import java.util.stream.Collectors;
 public class NewAdController {
 
     // ===== FXML Fields =====
-    @FXML private TextField titleField;
-    @FXML private TextField addressField;
-    @FXML private TextArea descArea;
-    @FXML private ComboBox<String> cityCombo;
-    @FXML private ComboBox<String> typeCombo;
-    @FXML private VBox serviceFields;
-    @FXML private VBox productFields;
-    @FXML private ComboBox<String> serviceCalcTypeCombo;
-    @FXML private TextField servicePriceField;
-    @FXML private ComboBox<String> productConditionCombo;
-    @FXML private ComboBox<String> categoryCombo;
-    @FXML private TextField brandField;
-    @FXML private TextField productPriceField;
-    @FXML private TextField modelField;
-    @FXML private TextField manufacturerField;
-    @FXML private VBox optionsContainer;
-    @FXML private FlowPane imagePreviewContainer;
+    @FXML
+    private TextField titleField;
+    @FXML
+    private TextField addressField;
+    @FXML
+    private TextArea descArea;
+    @FXML
+    private ComboBox<String> cityCombo;
+    @FXML
+    private ComboBox<String> typeCombo;
+    @FXML
+    private VBox serviceFields;
+    @FXML
+    private VBox productFields;
+    @FXML
+    private ComboBox<String> serviceCalcTypeCombo;
+    @FXML
+    private TextField servicePriceField;
+    @FXML
+    private ComboBox<String> productConditionCombo;
+    @FXML
+    private ComboBox<String> categoryCombo;
+    @FXML
+    private TextField brandField;
+    @FXML
+    private TextField productPriceField;
+    @FXML
+    private TextField modelField;
+    @FXML
+    private TextField manufacturerField;
+    @FXML
+    private VBox optionsContainer;
+    @FXML
+    private FlowPane imagePreviewContainer;
 
     // ===== Internal State =====
     private List<OptionRequest> options;
     private AdvType selectedAdvType;
-    private final CategoryService categoryService = new CategoryService();
     private List<Category> allCategories;
     private Map<String, Long> categoryNameToIdMap;
 
@@ -73,8 +80,6 @@ public class NewAdController {
     private boolean isUpdating = false;
 
     // ===== Image Management =====
-    private static final int MAX_IMAGES = 5;
-    private static final int MAX_IMAGE_SIZE_MB = 5;
     private final List<File> selectedImageFiles = new ArrayList<>();
 
     @FXML
@@ -94,9 +99,7 @@ public class NewAdController {
         }
 
         typeCombo.getItems().addAll("خدمت", "کالا");
-        typeCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            onChooseType();
-        });
+        typeCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> onChooseType());
 
         productFields.setVisible(false);
         productFields.setManaged(false);
@@ -169,8 +172,7 @@ public class NewAdController {
             });
 
         } catch (Exception e) {
-            AlertUtil.showError("خطا در دریافت دسته‌بندی‌ها: " + e.getMessage());
-            e.printStackTrace();
+            ExceptionHandler.handle(e);
         }
     }
 
@@ -184,7 +186,7 @@ public class NewAdController {
         List<Category> roots = allCategories.stream()
                 .filter(cat -> (filterType == null || cat.getType() == filterType) && cat.isRoot())
                 .sorted(Comparator.comparing(Category::getName))
-                .collect(Collectors.toList());
+                .toList();
 
         System.out.println("🌱 [DEBUG] تعداد ریشه‌ها: " + roots.size());
         currentSelectedCategory = null;
@@ -254,7 +256,6 @@ public class NewAdController {
         currentSelectedCategory = parent;
 
         categoryNameToIdMap = new LinkedHashMap<>();
-        List<String> displayNames = new ArrayList<>();
 
         isUpdating = true;
         categoryCombo.getItems().clear();
@@ -354,12 +355,6 @@ public class NewAdController {
     private Long getSelectedCategoryId() {
         String selected = categoryCombo.getSelectionModel().getSelectedItem();
         if (selected == null) return null;
-
-        // اگر گزینه با " ✓" باشد، شناسه را از Map بگیر
-        if (selected.endsWith(" ✓")) {
-            return categoryNameToIdMap.get(selected);
-        }
-
         return categoryNameToIdMap.get(selected);
     }
 
@@ -400,77 +395,7 @@ public class NewAdController {
 
     @FXML
     public void onChooseImages() {
-        int currentCount = selectedImageFiles.size();
-        if (currentCount >= MAX_IMAGES) {
-            AlertUtil.showWarning("حداکثر " + MAX_IMAGES + " تصویر می‌توانید انتخاب کنید.");
-            return;
-        }
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("انتخاب تصاویر آگهی");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                "تصاویر (JPG, PNG, GIF, BMP, WEBP)",
-                "*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.webp"
-        ));
-
-        List<File> files = fileChooser.showOpenMultipleDialog(null);
-        if (files == null || files.isEmpty()) return;
-
-        int remainingSlots = MAX_IMAGES - currentCount;
-        if (files.size() > remainingSlots) {
-            AlertUtil.showWarning("حداکثر می‌توانید " + remainingSlots + " تصویر دیگر انتخاب کنید.");
-            files = files.subList(0, remainingSlots);
-        }
-
-        for (File file : files) {
-            try {
-                if (!ImageUploadUtil.isValidImageFile(file.getName())) {
-                    AlertUtil.showWarning("فرمت فایل '" + file.getName() + "' پشتیبانی نمی‌شود.");
-                    continue;
-                }
-                byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
-                if (!ImageUploadUtil.isImageSizeValid(bytes, MAX_IMAGE_SIZE_MB)) {
-                    AlertUtil.showWarning("حجم فایل '" + file.getName() + "' بیش از " + MAX_IMAGE_SIZE_MB + " مگابایت است.");
-                    continue;
-                }
-                selectedImageFiles.add(file);
-                addImagePreview(file);
-            } catch (Exception e) {
-                AlertUtil.showError("خطا در خواندن فایل: " + e.getMessage());
-            }
-        }
-    }
-
-    private void addImagePreview(File file) {
-        try {
-            Image image = new Image(file.toURI().toString(), 100, 100, true, true);
-
-            VBox previewBox = new VBox(5);
-            previewBox.setAlignment(Pos.CENTER);
-            previewBox.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 5;");
-
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(90);
-            imageView.setFitHeight(90);
-            imageView.setPreserveRatio(true);
-
-            Button removeBtn = new Button("✕");
-            removeBtn.setStyle("-fx-background-color: #fc8181; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 2 6; -fx-cursor: hand; -fx-background-radius: 50%;");
-            removeBtn.setOnAction(e -> {
-                selectedImageFiles.remove(file);
-                imagePreviewContainer.getChildren().remove(previewBox);
-            });
-
-            long fileSize = file.length();
-            String sizeStr = (fileSize / 1024) + " KB";
-            Text sizeText = new Text(sizeStr);
-            sizeText.setStyle("-fx-font-size: 9px; -fx-fill: #718096;");
-
-            previewBox.getChildren().addAll(imageView, sizeText, removeBtn);
-            imagePreviewContainer.getChildren().add(previewBox);
-        } catch (Exception e) {
-            AlertUtil.showError("خطا در بارگذاری پیش‌نمایش تصویر: " + e.getMessage());
-        }
+        Utils.chooseImage(selectedImageFiles, imagePreviewContainer);
     }
 
     private List<ImageRequest> uploadAllImages() throws Exception {
@@ -480,7 +405,7 @@ public class NewAdController {
                 String serverPath = ImageUploadUtil.uploadImageFromFile(file.toPath());
                 results.add(new ImageRequest(serverPath));
             } catch (Exception e) {
-                throw new Exception("خطا در آپلود تصویر '" + file.getName() + "': " + e.getMessage());
+                throw new IOException("خطا در آپلود تصویر '" + file.getName() + "': " + e.getMessage());
             }
         }
         return results;
@@ -514,23 +439,6 @@ public class NewAdController {
         optionsContainer.getChildren().add(featureBox);
     }
 
-    private void getAllFeatures() {
-        options.clear();
-        for (Node node : optionsContainer.getChildren()) {
-            if (node instanceof HBox box) {
-                if (box.getChildren().size() >= 3) {
-                    TextField keyField = (TextField) box.getChildren().get(0);
-                    TextField valueField = (TextField) box.getChildren().get(1);
-                    String key = keyField.getText().trim();
-                    String value = valueField.getText().trim();
-                    if (!key.isEmpty() && !value.isEmpty()) {
-                        options.add(new OptionRequest(key, value));
-                    }
-                }
-            }
-        }
-    }
-
     // ================================
     //  Submit Ad
     // ================================
@@ -557,7 +465,7 @@ public class NewAdController {
                 return;
             }
 
-            getAllFeatures();
+            Utils.getAllFeaturesOfAdv(options, optionsContainer);
 
             List<ImageRequest> imageRequests = new ArrayList<>();
             if (!selectedImageFiles.isEmpty()) {
@@ -589,10 +497,8 @@ public class NewAdController {
 
         } catch (NumberFormatException e) {
             AlertUtil.showError("قیمت باید عدد باشد");
-        } catch (IllegalArgumentException e) {
-            AlertUtil.showError(e.getMessage());
         } catch (Exception e) {
-            AlertUtil.showError("خطا در ثبت آگهی: " + e.getMessage());
+            ExceptionHandler.handle(e);
         }
     }
 

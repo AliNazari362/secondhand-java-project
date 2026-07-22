@@ -51,7 +51,7 @@
                 <!-- Title -->
                 <VBox spacing="5">
                     <Text text="عنوان آگهی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                    <TextField fx:id="titleField" promptText="عنوان آگهی *" styleClass="input-field"/>
+                    <TextField fx:id="titleField" promptText="عنوان آگهی *" styleClass="ad-form-input"/>
                 </VBox>
 
                 <!-- Description -->
@@ -64,28 +64,28 @@
                 <!-- City -->
                 <VBox spacing="5">
                     <Text text="شهر" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                    <ComboBox fx:id="cityCombo" promptText="شهر *" styleClass="input-field"
+                    <ComboBox fx:id="cityCombo" promptText="شهر *" styleClass="ad-form-input"
                               maxWidth="1.7976931348623157E308"/>
                 </VBox>
 
                 <!-- Address -->
                 <VBox spacing="5">
                     <Text text="آدرس" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                    <TextField fx:id="addressField" promptText="آدرس *" styleClass="input-field"/>
+                    <TextField fx:id="addressField" promptText="آدرس *" styleClass="ad-form-input"/>
                 </VBox>
 
                 <!-- Ad Type Selection -->
                 <VBox spacing="5">
                     <Text text="نوع آگهی" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
                     <ComboBox fx:id="typeCombo" onAction="#onChooseType" promptText="انتخاب نوع آگهی (خدمت یا کالا) *"
-                              styleClass="input-field"
+                              styleClass="ad-form-input"
                               maxWidth="1.7976931348623157E308"/>
                 </VBox>
 
                 <!-- Category (common for both) -->
                 <VBox spacing="5">
                     <Text text="دسته‌بندی" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                    <ComboBox fx:id="categoryCombo" promptText="انتخاب دسته‌بندی *" styleClass="input-field"
+                    <ComboBox fx:id="categoryCombo" promptText="انتخاب دسته‌بندی *" styleClass="ad-form-input"
                               maxWidth="1.7976931348623157E308"/>
                 </VBox>
 
@@ -96,14 +96,14 @@
                     <VBox spacing="5">
                         <Text text="نوع محاسبه خدمت"
                               style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <ComboBox fx:id="serviceCalcTypeCombo" promptText="نوع محاسبه خدمت *" styleClass="input-field"
+                        <ComboBox fx:id="serviceCalcTypeCombo" promptText="نوع محاسبه خدمت *" styleClass="ad-form-input"
                                   maxWidth="1.7976931348623157E308"/>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="هزینه ارائه خدمت"
                               style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
                         <TextField fx:id="servicePriceField" promptText="هزینه ارائه خدمت در هر پارت *"
-                                   styleClass="input-field"/>
+                                   styleClass="ad-form-input"/>
                     </VBox>
                 </VBox>
 
@@ -113,26 +113,26 @@
                           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 5 0 0 0;"/>
                     <VBox spacing="5">
                         <Text text="قیمت" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <TextField fx:id="productPriceField" promptText="قیمت (تومان) *" styleClass="input-field"/>
+                        <TextField fx:id="productPriceField" promptText="قیمت (تومان) *" styleClass="ad-form-input"/>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="وضعیت محصول"
                               style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <ComboBox fx:id="productConditionCombo" promptText="وضعیت محصول *" styleClass="input-field"
+                        <ComboBox fx:id="productConditionCombo" promptText="وضعیت محصول *" styleClass="ad-form-input"
                                   maxWidth="1.7976931348623157E308"/>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="برند" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <TextField fx:id="brandField" promptText="برند" styleClass="input-field"/>
+                        <TextField fx:id="brandField" promptText="برند" styleClass="ad-form-input"/>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="مدل" style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <TextField fx:id="modelField" promptText="مدل" styleClass="input-field"/>
+                        <TextField fx:id="modelField" promptText="مدل" styleClass="ad-form-input"/>
                     </VBox>
                     <VBox spacing="5">
                         <Text text="سازنده یا طراح"
                               style="-fx-font-size: 13px; -fx-fill: #4a5568; -fx-font-weight: bold;"/>
-                        <TextField fx:id="manufacturerField" promptText="سازنده یا طراح" styleClass="input-field"/>
+                        <TextField fx:id="manufacturerField" promptText="سازنده یا طراح" styleClass="ad-form-input"/>
                     </VBox>
                 </VBox>
 
