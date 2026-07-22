@@ -1,0 +1,44 @@
+package model.request;
+
+/**
+ * Request DTO for updating user profile information.
+ * All fields are optional; only non-null fields will be updated.
+ */
+public class UserUpdateRequest {
+
+    private String fullName;
+    private String email;
+    private String phoneNumber;
+
+    public UserUpdateRequest() {}
+
+    public UserUpdateRequest(String fullName, String email, String phoneNumber) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+}

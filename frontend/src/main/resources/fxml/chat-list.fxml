@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:id="rootPane" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ChatListController" nodeOrientation="RIGHT_TO_LEFT">
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+            <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
+            <FontIcon iconLiteral="fas-comments" iconSize="20" iconColor="#2d3748" />
+            <Text text="لیست چت‌ها" styleClass="header-title" />
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="15">
+                <!-- Summary Info -->
+                <HBox spacing="20" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
+                    <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #ebf4ff; -fx-background-radius: 20;">
+                        <FontIcon iconLiteral="fas-comment-dots" iconSize="14" iconColor="#3182ce" />
+                        <Text fx:id="totalChatsText" text="تعداد چت‌ها: ۰" style="-fx-font-size: 12px; -fx-fill: #3182ce; -fx-font-weight: bold;" />
+                    </HBox>
+                    <HBox spacing="5" alignment="CENTER" style="-fx-padding: 5 12; -fx-background-color: #fff5f5; -fx-background-radius: 20;">
+                        <FontIcon iconLiteral="fas-envelope" iconSize="14" iconColor="#fc8181" />
+                        <Text fx:id="unreadTotalText" text="پیام‌های خوانده نشده: ۰" style="-fx-font-size: 12px; -fx-fill: #e53e3e; -fx-font-weight: bold;" />
+                    </HBox>
+                </HBox>
+                <Button onAction="#onRefresh" styleClass="primary-btn">
+                    <graphic><FontIcon iconLiteral="fas-sync-alt" iconSize="16" /></graphic>
+                </Button>
+                <Button onAction="#goBack">
+                    <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="16" /></graphic>
+                </Button>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background: #f0f4f8;">
+            <VBox fx:id="chatListContainer" spacing="12" alignment="TOP_CENTER" style="-fx-padding: 20; -fx-background-color: #f0f4f8;">
+                <!-- Chat cards will be dynamically added here -->
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

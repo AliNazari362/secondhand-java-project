@@ -1,0 +1,33 @@
+package model.response;
+
+import model.enums.UserType;
+
+import java.util.UUID;
+
+public class LoginResponse {
+    private String token;
+    private UUID userId;
+    private String fullName;
+    private UserType role;  // در Backend به‌عنوان userType هم هست
+
+    public LoginResponse() {}
+
+    public LoginResponse(String token, UUID userId, String fullName, UserType role) {
+        this.token = token;
+        this.userId = userId;
+        this.fullName = fullName;
+        this.role = role;
+    }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
+
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public UserType getRole() { return role; }
+    public void setRole(UserType role) { this.role = role; }
+}

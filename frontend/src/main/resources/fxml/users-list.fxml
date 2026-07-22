@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox spacing="0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdminController" nodeOrientation="RIGHT_TO_LEFT">
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
+        <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
+        <FontIcon iconLiteral="fas-cog" iconSize="20" iconColor="#2d3748" />
+        <Text text="پنل مدیریت" styleClass="header-title" />
+        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <Button onAction="#goBack">
+                <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="16" /></graphic>
+            </Button>
+        </HBox>
+    </HBox>
+    <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
+        <VBox styleClass="card" spacing="0" prefWidth="900">
+            <TabPane fx:id="tabPane" styleClass="tab-pane">
+                <Tab text="کاربران" closable="false">
+                    <VBox spacing="0">
+                        <!-- Table Header -->
+                        <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-padding: 12 15; -fx-background-color: #edf2f7; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                            <Text text="ردیف" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 50;" />
+                            <Text text="نام کاربر" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 180;" />
+                            <Text text="ایمیل" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 220;" />
+                            <Text text="تاریخ عضویت" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 140;" />
+                            <Text text="وضعیت" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 80;" />
+                            <Text text="عملیات" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-fill: #4a5568; -fx-min-width: 120;" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <!-- Users List -->
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                            <VBox fx:id="usersListContainer" spacing="0">
+
+                                <!-- Sample User 1 -->
+                                <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                                    <Text text="۱" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-min-width: 50;" />
+                                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-min-width: 180;">
+                                        <FontIcon iconLiteral="fas-user-circle" iconSize="22" iconColor="#4a5568" />
+                                        <Text text="علی محمدی" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                    </HBox>
+                                    <Text text="ali.mohammadi@email.com" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 220;" />
+                                    <Text text="۱۴۰۲/۰۶/۱۵" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 140;" />
+                                    <Text text="فعال" style="-fx-font-size: 12px; -fx-fill: #38a169; -fx-font-weight: bold; -fx-min-width: 80;" />
+                                    <HBox spacing="8" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" style="-fx-min-width: 120;">
+                                        <Button onAction="#onBanUser" styleClass="danger-btn" style="-fx-padding: 4 10; -fx-font-size: 11px;">
+                                            <graphic><FontIcon iconLiteral="fas-ban" iconSize="12" /></graphic>
+                                        </Button>
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Sample User 2 (Banned) -->
+                                <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-background-color: #fff5f5; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                                    <Text text="۲" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-min-width: 50;" />
+                                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-min-width: 180;">
+                                        <FontIcon iconLiteral="fas-user-circle" iconSize="22" iconColor="#a0aec0" />
+                                        <Text text="سارا رضایی" style="-fx-font-size: 13px; -fx-fill: #a0aec0;" />
+                                    </HBox>
+                                    <Text text="sara.rezaei@email.com" style="-fx-font-size: 12px; -fx-fill: #a0aec0; -fx-min-width: 220;" />
+                                    <Text text="۱۴۰۲/۰۴/۲۰" style="-fx-font-size: 12px; -fx-fill: #a0aec0; -fx-min-width: 140;" />
+                                    <Text text="بن شده" style="-fx-font-size: 12px; -fx-fill: #e53e3e; -fx-font-weight: bold; -fx-min-width: 80;" />
+                                    <HBox spacing="8" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" style="-fx-min-width: 120;">
+                                        <Button onAction="#onUnbanUser" styleClass="success-btn" style="-fx-padding: 4 10; -fx-font-size: 11px;">
+                                            <graphic><FontIcon iconLiteral="fas-check-circle" iconSize="12" /></graphic>
+                                        </Button>
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Sample User 3 -->
+                                <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                                    <Text text="۳" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-min-width: 50;" />
+                                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-min-width: 180;">
+                                        <FontIcon iconLiteral="fas-user-circle" iconSize="22" iconColor="#4a5568" />
+                                        <Text text="محمد کریمی" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                    </HBox>
+                                    <Text text="mohammad.karimi@email.com" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 220;" />
+                                    <Text text="۱۴۰۲/۰۸/۰۲" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 140;" />
+                                    <Text text="فعال" style="-fx-font-size: 12px; -fx-fill: #38a169; -fx-font-weight: bold; -fx-min-width: 80;" />
+                                    <HBox spacing="8" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" style="-fx-min-width: 120;">
+                                        <Button onAction="#onBanUser" styleClass="danger-btn" style="-fx-padding: 4 10; -fx-font-size: 11px;">
+                                            <graphic><FontIcon iconLiteral="fas-ban" iconSize="12" /></graphic>
+                                        </Button>
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Sample User 4 -->
+                                <HBox spacing="0" alignment="CENTER_LEFT" style="-fx-padding: 10 15; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+                                    <Text text="۴" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-min-width: 50;" />
+                                    <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-min-width: 180;">
+                                        <FontIcon iconLiteral="fas-user-circle" iconSize="22" iconColor="#4a5568" />
+                                        <Text text="زهرا احمدی" style="-fx-font-size: 13px; -fx-fill: #2d3748; -fx-font-weight: bold;" />
+                                    </HBox>
+                                    <Text text="zahra.ahmadi@email.com" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 220;" />
+                                    <Text text="۱۴۰۲/۰۹/۱۱" style="-fx-font-size: 12px; -fx-fill: #718096; -fx-min-width: 140;" />
+                                    <Text text="فعال" style="-fx-font-size: 12px; -fx-fill: #38a169; -fx-font-weight: bold; -fx-min-width: 80;" />
+                                    <HBox spacing="8" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" style="-fx-min-width: 120;">
+                                        <Button onAction="#onBanUser" styleClass="danger-btn" style="-fx-padding: 4 10; -fx-font-size: 11px;">
+                                            <graphic><FontIcon iconLiteral="fas-ban" iconSize="12" /></graphic>
+                                        </Button>
+                                    </HBox>
+                                </HBox>
+
+                            </VBox>
+                        </ScrollPane>
+                    </VBox>
+                </Tab>
+                <Tab text="آگهی های در انتظار" closable="false">
+                    <VBox spacing="10" style="-fx-padding: 15;">
+                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+                            <VBox fx:id="pendingAdsContainer" spacing="0" />
+                        </ScrollPane>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button text="تایید" onAction="#onApproveAd" styleClass="success-btn">
+                                <graphic><FontIcon iconLiteral="fas-check" iconSize="16" /></graphic>
+                            </Button>
+                            <Button text="رد" onAction="#onRejectAd" styleClass="danger-btn">
+                                <graphic><FontIcon iconLiteral="fas-times" iconSize="16" /></graphic>
+                            </Button>
+                        </HBox>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </VBox>
+</VBox>

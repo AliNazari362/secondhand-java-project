@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox alignment="CENTER" spacing="20" styleClass="login-container" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40" />
+    </padding>
+
+    <FontIcon iconLiteral="fas-store" iconSize="48" iconColor="#2d3748" />
+    <Text text="خوش آمدید" styleClass="title" />
+    <Text text="وارد حساب کاربری خود شوید" styleClass="subtitle" />
+
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+        <FontIcon iconLiteral="far-envelope" iconSize="16" iconColor="#718096" />
+        <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-field" HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-container">
+        <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
+        <PasswordField fx:id="passwordField" promptText="رمز عبور" styleClass="input-field" HBox.hgrow="ALWAYS" />
+    </HBox>
+
+    <Button text="ورود به حساب" styleClass="primary-btn" onAction="#handleLogin">
+        <graphic>
+            <FontIcon iconLiteral="fas-sign-in-alt" iconSize="16" />
+        </graphic>
+    </Button>
+
+    <Hyperlink text="ثبت نام نکرده اید؟ همین حالا ثبت نام کنید" onAction="#goToRegister" styleClass="link" />
+</VBox>
