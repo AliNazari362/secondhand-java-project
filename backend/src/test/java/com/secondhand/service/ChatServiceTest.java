@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link ChatService}.
+ * Tests chat creation, message sending, and chat retrieval operations.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.chatroom.ChatroomCreateRequest;
@@ -27,36 +31,72 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link ChatService}.
+ * Verifies the correct behavior of chat-related operations including
+ * starting a chat, sending messages, retrieving chat lists, and marking messages as seen.
+ */
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
 
+    /** Mocked repository for chatroom data access. */
     @Mock
     private ChatroomRepository chatroomRepository;
 
+    /** Mocked repository for message data access. */
     @Mock
     private MessageRepository messageRepository;
 
+    /** Mocked service for advertisement operations. */
     @Mock
     private AdvService advService;
 
+    /** Mocked service for user operations. */
     @Mock
     private UserService userService;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private ChatService chatService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** Buyer user ID. */
     private UUID buyerId;
+
+    /** Seller user ID. */
     private UUID sellerId;
+
+    /** Advertisement ID. */
     private UUID advId;
+
+    /** Chatroom ID. */
     private UUID chatroomId;
+
+    /** Buyer user instance. */
     private User buyer;
+
+    /** Seller user instance. */
     private User seller;
+
+    /** Test advertisement. */
     private Adv testAdv;
+
+    /** Test chatroom instance. */
     private Chatroom testChatroom;
+
+    /** Test message instance. */
     private Message testMessage;
+
+    /** Chat creation request. */
     private ChatroomCreateRequest createRequest;
+
+    /** Message request. */
     private MessageRequest messageRequest;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         buyerId = UUID.randomUUID();
@@ -86,7 +126,7 @@ class ChatServiceTest {
 
         testChatroom = new Chatroom(testAdv);
         ReflectionTestUtils.setField(testChatroom, "id", chatroomId);
-        // ✅ اضافه کردن userId برای خریدار (برای تست‌های شرکت‌کننده)
+        // Add userId for the buyer to be used in participant tests
         ReflectionTestUtils.setField(testChatroom, "userId", buyerId);
 
         testMessage = new Message();
@@ -99,8 +139,12 @@ class ChatServiceTest {
         messageRequest = new MessageRequest("Hello!");
     }
 
-    // ---------- تست‌های مربوط به startOrGetChat ----------
+    // ==================== START CHAT TESTS ====================
 
+    /**
+     * Tests that a new chatroom is created when one does not already exist for the given
+     * advertisement and buyer.
+     */
     @Test
     void startOrGetChat_ShouldCreateNewChat_WhenNotExists() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
@@ -118,6 +162,10 @@ class ChatServiceTest {
         verify(userService).saveUser(buyer);
     }
 
+    /**
+     * Tests that an existing chatroom is returned when one already exists for the given
+     * advertisement and buyer.
+     */
     @Test
     void startOrGetChat_ShouldReturnExistingChat_WhenExists() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
@@ -131,6 +179,10 @@ class ChatServiceTest {
         verify(chatroomRepository, never()).save(any(Chatroom.class));
     }
 
+    /**
+     * Tests that starting a chat fails when the advertisement is not active or sold.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void startOrGetChat_ShouldThrowException_WhenAdvNotActiveOrSold() {
         testAdv.setStatus(AdvStatus.PENDING);
@@ -140,9 +192,12 @@ class ChatServiceTest {
                 () -> chatService.startOrGetChat(createRequest, buyerId));
     }
 
+    /**
+     * Tests that starting a chat fails when the buyer is the owner of the advertisement.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void startOrGetChat_ShouldThrowException_WhenUserOwnsAdv() {
-        // این تست ۴ هست
         testAdv.setUser(buyer);
         when(advService.findAdvById(advId)).thenReturn(testAdv);
 
@@ -150,8 +205,11 @@ class ChatServiceTest {
                 () -> chatService.startOrGetChat(createRequest, buyerId));
     }
 
-    // ---------- تست‌های مربوط به getUserChatRooms ----------
+    // ==================== GET CHATROOMS TESTS ====================
 
+    /**
+     * Tests that retrieving chatrooms for a user returns a list of their chatrooms.
+     */
     @Test
     void getUserChatRooms_ShouldReturnList() {
         when(chatroomRepository.findByParticipantId(buyerId))
@@ -164,11 +222,14 @@ class ChatServiceTest {
         assertEquals(testChatroom.getId(), results.get(0).id());
     }
 
-    // ---------- تست‌های مربوط به getChatroomDetail ----------
+    // ==================== CHATROOM DETAIL TESTS ====================
 
+    /**
+     * Tests that retrieving chatroom details succeeds when the user is the buyer participant.
+     * Verifies that messages are marked as seen.
+     */
     @Test
     void getChatroomDetail_ShouldReturnDetails_WhenUserIsBuyer() {
-        // تست ۸
         when(chatroomRepository.findById(chatroomId))
                 .thenReturn(Optional.of(testChatroom));
 
@@ -178,9 +239,11 @@ class ChatServiceTest {
         verify(messageRepository).markAllAsSeen(chatroomId, buyerId);
     }
 
+    /**
+     * Tests that retrieving chatroom details succeeds when the user is the seller participant.
+     */
     @Test
     void getChatroomDetail_ShouldReturnDetails_WhenUserIsSeller() {
-        // این تست رو هم اضافه کردم برای پوشش فروشنده
         when(chatroomRepository.findById(chatroomId))
                 .thenReturn(Optional.of(testChatroom));
 
@@ -190,6 +253,10 @@ class ChatServiceTest {
         verify(messageRepository).markAllAsSeen(chatroomId, sellerId);
     }
 
+    /**
+     * Tests that retrieving chatroom details fails when the user is not a participant.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void getChatroomDetail_ShouldThrowException_WhenUserNotParticipant() {
         UUID otherUserId = UUID.randomUUID();
@@ -200,11 +267,13 @@ class ChatServiceTest {
                 () -> chatService.getChatroomDetail(chatroomId, otherUserId));
     }
 
-    // ---------- تست‌های مربوط به sendMessage ----------
+    // ==================== SEND MESSAGE TESTS ====================
 
+    /**
+     * Tests that sending a message succeeds when the user is a participant in the chatroom.
+     */
     @Test
     void sendMessage_ShouldSucceed_WhenUserIsParticipant() {
-        // تست ۹ (قبلاً ۸ بود)
         when(chatroomRepository.findById(chatroomId))
                 .thenReturn(Optional.of(testChatroom));
         when(userService.findUserById(buyerId)).thenReturn(buyer);
@@ -218,6 +287,10 @@ class ChatServiceTest {
         verify(messageRepository).save(any(Message.class));
     }
 
+    /**
+     * Tests that sending a message fails when the user is not a participant in the chatroom.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void sendMessage_ShouldThrowException_WhenUserNotParticipant() {
         UUID otherUserId = UUID.randomUUID();
@@ -228,8 +301,11 @@ class ChatServiceTest {
                 () -> chatService.sendMessage(chatroomId, messageRequest, otherUserId));
     }
 
-    // ---------- تست‌های مربوط به getMessages ----------
+    // ==================== GET MESSAGES TESTS ====================
 
+    /**
+     * Tests that retrieving messages for a chatroom returns a list when the user is a participant.
+     */
     @Test
     void getMessages_ShouldReturnList_WhenUserIsParticipant() {
         when(chatroomRepository.findById(chatroomId))
@@ -244,9 +320,12 @@ class ChatServiceTest {
         assertEquals(testMessage.getText(), results.get(0).text());
     }
 
+    /**
+     * Tests that retrieving messages fails when the user is not a participant.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void getMessages_ShouldThrowException_WhenUserNotParticipant() {
-        // تست ۱۰
         UUID otherUserId = UUID.randomUUID();
         when(chatroomRepository.findById(chatroomId))
                 .thenReturn(Optional.of(testChatroom));

@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link AdvService}.
+ * Tests advertisement creation, retrieval, update, deletion, and status management.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.adv.*;
@@ -30,39 +34,67 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link AdvService}.
+ * Covers all advertisement-related business logic including creating,
+ * updating, deleting, searching, and approving advertisements.
+ */
 @ExtendWith(MockitoExtension.class)
 class AdvServiceTest {
 
-    // ==================== MOCK ها ====================
+    // ==================== MOCK DEPENDENCIES ====================
+
+    /** Mocked repository for advertisement data access. */
     @Mock
     private AdvRepository advRepository;
 
+    /** Mocked repository for product-specific data access. */
     @Mock
     private ProductRepository productRepository;
 
+    /** Mocked repository for service-specific data access. */
     @Mock
     private ServiceRepository serviceRepository;
 
+    /** Mocked service for user operations. */
     @Mock
     private UserService userService;
 
+    /** Mocked repository for option data access. */
     @Mock
     private OptionRepository optionRepository;
 
+    /** Mocked repository for category data access. */
     @Mock
     private CategoryRepository categoryRepository;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private AdvService advService;
 
-    // ==================== متغیرهای تست ====================
+    // ==================== TEST FIXTURES ====================
+
+    /** Test user ID. */
     private UUID userId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Test category instance. */
     private Category testCategory;
+
+    /** Test product advertisement. */
     private Product testProduct;
+
+    /** Test service advertisement. */
     private Service testService;
+
+    /** Valid product creation request. */
     private ProductCreateRequest productCreateRequest;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -118,6 +150,10 @@ class AdvServiceTest {
 
     // ==================== CREATE PRODUCT TESTS ====================
 
+    /**
+     * Tests that a product advertisement is created successfully when the request is valid.
+     * Verifies that the correct repository methods are called and the response is correct.
+     */
     @Test
     void createProduct_ShouldSucceed_WhenValidRequest() {
         when(userService.findUserById(userId)).thenReturn(testUser);
@@ -131,6 +167,10 @@ class AdvServiceTest {
         verify(productRepository).save(any(Product.class));
     }
 
+    /**
+     * Tests that creating a product fails when the specified category does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void createProduct_ShouldThrowException_WhenCategoryNotFound() {
         when(userService.findUserById(userId)).thenReturn(testUser);
@@ -142,6 +182,9 @@ class AdvServiceTest {
 
     // ==================== CREATE SERVICE TESTS ====================
 
+    /**
+     * Tests that a service advertisement is created successfully when the request is valid.
+     */
     @Test
     void createService_ShouldSucceed_WhenValidRequest() {
         ServiceCreateRequest serviceRequest = new ServiceCreateRequest(
@@ -176,11 +219,13 @@ class AdvServiceTest {
         verify(serviceRepository).save(any(Service.class));
     }
 
-    // ==================== SEARCH TESTS (اصلاح‌شده) ====================
+    // ==================== SEARCH TESTS ====================
 
+    /**
+     * Tests that searching for active advertisements returns filtered results.
+     */
     @Test
     void getActiveAds_ShouldReturnFilteredResults() {
-        // اصلاح: ارسال ۶ پارامتر به متد search (با minPrice و maxPrice = null)
         when(advRepository.search(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of(testProduct));
 
@@ -194,6 +239,9 @@ class AdvServiceTest {
         verify(advRepository).search("Samsung", City.TEHRAN, AdvStatus.ACTIVE, categoryIds, "newest", null, null);
     }
 
+    /**
+     * Tests that searching returns an empty list when no advertisements match the criteria.
+     */
     @Test
     void getActiveAds_ShouldReturnEmptyList_WhenNoResults() {
         when(advRepository.search(any(), any(), any(), any(), any(), any(), any()))
@@ -205,6 +253,9 @@ class AdvServiceTest {
         assertTrue(results.isEmpty());
     }
 
+    /**
+     * Tests that search results can be sorted by price in ascending order.
+     */
     @Test
     void getActiveAds_ShouldSortByPriceAsc() {
         when(advRepository.search(any(), any(), any(), any(), eq("priceAsc"), any(), any()))
@@ -217,6 +268,9 @@ class AdvServiceTest {
         verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "priceAsc", null, null);
     }
 
+    /**
+     * Tests that search results can be sorted by rating in descending order.
+     */
     @Test
     void getActiveAds_ShouldSortByRatingDesc() {
         when(advRepository.search(any(), any(), any(), any(), eq("ratingDesc"), any(), any()))
@@ -229,6 +283,9 @@ class AdvServiceTest {
         verify(advRepository).search(null, null, AdvStatus.ACTIVE, null, "ratingDesc", null, null);
     }
 
+    /**
+     * Tests that search results can be filtered by price range.
+     */
     @Test
     void getActiveAds_ShouldFilterByPriceRange() {
         BigDecimal minPrice = BigDecimal.valueOf(500000);
@@ -245,6 +302,9 @@ class AdvServiceTest {
 
     // ==================== DETAIL TESTS ====================
 
+    /**
+     * Tests that retrieving advertisement details succeeds when the advertisement is active.
+     */
     @Test
     void getAdvDetail_ShouldReturnDetails_WhenActive() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -256,6 +316,10 @@ class AdvServiceTest {
         assertEquals(testProduct.getCategory().getName(), response.categoryName());
     }
 
+    /**
+     * Tests that retrieving details fails when the advertisement is not active or sold.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void getAdvDetail_ShouldThrowException_WhenNotActiveOrSold() {
         testProduct.setStatus(AdvStatus.PENDING);
@@ -265,6 +329,10 @@ class AdvServiceTest {
                 () -> advService.getAdvDetail(testProduct.getId(), userId));
     }
 
+    /**
+     * Tests that retrieving details fails when the advertisement does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void getAdvDetail_ShouldThrowException_WhenNotFound() {
         when(advRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
@@ -275,6 +343,9 @@ class AdvServiceTest {
 
     // ==================== GET USER ADS TESTS ====================
 
+    /**
+     * Tests that retrieving advertisements for a user returns a list.
+     */
     @Test
     void getUserAds_ShouldReturnList() {
         when(advRepository.findByUserId(userId)).thenReturn(List.of(testProduct));
@@ -286,6 +357,9 @@ class AdvServiceTest {
         assertEquals(testProduct.getFullName(), results.get(0).fullName());
     }
 
+    /**
+     * Tests that retrieving advertisements for a user returns an empty list when they have none.
+     */
     @Test
     void getUserAds_ShouldReturnEmptyList_WhenNoAds() {
         when(advRepository.findByUserId(userId)).thenReturn(List.of());
@@ -298,6 +372,9 @@ class AdvServiceTest {
 
     // ==================== UPDATE TESTS ====================
 
+    /**
+     * Tests that updating a product advertisement succeeds when the user is the owner.
+     */
     @Test
     void updateProduct_ShouldSucceed_WhenOwnershipValid() {
         ProductUpdateRequest updateRequest = new ProductUpdateRequest(
@@ -324,6 +401,10 @@ class AdvServiceTest {
         verify(productRepository).save(any(Product.class));
     }
 
+    /**
+     * Tests that updating a product fails when the user is not the owner.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void updateProduct_ShouldThrowException_WhenUserNotOwner() {
         ProductUpdateRequest updateRequest = new ProductUpdateRequest(
@@ -338,6 +419,10 @@ class AdvServiceTest {
                 () -> advService.updateProduct(testProduct.getId(), updateRequest, otherUserId));
     }
 
+    /**
+     * Tests that updating a product fails when the advertisement is not a product.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void updateProduct_ShouldThrowException_WhenNotProductType() {
         Service service = new Service();
@@ -355,6 +440,9 @@ class AdvServiceTest {
                 () -> advService.updateProduct(service.getId(), updateRequest, userId));
     }
 
+    /**
+     * Tests that updating a service advertisement succeeds when the user is the owner.
+     */
     @Test
     void updateService_ShouldSucceed_WhenOwnershipValid() {
         ServiceUpdateRequest updateRequest = new ServiceUpdateRequest(
@@ -381,6 +469,9 @@ class AdvServiceTest {
 
     // ==================== DELETE TESTS ====================
 
+    /**
+     * Tests that an advertisement is deleted (status set to DELETED) when the user is the owner.
+     */
     @Test
     void deleteAdv_ShouldSetStatusToDeleted_WhenOwner() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -392,6 +483,10 @@ class AdvServiceTest {
         verify(advRepository).save(testProduct);
     }
 
+    /**
+     * Tests that deleting an advertisement fails when the user is not the owner.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void deleteAdv_ShouldThrowException_WhenUserNotOwner() {
         UUID otherUserId = UUID.randomUUID();
@@ -403,6 +498,9 @@ class AdvServiceTest {
 
     // ==================== MARK AS SOLD TESTS ====================
 
+    /**
+     * Tests that an active advertisement can be marked as sold by its owner.
+     */
     @Test
     void markAsSold_ShouldSucceed_WhenActiveAndOwner() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -414,6 +512,10 @@ class AdvServiceTest {
         verify(advRepository).save(testProduct);
     }
 
+    /**
+     * Tests that marking as sold fails when the advertisement is not active.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void markAsSold_ShouldThrowException_WhenNotActive() {
         testProduct.setStatus(AdvStatus.PENDING);
@@ -425,6 +527,9 @@ class AdvServiceTest {
 
     // ==================== ADMIN APPROVAL TESTS ====================
 
+    /**
+     * Tests that an admin can approve a pending advertisement.
+     */
     @Test
     void approveAdv_ShouldSetStatusToActive_WhenPending() {
         testProduct.setStatus(AdvStatus.PENDING);
@@ -437,6 +542,10 @@ class AdvServiceTest {
         verify(advRepository).save(testProduct);
     }
 
+    /**
+     * Tests that approving a non-pending advertisement fails.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void approveAdv_ShouldThrowException_WhenNotPending() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -445,6 +554,9 @@ class AdvServiceTest {
                 () -> advService.approveAdv(testProduct.getId()));
     }
 
+    /**
+     * Tests that an admin can reject a pending advertisement with a reason.
+     */
     @Test
     void rejectAdv_ShouldSetStatusToRejected_WhenPending() {
         testProduct.setStatus(AdvStatus.PENDING);
@@ -458,6 +570,10 @@ class AdvServiceTest {
         verify(advRepository).save(testProduct);
     }
 
+    /**
+     * Tests that rejecting a non-pending advertisement fails.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void rejectAdv_ShouldThrowException_WhenNotPending() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -468,6 +584,9 @@ class AdvServiceTest {
 
     // ==================== GET PENDING ADS TESTS ====================
 
+    /**
+     * Tests that retrieving pending advertisements returns a list.
+     */
     @Test
     void getPendingAds_ShouldReturnList() {
         when(advRepository.findByStatus(AdvStatus.PENDING)).thenReturn(List.of(testProduct));
@@ -478,6 +597,9 @@ class AdvServiceTest {
         assertEquals(1, results.size());
     }
 
+    /**
+     * Tests that retrieving pending advertisements returns an empty list when there are none.
+     */
     @Test
     void getPendingAds_ShouldReturnEmptyList_WhenNoPending() {
         when(advRepository.findByStatus(AdvStatus.PENDING)).thenReturn(List.of());
@@ -490,6 +612,9 @@ class AdvServiceTest {
 
     // ==================== FIND BY ID TESTS ====================
 
+    /**
+     * Tests that finding an advertisement by ID returns it when it exists.
+     */
     @Test
     void findAdvById_ShouldReturnAdv_WhenExists() {
         when(advRepository.findById(testProduct.getId())).thenReturn(Optional.of(testProduct));
@@ -500,6 +625,10 @@ class AdvServiceTest {
         assertEquals(testProduct.getId(), found.getId());
     }
 
+    /**
+     * Tests that finding an advertisement by ID fails when it does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void findAdvById_ShouldThrowException_WhenNotFound() {
         when(advRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
@@ -508,17 +637,25 @@ class AdvServiceTest {
                 () -> advService.findAdvById(UUID.randomUUID()));
     }
 
-    // ==================== DTO CONVERSION TESTS (اصلاح‌شده) ====================
+    // ==================== DTO CONVERSION TESTS ====================
 
+    /**
+     * Tests that {@link AdvService#toAdvSummaryResponse(Adv)} correctly includes
+     * category name and price.
+     */
     @Test
     void toAdvSummaryResponse_ShouldIncludeCategoryNameAndPrice() {
         var response = advService.toAdvSummaryResponse(testProduct);
 
         assertNotNull(response);
         assertEquals(testProduct.getCategory().getName(), response.categoryName());
-        assertEquals(testProduct.getPrice(), response.price()); // بررسی فیلد جدید
+        assertEquals(testProduct.getPrice(), response.price());
     }
 
+    /**
+     * Tests that {@link AdvService#toAdvDetailResponse(Adv)} correctly includes
+     * category name for product advertisements.
+     */
     @Test
     void toAdvDetailResponse_ShouldIncludeCategoryName() {
         var response = advService.toAdvDetailResponse(testProduct);
@@ -529,6 +666,10 @@ class AdvServiceTest {
         assertEquals(testProduct.getPrice(), response.productDetail().price());
     }
 
+    /**
+     * Tests that {@link AdvService#toAdvDetailResponse(Adv)} correctly includes
+     * category name for service advertisements.
+     */
     @Test
     void toAdvDetailResponse_ForService_ShouldIncludeCategoryName() {
         var response = advService.toAdvDetailResponse(testService);

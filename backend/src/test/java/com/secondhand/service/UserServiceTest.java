@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link UserService}.
+ * Tests user profile management, password updates, and account deletion.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.user.UserChangePasswordRequest;
@@ -23,20 +27,40 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link UserService}.
+ * Verifies the correct behavior of user-related operations including
+ * finding a user, retrieving profile, updating profile, changing password,
+ * and deleting account.
+ */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    /** Mocked repository for user data access. */
     @Mock
     private UserRepository userRepository;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private UserService userService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** User ID. */
     private UUID userId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Valid user update request. */
     private UserUpdateRequest validUpdateRequest;
+
+    /** Valid password change request. */
     private UserChangePasswordRequest validPasswordRequest;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -63,6 +87,9 @@ class UserServiceTest {
 
     // ==================== FIND USER TESTS ====================
 
+    /**
+     * Tests that finding a user by ID succeeds when the user exists.
+     */
     @Test
     void findUserById_ShouldReturnUser_WhenExists() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
@@ -73,6 +100,10 @@ class UserServiceTest {
         assertEquals(testUser.getId(), found.getId());
     }
 
+    /**
+     * Tests that finding a user by ID fails when the user does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void findUserById_ShouldThrowException_WhenNotFound() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -83,6 +114,9 @@ class UserServiceTest {
 
     // ==================== PROFILE TESTS ====================
 
+    /**
+     * Tests that retrieving a user profile returns the correct user details.
+     */
     @Test
     void getProfile_ShouldReturnUserDetailResponse_WhenUserExists() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
@@ -95,6 +129,9 @@ class UserServiceTest {
         assertEquals(testUser.getEmail(), response.email());
     }
 
+    /**
+     * Tests that updating a user profile succeeds when all fields are valid and email is not taken.
+     */
     @Test
     void updateProfile_ShouldUpdateAllFields_WhenProvided() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
@@ -109,6 +146,10 @@ class UserServiceTest {
         assertEquals(validUpdateRequest.phoneNumber(), testUser.getPhoneNumber());
     }
 
+    /**
+     * Tests that updating a profile fails when the new email is already taken by another user.
+     * Expects a {@link ResourceAlreadyExistsException}.
+     */
     @Test
     void updateProfile_ShouldThrowException_WhenEmailIsTaken() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
@@ -118,6 +159,9 @@ class UserServiceTest {
                 () -> userService.updateProfile(userId, validUpdateRequest));
     }
 
+    /**
+     * Tests that updating a profile with the same email does not throw an exception.
+     */
     @Test
     void updateProfile_ShouldNotThrowException_WhenSameEmail() {
         UserUpdateRequest sameEmailRequest = new UserUpdateRequest(
@@ -133,6 +177,9 @@ class UserServiceTest {
 
     // ==================== PASSWORD TESTS ====================
 
+    /**
+     * Tests that changing the password succeeds when the current password is correct.
+     */
     @Test
     void changePassword_ShouldSucceed_WhenCurrentPasswordIsCorrect() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
@@ -144,6 +191,10 @@ class UserServiceTest {
         assertNotEquals(PasswordUtil.hashPassword("12345678"), testUser.getPassword());
     }
 
+    /**
+     * Tests that changing the password fails when the current password is incorrect.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void changePassword_ShouldThrowException_WhenCurrentPasswordIsWrong() {
         UserChangePasswordRequest wrongRequest = new UserChangePasswordRequest(
@@ -158,6 +209,9 @@ class UserServiceTest {
 
     // ==================== DELETE TESTS ====================
 
+    /**
+     * Tests that deleting a profile sets the user's status to DELETED.
+     */
     @Test
     void deleteProfile_ShouldSetStatusToDeleted() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
