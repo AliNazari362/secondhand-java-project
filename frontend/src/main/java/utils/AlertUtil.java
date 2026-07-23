@@ -9,11 +9,18 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility class for displaying graphical dialogs and alerts in JavaFX.
  * Provides methods for error, success, warning, confirmation, and text input dialogs.
  * All dialogs are automatically configured with Right-to-Left (RTL) orientation.
+ * <p>
+ * All methods are thread-safe and can be called from any thread.
+ * If called from a non-JavaFX thread, the dialog will be delegated to the
+ * JavaFX Application Thread using {@link Platform#runLater}.
  */
 public class AlertUtil {
 
@@ -61,7 +68,7 @@ public class AlertUtil {
     }
 
     /**
-     * Creates and immediately shows an alert dialog on the JavaFX Application Thread.
+     * Creates and immediately shows a non-blocking alert dialog on the JavaFX Application Thread.
      *
      * @param type    the type of alert to display
      * @param title   the title of the alert window
@@ -81,12 +88,42 @@ public class AlertUtil {
 
     /**
      * Displays a blocking confirmation dialog with OK and Cancel buttons.
+     * This method is thread-safe and can be called from any thread.
+     * If called from a non-JavaFX thread, it will block and wait for the UI thread to complete.
      *
      * @param title   the header title of the confirmation dialog
      * @param message the content message to display
      * @return true if the user clicks OK, false otherwise
      */
     public static boolean showConfirmation(String title, String message) {
+        if (Platform.isFxApplicationThread()) {
+            return showConfirmationSync(title, message);
+        } else {
+            CountDownLatch latch = new CountDownLatch(1);
+            AtomicBoolean result = new AtomicBoolean(false);
+            Platform.runLater(() -> {
+                result.set(showConfirmationSync(title, message));
+                latch.countDown();
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            return result.get();
+        }
+    }
+
+    /**
+     * Internal synchronous implementation of confirmation dialog.
+     * Must be called on the JavaFX Application Thread.
+     *
+     * @param title   the header title
+     * @param message the content message
+     * @return true if OK clicked, false otherwise
+     */
+    private static boolean showConfirmationSync(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("تأیید");
         alert.setHeaderText(title);
@@ -98,6 +135,8 @@ public class AlertUtil {
 
     /**
      * Displays a text input dialog for collecting user input.
+     * This method is thread-safe and can be called from any thread.
+     * If called from a non-JavaFX thread, it will block and wait for the UI thread to complete.
      *
      * @param title        the title of the dialog window
      * @param message      the prompt message for the input field
@@ -105,6 +144,35 @@ public class AlertUtil {
      * @return the text entered by the user, or null if the dialog is canceled
      */
     public static String showInputDialog(String title, String message, String defaultValue) {
+        if (Platform.isFxApplicationThread()) {
+            return showInputDialogSync(title, message, defaultValue);
+        } else {
+            CountDownLatch latch = new CountDownLatch(1);
+            AtomicReference<String> result = new AtomicReference<>(null);
+            Platform.runLater(() -> {
+                result.set(showInputDialogSync(title, message, defaultValue));
+                latch.countDown();
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            }
+            return result.get();
+        }
+    }
+
+    /**
+     * Internal synchronous implementation of text input dialog.
+     * Must be called on the JavaFX Application Thread.
+     *
+     * @param title        the title of the dialog window
+     * @param message      the prompt message for the input field
+     * @param defaultValue the default text to pre-fill
+     * @return the entered text, or null if canceled
+     */
+    private static String showInputDialogSync(String title, String message, String defaultValue) {
         TextInputDialog dialog = new TextInputDialog(defaultValue);
         dialog.setTitle(title);
         dialog.setHeaderText(null);
@@ -116,8 +184,7 @@ public class AlertUtil {
 
     /**
      * Applies Right-to-Left (RTL) orientation to an Alert dialog pane.
-     * Ensures correct layout and button positioning for Persian text,
-     * even when the title or content contains English words.
+     * Ensures correct layout and button positioning for Persian text.
      *
      * @param alert the Alert dialog to apply RTL orientation to
      */
