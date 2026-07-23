@@ -11,10 +11,8 @@ package com.secondhand.dto.image;
  */
 public record ImageResponse(
 
-        /** Surrogate database identifier for this image. */
         Long id,
 
-        /** Relative path or storage key pointing to the actual image file. */
         String path
 
 ) {}

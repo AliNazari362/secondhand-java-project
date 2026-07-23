@@ -9,12 +9,12 @@ import jakarta.validation.constraints.Size;
  * Request DTO for registering a new user account.
  *
  * <p>Submitted via POST /api/users/register. The password field carries the raw
- * plaintext password; the com.secondhand.service layer is responsible for hashing it before
- * persisting the com.secondhand.entity.</p>
+ * plaintext password; the service layer is responsible for hashing it before
+ * persisting the entity.</p>
  *
  * @param fullName    display name for the new account
  * @param email       unique email address to use as the login credential
- * @param password    plaintext password (will be hashed by the com.secondhand.service layer)
+ * @param password    plaintext password (will be hashed by the service layer)
  * @param phoneNumber optional mobile phone number
  */
 public record UserRegisterRequest(

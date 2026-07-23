@@ -1,6 +1,6 @@
 package com.secondhand.controller;
 
-import com.secondhand.dto.category.CategoryResponse;
+import com.secondhand.dto.adv.CategoryResponse;
 import com.secondhand.entity.Category;
 import com.secondhand.service.CategoryService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * کنترلر عمومی برای دریافت دسته‌بندی‌ها (بدون نیاز به احراز هویت)
+ * Public REST controller for retrieving category information without authentication.
+ *
+ * <p>Provides a single public endpoint to fetch all categories.
+ * Base path: {@code /api/categories}</p>
  */
 @RestController
 @RequestMapping("api/categories")
@@ -19,12 +22,19 @@ public class PublicCategoryController {
 
     private final CategoryService categoryService;
 
+    /**
+     * Constructs a {@code PublicCategoryController} with the required service dependency.
+     *
+     * @param categoryService the category service used to retrieve category data
+     */
     public PublicCategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     /**
-     * دریافت لیست تمام دسته‌بندی‌ها با parentId
+     * Retrieves all categories.
+     *
+     * @return a list of {@link CategoryResponse} objects representing all categories
      */
     @GetMapping("/public")
     public List<CategoryResponse> getAllCategories() {
@@ -35,7 +45,10 @@ public class PublicCategoryController {
     }
 
     /**
-     * تبدیل Category به CategoryResponse
+     * Converts a {@link Category} entity to a {@link CategoryResponse} DTO.
+     *
+     * @param category the category entity
+     * @return the corresponding DTO
      */
     private CategoryResponse toCategoryResponse(Category category) {
         Long parentId = (category.getParent() != null) ? category.getParent().getId() : null;

@@ -38,7 +38,6 @@ public class ImageUploadController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestHeader("Authorization") String token,
                                               @RequestParam("file") MultipartFile file) {
-        // Validate token (optional, but good practice)
         JwtUtil.getUserIdFromToken(token);
 
         if (file.isEmpty()) {
@@ -46,13 +45,11 @@ public class ImageUploadController {
         }
 
         try {
-            // Create upload directory if it doesn't exist
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Generate a unique filename
             String originalFilename = file.getOriginalFilename();
             String extension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
@@ -61,10 +58,8 @@ public class ImageUploadController {
             String fileName = UUID.randomUUID() + extension;
             Path filePath = uploadPath.resolve(fileName);
 
-            // Save the file
             Files.write(filePath, file.getBytes());
 
-            // Return the relative path
             return ResponseEntity.ok(UPLOAD_DIR + fileName);
 
         } catch (IOException e) {

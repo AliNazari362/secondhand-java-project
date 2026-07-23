@@ -24,8 +24,8 @@ import java.math.BigDecimal;
         name = "services",
         indexes = {
                 @Index(name = "idx_service_special_category", columnList = "special_category"),
-                @Index(name = "idx_service_type_of_part",     columnList = "type_of_part"),
-                @Index(name = "idx_service_cost",             columnList = "cost_of_part")
+                @Index(name = "idx_service_type_of_part", columnList = "type_of_part"),
+                @Index(name = "idx_service_cost", columnList = "cost_of_part")
         }
 )
 public class Service extends Adv {
@@ -75,17 +75,13 @@ public class Service extends Adv {
     @Column(name = "type_of_part", length = 10)
     private ServiceType typeOfPart;
 
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
-
     /**
      * JPA-required no-argument constructor.
      * Sets the advertisement type discriminator to SERVICE and cost to zero.
      */
     public Service() {
         super();
-        this.setAdvType(AdvType.SERVICE); // ✅ فعال شد
+        this.setAdvType(AdvType.SERVICE);
         this.costOfPart = BigDecimal.ZERO;
     }
 
@@ -108,23 +104,30 @@ public class Service extends Adv {
         this.typeOfPart = typeOfPart;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
-
-    public String getSpecialCategory() { return specialCategory; }
+    // ---------- Getters and Setters ----------
+    public String getSpecialCategory() {
+        return specialCategory;
+    }
 
     public void setSpecialCategory(String specialCategory) {
         this.specialCategory = specialCategory;
     }
 
-    public BigDecimal getCostOfPart() { return costOfPart; }
+    public BigDecimal getCostOfPart() {
+        return costOfPart;
+    }
 
-    public void setCostOfPart(BigDecimal costOfPart) { this.costOfPart = costOfPart; }
+    public void setCostOfPart(BigDecimal costOfPart) {
+        this.costOfPart = costOfPart;
+    }
 
-    public ServiceType getTypeOfPart() { return typeOfPart; }
+    public ServiceType getTypeOfPart() {
+        return typeOfPart;
+    }
 
-    public void setTypeOfPart(ServiceType typeOfPart) { this.typeOfPart = typeOfPart; }
+    public void setTypeOfPart(ServiceType typeOfPart) {
+        this.typeOfPart = typeOfPart;
+    }
 
     /**
      * Safe toString that never accesses lazy associations.

@@ -16,28 +16,25 @@ import java.util.List;
 /**
  * Request DTO for creating a new service advertisement.
  *
- * <p>This DTO is sent by the client (Frontend) to the server to register a new
- * service offering in the system. Services include programming, repairs, consulting,
- * and similar offerings. Pricing can be based on hourly, daily, weekly, monthly,
- * annual, or fixed rates.</p>
+ * <p>This DTO is sent by the client to register a new service offering.
+ * Services include programming, repairs, consulting, and similar offerings.
+ * Pricing can be based on hourly, daily, weekly, monthly, annual, or fixed rates.</p>
  *
- * <p>The authenticated user is identified via the JWT token, so the user ID is
- * not included in this request.</p>
+ * <p>The authenticated user is identified via the JWT token, so the user ID is not included.</p>
  *
  * <p><strong>Image Support:</strong> The {@code images} field allows uploading
- * multiple image references (paths) along with the advertisement. These images
- * are stored and associated with the advertisement during creation.</p>
+ * multiple image paths along with the advertisement.</p>
  *
- * @param fullName        Advertisement title (required, max 255 characters)
- * @param description     Full description (optional, max 5000 characters)
- * @param city            City where the service is offered (optional)
- * @param address         Detailed address (optional, max 500 characters)
- * @param specialCategory Free-text sub-category of the service (optional, max 150 characters)
- * @param categoryId      ID of the service category (optional, references the new {@link com.secondhand.entity.Category} entity)
- * @param costOfPart      Price per billing unit (required, must be zero or positive)
- * @param typeOfPart      Billing unit type (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, FIXED)
- * @param options         List of dynamic key-value attributes (optional)
- * @param images          List of image paths (optional)
+ * @param fullName        advertisement title (required, max 255 chars)
+ * @param description     full description (optional, max 5000 chars)
+ * @param city            city where the service is offered (optional)
+ * @param address         detailed address (optional, max 500 chars)
+ * @param specialCategory free-text sub-category of the service (optional, max 150 chars)
+ * @param categoryId      ID of the service category (optional)
+ * @param costOfPart      price per billing unit (required, zero or positive)
+ * @param typeOfPart      billing unit type (HOURLY, DAILY, WEEKLY, MONTHLY, ANNUAL, FIXED)
+ * @param options         list of dynamic key-value attributes (optional)
+ * @param images          list of image paths (optional)
  */
 public record ServiceCreateRequest(
         @NotBlank(message = "عنوان آگهی نمی‌تواند خالی باشد")
@@ -55,8 +52,7 @@ public record ServiceCreateRequest(
         @Size(max = 150, message = "دسته‌بندی خدمات نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String specialCategory,
 
-        // فیلد جدید برای دسته‌بندی
-        Long categoryId,  // <-- جدید
+        Long categoryId,
 
         @NotNull(message = "هزینه خدمات نمی‌تواند خالی باشد")
         @DecimalMin(value = "0.0", inclusive = true, message = "هزینه خدمات باید صفر یا مثبت باشد")

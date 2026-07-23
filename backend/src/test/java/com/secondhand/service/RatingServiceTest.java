@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link RatingService}.
+ * Tests rating operations for sellers, including creating ratings and retrieving statistics.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.comment.CommentRequest;
@@ -28,31 +32,57 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link RatingService}.
+ * Verifies the correct behavior of rating-related operations including
+ * submitting a rating, retrieving average rating, and retrieving rating count.
+ */
 @ExtendWith(MockitoExtension.class)
 class RatingServiceTest {
 
+    /** Mocked repository for comment data access. */
     @Mock
     private CommentRepository commentRepository;
 
+    /** Mocked service for advertisement operations. */
     @Mock
     private AdvService advService;
 
+    /** Mocked service for user operations. */
     @Mock
     private UserService userService;
 
+    /** Mocked service for comment operations. */
     @Mock
     private CommentService commentService;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private RatingService ratingService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** User ID. */
     private UUID userId;
+
+    /** Advertisement ID. */
     private UUID advId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Another user instance (the seller). */
     private User otherUser;
+
+    /** Test advertisement. */
     private Adv testAdv;
+
+    /** Rating request. */
     private CommentRequest ratingRequest;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -79,25 +109,28 @@ class RatingServiceTest {
         ratingRequest = new CommentRequest("Good seller!", 4);
     }
 
+    // ==================== RATE ADVERTISEMENT TESTS ====================
+
+    /**
+     * Tests that a rating is successfully submitted when the request is valid.
+     * Verifies that the rating is saved in the repository.
+     */
     @Test
     void rateAdvertisement_ShouldSucceed_WhenValid() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
         when(userService.findUserById(userId)).thenReturn(testUser);
         when(commentRepository.existsByUserIdAndAdvId(userId, advId)).thenReturn(false);
 
-        // ✅ یک Comment بدون نیاز به setId بسازید
         Comment savedComment = new Comment();
         savedComment.setText("Good seller!");
         savedComment.setRate(4);
         savedComment.setUser(testUser);
         savedComment.setAdv(testAdv);
-        // نیازی به تنظیم تاریخ و id نیست چون toCommentResponse را Mock می‌کنیم
 
         when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
 
-        // ✅ Mock کردن toCommentResponse به جای thenCallRealMethod
         CommentResponse mockResponse = new CommentResponse(
-                1L, // id دلخواه
+                1L,
                 "Good seller!",
                 4,
                 new UserSummaryResponse(testUser.getId(), testUser.getFullName(), testUser.getEmail(), testUser.getUserType()),
@@ -113,6 +146,10 @@ class RatingServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
+    /**
+     * Tests that rating fails when the user is the owner of the advertisement.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void rateAdvertisement_ShouldThrowException_WhenUserOwnsAdvertisement() {
         testAdv.setUser(testUser);
@@ -122,6 +159,10 @@ class RatingServiceTest {
                 () -> ratingService.rateAdvertisement(advId, ratingRequest, userId));
     }
 
+    /**
+     * Tests that rating fails when the user has already rated this seller for this advertisement.
+     * Expects a {@link ResourceAlreadyExistsException}.
+     */
     @Test
     void rateAdvertisement_ShouldThrowException_WhenAlreadyRated() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
@@ -131,6 +172,11 @@ class RatingServiceTest {
                 () -> ratingService.rateAdvertisement(advId, ratingRequest, userId));
     }
 
+    // ==================== GET AVERAGE RATING TESTS ====================
+
+    /**
+     * Tests that the average rating for an advertisement is correctly retrieved.
+     */
     @Test
     void getAverageRating_ShouldReturnDouble() {
         when(commentRepository.getAverageRatingByAdvId(advId)).thenReturn(4.5);
@@ -140,6 +186,9 @@ class RatingServiceTest {
         assertEquals(4.5, avg);
     }
 
+    /**
+     * Tests that retrieving the average rating returns zero when no ratings exist.
+     */
     @Test
     void getAverageRating_ShouldReturnZero_WhenNoRatings() {
         when(commentRepository.getAverageRatingByAdvId(advId)).thenReturn(null);
@@ -149,6 +198,11 @@ class RatingServiceTest {
         assertEquals(0.0, avg);
     }
 
+    // ==================== GET RATING COUNT TESTS ====================
+
+    /**
+     * Tests that the rating count for an advertisement is correctly retrieved.
+     */
     @Test
     void getRatingCount_ShouldReturnLong() {
         when(commentRepository.countByAdvId(advId)).thenReturn(5L);

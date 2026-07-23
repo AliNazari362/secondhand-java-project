@@ -1,5 +1,6 @@
 package com.secondhand.repository;
 
+import com.secondhand.entity.Adv;
 import com.secondhand.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -47,6 +48,4 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
      * @return list of matching products; empty list if none found
      */
     List<Product> findByStateOfProduct(Product.ProductState state);
-
-    // متد findByCategory(Category category) حذف شد.
 }

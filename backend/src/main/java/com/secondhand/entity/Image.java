@@ -43,7 +43,6 @@ public class Image {
      * The advertisement this image is attached to.
      * This is the owning side of the {@code Image ↔ Adv} relationship.
      */
-    // ✅ رابطه‌ی ManyToOne با Adv (سمت owning)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "adv_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_image_adv"))
@@ -52,7 +51,8 @@ public class Image {
     /**
      * JPA-required no-argument constructor.
      */
-    public Image() {}
+    public Image() {
+    }
 
     /**
      * Convenience constructor for creating a fully initialised image.
@@ -65,17 +65,31 @@ public class Image {
         this.adv = adv;
     }
 
-    // ---------- Getters & Setters ----------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ---------- Getters and Setters ----------
+    public Long getId() {
+        return id;
+    }
 
-    public String getPath() { return path; }
-    public void setPath(String path) { this.path = path; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Adv getAdv() { return adv; }
-    public void setAdv(Adv adv) { this.adv = adv; }
+    public String getPath() {
+        return path;
+    }
 
-    // ---------- equals & hashCode ----------
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Adv getAdv() {
+        return adv;
+    }
+
+    public void setAdv(Adv adv) {
+        this.adv = adv;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

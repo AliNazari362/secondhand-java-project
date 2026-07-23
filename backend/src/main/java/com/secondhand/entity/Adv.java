@@ -35,7 +35,7 @@ import java.util.UUID;
                 @Index(name = "idx_adv_adv_type", columnList = "adv_type"),
                 @Index(name = "idx_adv_city", columnList = "city"),
                 @Index(name = "idx_adv_creation", columnList = "creation_date"),
-                @Index(name = "idx_adv_category", columnList = "category_id") // <-- ایندکس جدید برای دسته‌بندی
+                @Index(name = "idx_adv_category", columnList = "category_id")
         }
 )
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -82,7 +82,7 @@ public abstract class Adv {
      * Owned exclusively by this advertisement; deleted when the advertisement is deleted.
      *
      * <p>This is the inverse side of the bidirectional relationship with {@link Option}.
-     * The owning side is {@link Option}
+     * The owning side is {@link Option}.</p>
      */
     @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Option> options = new ArrayList<>();
@@ -135,7 +135,7 @@ public abstract class Adv {
      * Deleted automatically when the advertisement is removed.
      *
      * <p>This is the inverse side of the bidirectional relationship with {@link Image}.
-     * The owning side is {@link Image}
+     * The owning side is {@link Image}.</p>
      */
     @OneToMany(mappedBy = "adv", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
@@ -165,17 +165,14 @@ public abstract class Adv {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
-    // ------------------- فیلد جدید اضافه‌شده -------------------
     /**
      * The category that classifies this advertisement.
      * Helps users filter and browse advertisements by type and sub-type.
-     * This is a Many-to-One relationship because one category can have
-     * many advertisements.
+     * This is a Many-to-One relationship because one category can have many advertisements.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "fk_adv_category"))
     private Category category;
-    // ---------------------------------------------------------
 
     /**
      * Optimistic-locking version column to prevent lost-update concurrency issues.
@@ -213,131 +210,55 @@ public abstract class Adv {
         this.city = city;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    // ---------- Getters and Setters ----------
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public AdvStatus getStatus() { return status; }
+    public void setStatus(AdvStatus status) { this.status = status; }
 
-    public AdvStatus getStatus() {
-        return status;
-    }
+    public AdvType getAdvType() { return advType; }
+    public void setAdvType(AdvType advType) { this.advType = advType; }
 
-    public void setStatus(AdvStatus status) {
-        this.status = status;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public AdvType getAdvType() {
-        return advType;
-    }
+    public List<Option> getOptions() { return options; }
+    public void setOptions(List<Option> options) { this.options = options; }
 
-    public void setAdvType(AdvType advType) {
-        this.advType = advType;
-    }
+    public String getRejectionExplanation() { return rejectionExplanation; }
+    public void setRejectionExplanation(String rejectionExplanation) { this.rejectionExplanation = rejectionExplanation; }
 
-    public String getDescription() {
-        return description;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public LocalDateTime getCreationDate() { return creationDate; }
+    public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
 
-    public List<Option> getOptions() {
-        return options;
-    }
+    public LocalDateTime getLastModifiedDate() { return lastModifiedDate; }
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) { this.lastModifiedDate = lastModifiedDate; }
 
-    public void setOptions(List<Option> options) {
-        this.options = options;
-    }
+    public List<Comment> getComments() { return comments; }
+    public void setComments(List<Comment> comments) { this.comments = comments; }
 
-    public String getRejectionExplanation() {
-        return rejectionExplanation;
-    }
+    public List<Image> getImages() { return images; }
+    public void setImages(List<Image> images) { this.images = images; }
 
-    public void setRejectionExplanation(String rejectionExplanation) {
-        this.rejectionExplanation = rejectionExplanation;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public User getUser() {
-        return user;
-    }
+    public City getCity() { return city; }
+    public void setCity(City city) { this.city = city; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
+    public Long getVersion() { return version; }
 
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Image> getImages() {
-        return images;
-    }
-
-    public void setImages(List<Image> images) {
-        this.images = images;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public City getCity() {
-        return city;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    // ------------------- Getter و Setter جدید -------------------
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    // ---------------------------------------------------------
-
-    public Long getVersion() {
-        return version;
-    }
+    // ---------- Helper Methods ----------
 
     /**
      * Appends a key-value option attribute to this advertisement.

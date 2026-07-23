@@ -127,20 +127,16 @@ public class ChatService {
      * @throws BadRequestException       if the advertisement is not in a valid status for chat
      */
     public ChatroomDetailResponse startOrGetChat(ChatroomCreateRequest request, UUID userId) {
-        // 1. Retrieve and validate the advertisement
         Adv adv = advService.findAdvById(request.advId());
 
-        // 2. Verify advertisement status
         if (adv.getStatus() != AdvStatus.ACTIVE && adv.getStatus() != AdvStatus.SOLD) {
             throw new BadRequestException("امکان شروع گفت‌وگو برای این آگهی وجود ندارد");
         }
 
-        // 3. Prevent users from chatting about their own advertisements
         if (adv.getUser().getId().equals(userId)) {
             throw new ForbiddenException("شما نمی توانید در آگهی خود، گفت و گویی آغاز کنید");
         }
 
-        // 4. Check for an existing chat room
         Chatroom existing = chatroomRepository
                 .findByUserIdAndAdvId(userId, request.advId())
                 .orElse(null);
@@ -149,7 +145,6 @@ public class ChatService {
             return toChatroomDetailResponse(existing);
         }
 
-        // 5. Create a new chat room associated with the buyer
         User buyer = userService.findUserById(userId);
         Chatroom newRoom = new Chatroom(adv);
 
@@ -328,12 +323,10 @@ public class ChatService {
      * @throws ForbiddenException if the user is neither the buyer nor the seller
      */
     private void checkParticipant(Chatroom room, UUID userId) {
-        // Check if the user is the buyer (owner)
         if (room.getUserId() != null && room.getUserId().equals(userId)) {
             return;
         }
 
-        // Check if the user is the seller
         Adv adv = room.getAdv();
         if (adv != null && adv.getUser() != null && adv.getUser().getId().equals(userId)) {
             return;

@@ -270,6 +270,7 @@ public class AdvService {
      * Returns the full detail of a publicly accessible advertisement.
      *
      * @param advId the UUID of the advertisement to retrieve
+     * @param userId the UUID of the authenticated user
      * @return a {@link AdvDetailResponse} for the specified advertisement
      */
     public AdvDetailResponse getAdvDetail(UUID advId, UUID userId) {
@@ -513,7 +514,6 @@ public class AdvService {
         String firstImage = adv.getImages().isEmpty() ? null : adv.getImages().get(0).getPath();
         String categoryName = adv.getCategory() != null ? adv.getCategory().getName() : null;
 
-        // استخراج قیمت فقط در صورتی که آگهی از نوع Product باشد
         BigDecimal price = null;
         if (adv instanceof Product product) {
             price = product.getPrice();
@@ -530,7 +530,7 @@ public class AdvService {
                 adv.getCreationDate(),
                 firstImage,
                 categoryName,
-                price  // <-- فیلد جدید
+                price
         );
     }
 

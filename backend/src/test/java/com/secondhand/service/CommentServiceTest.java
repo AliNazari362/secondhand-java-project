@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link CommentService}.
+ * Tests comment creation, updating, deletion, and retrieval operations.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.comment.CommentRequest;
@@ -27,30 +31,59 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link CommentService}.
+ * Verifies the correct behavior of comment-related operations including
+ * creating, updating, deleting, and retrieving comments on advertisements.
+ */
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
+    /** Mocked repository for comment data access. */
     @Mock
     private CommentRepository commentRepository;
 
+    /** Mocked service for advertisement operations. */
     @Mock
     private AdvService advService;
 
+    /** Mocked service for user operations. */
     @Mock
     private UserService userService;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private CommentService commentService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** User ID. */
     private UUID userId;
+
+    /** Advertisement ID. */
     private UUID advId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Another user instance (the advertisement owner). */
     private User otherUser;
+
+    /** Test advertisement. */
     private Adv testAdv;
+
+    /** Test comment instance. */
     private Comment testComment;
+
+    /** Comment creation request. */
     private CommentRequest commentRequest;
+
+    /** Comment update request. */
     private CommentUpdateRequest updateRequest;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -85,6 +118,12 @@ class CommentServiceTest {
         updateRequest = new CommentUpdateRequest("Updated comment!", 4);
     }
 
+    // ==================== CREATE COMMENT TESTS ====================
+
+    /**
+     * Tests that a comment is successfully created on an advertisement when the user
+     * is not the owner and has not already commented.
+     */
     @Test
     void createComment_ShouldSucceed_WhenValid() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
@@ -100,6 +139,10 @@ class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
+    /**
+     * Tests that creating a comment fails when the user is the owner of the advertisement.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void createComment_ShouldThrowException_WhenUserOwnsAdvertisement() {
         testAdv.setUser(testUser);
@@ -109,6 +152,10 @@ class CommentServiceTest {
                 () -> commentService.createComment(advId, commentRequest, userId));
     }
 
+    /**
+     * Tests that creating a comment fails when the user has already commented on the advertisement.
+     * Expects a {@link ResourceAlreadyExistsException}.
+     */
     @Test
     void createComment_ShouldThrowException_WhenUserAlreadyCommented() {
         when(advService.findAdvById(advId)).thenReturn(testAdv);
@@ -118,6 +165,11 @@ class CommentServiceTest {
                 () -> commentService.createComment(advId, commentRequest, userId));
     }
 
+    // ==================== UPDATE COMMENT TESTS ====================
+
+    /**
+     * Tests that a comment is successfully updated when the user is the author.
+     */
     @Test
     void updateComment_ShouldSucceed_WhenUserIsAuthor() {
         when(commentRepository.findById(1L)).thenReturn(Optional.of(testComment));
@@ -131,6 +183,10 @@ class CommentServiceTest {
         verify(commentRepository).save(testComment);
     }
 
+    /**
+     * Tests that updating a comment fails when the user is not the author.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void updateComment_ShouldThrowException_WhenUserNotAuthor() {
         UUID otherUserId = UUID.randomUUID();
@@ -140,6 +196,10 @@ class CommentServiceTest {
                 () -> commentService.updateComment(1L, updateRequest, otherUserId));
     }
 
+    /**
+     * Tests that updating a comment fails when the comment does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void updateComment_ShouldThrowException_WhenCommentNotFound() {
         when(commentRepository.findById(1L)).thenReturn(Optional.empty());
@@ -148,6 +208,11 @@ class CommentServiceTest {
                 () -> commentService.updateComment(1L, updateRequest, userId));
     }
 
+    // ==================== DELETE COMMENT TESTS ====================
+
+    /**
+     * Tests that a comment is successfully deleted when the user is the author.
+     */
     @Test
     void deleteComment_ShouldSucceed_WhenUserIsAuthor() {
         when(commentRepository.findById(1L)).thenReturn(Optional.of(testComment));
@@ -157,6 +222,10 @@ class CommentServiceTest {
         verify(commentRepository).delete(testComment);
     }
 
+    /**
+     * Tests that deleting a comment fails when the user is not the author.
+     * Expects a {@link ForbiddenException}.
+     */
     @Test
     void deleteComment_ShouldThrowException_WhenUserNotAuthor() {
         UUID otherUserId = UUID.randomUUID();
@@ -166,6 +235,10 @@ class CommentServiceTest {
                 () -> commentService.deleteComment(1L, otherUserId));
     }
 
+    /**
+     * Tests that deleting a comment fails when the comment does not exist.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void deleteComment_ShouldThrowException_WhenCommentNotFound() {
         when(commentRepository.findById(1L)).thenReturn(Optional.empty());
@@ -174,6 +247,11 @@ class CommentServiceTest {
                 () -> commentService.deleteComment(1L, userId));
     }
 
+    // ==================== GET COMMENTS TESTS ====================
+
+    /**
+     * Tests that retrieving comments for an advertisement returns a list.
+     */
     @Test
     void getCommentsForAdv_ShouldReturnList() {
         when(commentRepository.findByAdvId(advId)).thenReturn(List.of(testComment));
@@ -185,6 +263,9 @@ class CommentServiceTest {
         assertEquals(testComment.getText(), results.get(0).text());
     }
 
+    /**
+     * Tests that retrieving comments for an advertisement returns an empty list when there are none.
+     */
     @Test
     void getCommentsForAdv_ShouldReturnEmptyList_WhenNoComments() {
         when(commentRepository.findByAdvId(advId)).thenReturn(List.of());

@@ -49,7 +49,7 @@ public class UserController {
         if (header == null || !header.startsWith("Bearer ")) {
             throw new IllegalTokenException("توکن نامعتبر است");
         }
-        return header.substring(7); // remove "Bearer " prefix
+        return header.substring(7);
     }
 
     /**

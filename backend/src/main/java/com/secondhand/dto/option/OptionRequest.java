@@ -15,12 +15,10 @@ import jakarta.validation.constraints.Size;
  */
 public record OptionRequest(
 
-        /** The name of the attribute key; must not be blank. */
         @NotBlank(message = "نام گزینه نمی‌تواند خالی باشد")
         @Size(max = 150, message = "نام گزینه نباید از ۱۵۰ کاراکتر بیشتر باشد")
         String option,
 
-        /** The value assigned to the attribute key; must not be blank. */
         @NotBlank(message = "مقدار گزینه نمی‌تواند خالی باشد")
         @Size(max = 500, message = "مقدار گزینه نباید از ۵۰۰ کاراکتر بیشتر باشد")
         String value

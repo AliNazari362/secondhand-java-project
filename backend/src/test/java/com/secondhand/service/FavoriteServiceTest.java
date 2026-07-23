@@ -1,3 +1,7 @@
+/**
+ * Unit tests for {@link FavoriteService}.
+ * Tests adding, removing, and retrieving favorite advertisements for a user.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.adv.AdvSummaryResponse;
@@ -27,24 +31,46 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link FavoriteService}.
+ * Verifies the correct behavior of favorite-related operations including
+ * adding, removing, and retrieving a user's favorite advertisements.
+ */
 @ExtendWith(MockitoExtension.class)
 class FavoriteServiceTest {
 
+    /** Mocked service for user operations. */
     @Mock
     private UserService userService;
 
+    /** Mocked service for advertisement operations. */
     @Mock
     private AdvService advService;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private FavoriteService favoriteService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** User ID. */
     private UUID userId;
+
+    /** Advertisement ID. */
     private UUID advId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Test advertisement. */
     private Adv testAdv;
+
+    /** Seller user instance. */
     private User seller;
 
+    /**
+     * Sets up common test fixtures before each test.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -71,10 +97,15 @@ class FavoriteServiceTest {
         testAdv.setCity(City.TEHRAN);
         testAdv.setUser(seller);
         testAdv.setCreationDate(LocalDateTime.now());
-        // تنظیم قیمت برای محصول (برای استفاده در Mock)
         ((Product) testAdv).setPrice(BigDecimal.valueOf(1000000));
     }
 
+    // ==================== ADD FAVORITE TESTS ====================
+
+    /**
+     * Tests that adding an advertisement to favorites succeeds when all conditions are valid.
+     * Verifies that the advertisement is added to the user's favorites list and saved.
+     */
     @Test
     void addFavorite_ShouldSucceed_WhenValid() {
         when(userService.findUserById(userId)).thenReturn(testUser);
@@ -86,6 +117,10 @@ class FavoriteServiceTest {
         verify(userService).saveUser(testUser);
     }
 
+    /**
+     * Tests that adding a favorite fails when the advertisement is not active or sold.
+     * Expects a {@link ResourceNotFoundException}.
+     */
     @Test
     void addFavorite_ShouldThrowException_WhenAdvertisementNotActiveOrSold() {
         testAdv.setStatus(AdvStatus.PENDING);
@@ -96,6 +131,10 @@ class FavoriteServiceTest {
                 () -> favoriteService.addFavorite(userId, advId));
     }
 
+    /**
+     * Tests that adding a favorite fails when the advertisement is already favorited.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void addFavorite_ShouldThrowException_WhenAlreadyFavorited() {
         testUser.getFavorites().add(testAdv);
@@ -106,6 +145,11 @@ class FavoriteServiceTest {
                 () -> favoriteService.addFavorite(userId, advId));
     }
 
+    // ==================== REMOVE FAVORITE TESTS ====================
+
+    /**
+     * Tests that removing an advertisement from favorites succeeds when it is favorited.
+     */
     @Test
     void removeFavorite_ShouldSucceed_WhenExists() {
         testUser.getFavorites().add(testAdv);
@@ -118,6 +162,10 @@ class FavoriteServiceTest {
         verify(userService).saveUser(testUser);
     }
 
+    /**
+     * Tests that removing a favorite fails when the advertisement is not favorited.
+     * Expects a {@link BadRequestException}.
+     */
     @Test
     void removeFavorite_ShouldThrowException_WhenNotFavorited() {
         when(userService.findUserById(userId)).thenReturn(testUser);
@@ -127,12 +175,16 @@ class FavoriteServiceTest {
                 () -> favoriteService.removeFavorite(userId, advId));
     }
 
+    // ==================== GET FAVORITES TESTS ====================
+
+    /**
+     * Tests that retrieving a user's favorites returns a list of their favorited advertisements.
+     */
     @Test
     void getFavorites_ShouldReturnList() {
         testUser.getFavorites().add(testAdv);
         when(userService.findUserById(userId)).thenReturn(testUser);
 
-        // ✅ Mock پاسخ با ۱۱ آرگومان (شامل price)
         AdvSummaryResponse mockResponse = new AdvSummaryResponse(
                 testAdv.getId(),
                 testAdv.getFullName(),
@@ -144,7 +196,7 @@ class FavoriteServiceTest {
                 testAdv.getCreationDate(),
                 "image.jpg",
                 "Electronics",
-                ((Product) testAdv).getPrice()  // فیلد price اضافه شد
+                ((Product) testAdv).getPrice()
         );
         when(advService.toAdvSummaryResponse(any(Adv.class))).thenReturn(mockResponse);
 

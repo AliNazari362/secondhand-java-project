@@ -1,3 +1,8 @@
+/**
+ * Unit tests for {@link AdminService}.
+ * Tests administrative operations including user management, advertisement
+ * moderation, and dashboard statistics.
+ */
 package com.secondhand.service;
 
 import com.secondhand.dto.admin.DashboardStatsResponse;
@@ -28,34 +33,59 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for {@link AdminService}.
+ * Verifies the correct behavior of administrative operations such as
+ * retrieving users, banning/unbanning users, and managing advertisements.
+ */
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
 
+    // ==================== MOCK DEPENDENCIES ====================
+
+    /** Mocked repository for user data access. */
     @Mock
     private UserRepository userRepository;
 
+    /** Mocked service for advertisement-related operations. */
     @Mock
     private AdvService advService;
 
+    /** Mocked repository for advertisement data access. */
     @Mock
     private AdvRepository advRepository;
 
+    /** Mocked service for user-related operations. */
     @Mock
     private UserService userService;
 
+    /** Mocked repository for comment data access. */
     @Mock
     private CommentRepository commentRepository;
 
+    /** Mocked repository for message data access. */
     @Mock
     private MessageRepository messageRepository;
 
+    /** The service under test, with mocks injected. */
     @InjectMocks
     private AdminService adminService;
 
+    // ==================== TEST FIXTURES ====================
+
+    /** Test user ID. */
     private UUID userId;
+
+    /** Test user instance. */
     private User testUser;
+
+    /** Test advertisement instance. */
     private Adv testAdv;
 
+    /**
+     * Sets up common test fixtures before each test.
+     * Initializes a test user and a test advertisement.
+     */
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
@@ -74,6 +104,12 @@ class AdminServiceTest {
         testAdv.setCity(City.TEHRAN);
     }
 
+    // ==================== USER MANAGEMENT TESTS ====================
+
+    /**
+     * Tests that {@link AdminService#getAllUsers()} returns a list of all users.
+     * Verifies that the repository is queried and the response is correctly mapped.
+     */
     @Test
     void getAllUsers_ShouldReturnList() {
         when(userRepository.findAll()).thenReturn(List.of(testUser));
@@ -86,6 +122,10 @@ class AdminServiceTest {
         assertEquals(testUser.getFullName(), results.get(0).fullName());
     }
 
+    /**
+     * Tests that {@link AdminService#getUsersByStatus(UserStatus)} returns a filtered
+     * list of users based on their status.
+     */
     @Test
     void getUsersByStatus_ShouldReturnFilteredList() {
         when(userRepository.findByUserStatus(UserStatus.ACTIVE)).thenReturn(List.of(testUser));
@@ -97,6 +137,9 @@ class AdminServiceTest {
         assertEquals(1, results.size());
     }
 
+    /**
+     * Tests that {@link AdminService#banUser(UUID)} sets the user's status to BANNED.
+     */
     @Test
     void banUser_ShouldSetStatusToBanned() {
         when(userService.findUserById(userId)).thenReturn(testUser);
@@ -108,6 +151,10 @@ class AdminServiceTest {
         verify(userRepository).save(testUser);
     }
 
+    /**
+     * Tests that {@link AdminService#unbanUser(UUID)} sets the user's status to ACTIVE
+     * when they are currently banned.
+     */
     @Test
     void unbanUser_ShouldSetStatusToActive() {
         testUser.setUserStatus(UserStatus.BANNED);
@@ -120,18 +167,32 @@ class AdminServiceTest {
         verify(userRepository).save(testUser);
     }
 
+    // ==================== ADVERTISEMENT MANAGEMENT TESTS ====================
+
+    /**
+     * Tests that {@link AdminService#approveAdv(UUID)} delegates the operation
+     * to {@link AdvService#approveAdv(UUID)}.
+     */
     @Test
     void approveAdv_ShouldDelegateToAdvService() {
         adminService.approveAdv(testAdv.getId());
         verify(advService).approveAdv(testAdv.getId());
     }
 
+    /**
+     * Tests that {@link AdminService#rejectAdv(UUID, String)} delegates the operation
+     * to {@link AdvService#rejectAdv(UUID, String)}.
+     */
     @Test
     void rejectAdv_ShouldDelegateToAdvService() {
         adminService.rejectAdv(testAdv.getId(), "Invalid");
         verify(advService).rejectAdv(testAdv.getId(), "Invalid");
     }
 
+    /**
+     * Tests that {@link AdminService#deleteAdv(UUID)} sets the advertisement's
+     * status to DELETE.
+     */
     @Test
     void deleteAdv_ShouldSetStatusToDeleted() {
         when(advService.findAdvById(testAdv.getId())).thenReturn(testAdv);
@@ -143,12 +204,23 @@ class AdminServiceTest {
         verify(advRepository).save(testAdv);
     }
 
+    /**
+     * Tests that {@link AdminService#getPendingAds()} delegates the operation
+     * to {@link AdvService#getPendingAds()}.
+     */
     @Test
     void getPendingAds_ShouldDelegateToAdvService() {
         adminService.getPendingAds();
         verify(advService).getPendingAds();
     }
 
+    // ==================== DASHBOARD STATISTICS TESTS ====================
+
+    /**
+     * Tests that {@link AdminService#getDashboardStats()} aggregates and returns
+     * all system statistics correctly.
+     * Verifies user counts, advertisement counts, and message/comment counts.
+     */
     @Test
     void getDashboardStats_ShouldReturnAllStatistics() {
         // Arrange - User stats

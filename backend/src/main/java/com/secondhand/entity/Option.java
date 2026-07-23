@@ -57,7 +57,6 @@ public class Option {
      * The advertisement this option belongs to.
      * This is the owning side of the {@code Option ↔ Adv} relationship.
      */
-    // ✅ رابطه‌ی ManyToOne با Adv (سمت owning)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "adv_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_option_adv"))
@@ -66,7 +65,8 @@ public class Option {
     /**
      * JPA-required no-argument constructor.
      */
-    public Option() {}
+    public Option() {
+    }
 
     /**
      * Convenience constructor for creating a fully initialised option.
@@ -81,20 +81,39 @@ public class Option {
         this.adv = adv;
     }
 
-    // ---------- Getters & Setters ----------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ---------- Getters and Setters ----------
+    public Long getId() {
+        return id;
+    }
 
-    public String getOption() { return option; }
-    public void setOption(String option) { this.option = option; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
+    public String getOption() {
+        return option;
+    }
 
-    public Adv getAdv() { return adv; }
-    public void setAdv(Adv adv) { this.adv = adv; }
+    public void setOption(String option) {
+        this.option = option;
+    }
 
-    // ---------- equals & hashCode ----------
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Adv getAdv() {
+        return adv;
+    }
+
+    public void setAdv(Adv adv) {
+        this.adv = adv;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

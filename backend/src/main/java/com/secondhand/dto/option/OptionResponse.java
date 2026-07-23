@@ -12,13 +12,10 @@ package com.secondhand.dto.option;
  */
 public record OptionResponse(
 
-        /** Surrogate database identifier for this option. */
         Long id,
 
-        /** The name of the attribute key. */
         String option,
 
-        /** The value assigned to the attribute key. */
         String value
 
 ) {}
