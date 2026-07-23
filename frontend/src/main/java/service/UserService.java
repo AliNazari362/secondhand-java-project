@@ -3,43 +3,56 @@ package service;
 import model.request.UserChangePasswordRequest;
 import model.request.UserUpdateRequest;
 import model.response.UserDto;
-import utils.SessionManager;
 
 /**
- * Service for user-related API calls.
+ * Service class for user-related API operations.
  * Handles profile retrieval, update, password change, and account deletion.
  */
 public class UserService {
 
-    private final ApiClient api = ApiClient.getInstance();
+    private static final ApiClient api = ApiClient.getInstance();
 
     /**
-     * Retrieves the current user's profile.
+     * Retrieves the current user's profile information.
+     *
+     * @return the user DTO with profile details
+     * @throws Exception if the API request fails
      */
-    public UserDto getProfile() throws Exception {
+    public static UserDto getProfile() throws Exception {
         String response = api.get("/user");
         return api.fromJson(response, UserDto.class);
     }
 
     /**
-     * Updates the current user's profile.
+     * Updates the current user's profile information.
+     *
+     * @param request the update request with new profile values
+     * @return the updated user DTO
+     * @throws Exception if the API request fails
      */
-    public UserDto updateProfile(UserUpdateRequest request) throws Exception {
+    public static UserDto updateProfile(UserUpdateRequest request) throws Exception {
         String response = api.put("/user/update-profile", request);
         return api.fromJson(response, UserDto.class);
     }
 
     /**
-     * Changes the user's password.
+     * Changes the current user's password.
+     *
+     * @param request the password change request with current and new passwords
+     * @return the API response string
+     * @throws Exception if the API request fails
      */
-    public String changePassword(UserChangePasswordRequest request) throws Exception {
+    public static String changePassword(UserChangePasswordRequest request) throws Exception {
         return api.put("/user/change-password", request);
     }
 
     /**
-     * Soft-deletes the user's account.
+     * Soft-deletes the current user's account.
+     *
+     * @return the API response string
+     * @throws Exception if the API request fails
      */
-    public String deleteAccount() throws Exception {
+    public static String deleteAccount() throws Exception {
         return api.delete("/user/delete-account");
     }
 }

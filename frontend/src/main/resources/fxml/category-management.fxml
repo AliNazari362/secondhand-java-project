@@ -12,64 +12,77 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Category management view -->
 <VBox stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CategoryManagementController">
-    <!-- Header -->
+    <!-- Top header bar -->
     <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
         <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
         <FontIcon iconLiteral="fas-tags" iconSize="20" iconColor="#2d3748" />
-        <Text text="مدیریت دسته‌بندی‌ها" styleClass="header-title" />
+        <Text text="مدیریت دسته بندی‌ها" styleClass="header-title" />
         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <!-- Back navigation button -->
             <Button onAction="#goBack">
                 <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="16" /></graphic>
             </Button>
         </HBox>
     </HBox>
 
-    <!-- Content -->
+    <!-- Main content -->
     <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;" VBox.vgrow="ALWAYS">
         <HBox spacing="15" alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
 
-            <!-- Tree View -->
+            <!-- Category tree panel -->
             <VBox spacing="10" styleClass="card" prefWidth="400" VBox.vgrow="ALWAYS">
-                <Text text="درخت دسته‌بندی‌ها" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                <Text text="درخت دسته بندی‌ها" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                <!-- Scrollable tree view -->
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent;">
                     <TreeView fx:id="categoryTreeView" VBox.vgrow="ALWAYS" />
                 </ScrollPane>
+                <!-- Tree action buttons -->
                 <HBox spacing="10" alignment="CENTER">
+                    <!-- Add root category -->
                     <Button onAction="#onAddRoot" styleClass="success-btn">
                         <graphic><FontIcon iconLiteral="fas-plus" iconSize="16" /></graphic>
                     </Button>
+                    <!-- Clear selection -->
                     <Button onAction="#onClear" styleClass="secondary-btn">
                         <graphic><FontIcon iconLiteral="fas-times" iconSize="16" /></graphic>
                     </Button>
                 </HBox>
             </VBox>
 
-            <!-- Form -->
+            <!-- Category edit/create form panel -->
             <VBox spacing="15" styleClass="card" prefWidth="350" VBox.vgrow="ALWAYS">
-                <Text text="ویرایش/ایجاد دسته‌بندی" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
+                <Text text="ویرایش/ایجاد دسته بندی" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
 
-                <Label fx:id="selectedCategoryLabel" text="هیچ دسته‌بندی انتخاب نشده است." style="-fx-font-size: 13px; -fx-text-fill: #718096;" />
+                <!-- Selected category indicator -->
+                <Label fx:id="selectedCategoryLabel" text="هیچ دسته بندی انتخاب نشده است." style="-fx-font-size: 13px; -fx-text-fill: #718096;" />
 
+                <!-- Category name input -->
                 <VBox spacing="5">
-                    <Label text="نام دسته‌بندی:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
-                    <TextField fx:id="nameField" promptText="نام دسته‌بندی" styleClass="input-field" />
+                    <Label text="نام دسته بندی:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <TextField fx:id="nameField" promptText="نام دسته بندی" styleClass="input-field" />
                 </VBox>
 
+                <!-- Category type selection -->
                 <VBox spacing="5">
                     <Label text="نوع:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
                     <ComboBox fx:id="typeComboBox" promptText="نوع" styleClass="input-field" maxWidth="1.7976931348623157E308" />
                 </VBox>
 
+                <!-- Parent category selection -->
                 <VBox spacing="5">
                     <Label text="والد:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
                     <ComboBox fx:id="parentComboBox" promptText="بدون والد (ریشه)" styleClass="input-field" maxWidth="1.7976931348623157E308" />
                 </VBox>
 
+                <!-- Form action buttons -->
                 <HBox spacing="10" alignment="CENTER" style="-fx-padding: 15 0 0 0;">
+                    <!-- Save category button -->
                     <Button fx:id="saveButton" onAction="#onSave" styleClass="success-btn">
                         <graphic><FontIcon iconLiteral="fas-save" iconSize="16" /></graphic>
                     </Button>
+                    <!-- Delete category button -->
                     <Button fx:id="deleteButton" onAction="#onDelete" styleClass="danger-btn">
                         <graphic><FontIcon iconLiteral="fas-trash" iconSize="16" /></graphic>
                     </Button>

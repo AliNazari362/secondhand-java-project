@@ -9,16 +9,19 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- User favorites/bookmarks view -->
 <BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controller.FavoritesController">
 
     <top>
+        <!-- Top header bar -->
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding><Insets top="15" right="25" bottom="15" left="25" /></padding>
             <FontIcon iconLiteral="fas-heart" iconSize="20" iconColor="#e53e3e" />
             <Text text="علاقه‌مندی‌ها" styleClass="header-title" />
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <!-- Back navigation button -->
                 <Button onAction="#goBack">
                     <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="16" /></graphic>
                 </Button>
@@ -27,8 +30,10 @@
     </top>
 
     <center>
+        <!-- Scrollable favorites grid -->
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
             <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
+                <!-- Flow container for favorite ad cards -->
                 <FlowPane fx:id="favoritesFlowPane" hgap="15" vgap="15" />
             </VBox>
         </ScrollPane>

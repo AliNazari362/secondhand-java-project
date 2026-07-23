@@ -18,14 +18,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.enums.AdvType;
 import model.request.CommentRequest;
 import model.response.*;
-import org.kordamp.ikonli.javafx.FontIcon;
 import service.AdvService;
 import service.CommentService;
 import service.FavoriteService;
@@ -45,8 +43,6 @@ import java.util.UUID;
  * All FXML fields are null-checked to prevent NPE.
  * </p>
  *
- * @author [Your Name]
- * @version 1.0
  * @see AdvService
  * @see FavoriteService
  */
@@ -119,13 +115,13 @@ public class AdDetailController implements DataReceiver {
     private UUID advId;
     private AdvertisementDetailDto currentAd;
     private boolean isFavorite = false;
+
     // ==================== DataReceiver Implementation ====================
 
     /**
-     * Receives data passed from the previous page (the advertisement ID).
-     * Logs the received data for debugging.
+     * Receives the advertisement UUID from the previous page and triggers data loading.
      *
-     * @param data the advertisement UUID
+     * @param data the advertisement UUID to load details for
      */
     @Override
     public void receiveData(Object data) {
@@ -138,8 +134,8 @@ public class AdDetailController implements DataReceiver {
     // ==================== Loading Methods ====================
 
     /**
-     * Loads the full advertisement details from the backend.
-     * If the advId is null, shows an error and returns.
+     * Loads the full advertisement details from the backend service.
+     * Shows an error if the advertisement ID is null or invalid.
      */
     private void loadAdDetail() {
         if (advId == null) {
@@ -158,12 +154,16 @@ public class AdDetailController implements DataReceiver {
     // ==================== Display Methods ====================
 
     /**
-     * Displays the loaded advertisement details in the UI.
+     * Displays all loaded advertisement details in the UI.
+     * Shows a 404 page if the advertisement is null.
      * All FXML fields are null-checked to avoid NullPointerException.
      */
     private void displayAdDetail() {
         if (currentAd == null) {
-            show404Page();
+            Utils.show404Page(
+                    rootPan, "آگهی مورد نظر یافت نشد",
+                    "متاسفانه آگهی که به دنبال آن هستید وجود ندارد یا حذف شده است"
+            );
             return;
         }
 
@@ -186,6 +186,10 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Populates basic advertisement information fields including title, status,
+     * description, price, city, address, date, and category.
+     */
     private void getBasicInfo() {
         if (typeLabel != null) {
             typeLabel.setText(currentAd.getAdvType() == AdvType.PRODUCT ? "کالا" : "خدمت");
@@ -240,64 +244,14 @@ public class AdDetailController implements DataReceiver {
         if (categoryText != null) {
             categoryText.setText(currentAd.getCategoryName() != null
                     ? currentAd.getCategoryName()
-                    : "بدون دسته‌بندی");
+                    : "بدون دسته بندی");
         }
     }
 
-    @FXML
-    private void show404Page() {
-        rootPan.getChildren().clear();
-
-        VBox container404 = new VBox(30);
-        container404.setAlignment(Pos.CENTER);
-        container404.setStyle("-fx-background-color: #f0f4f8; -fx-padding: 50;");
-
-        // 404 Icon
-        FontIcon icon404 = new FontIcon("fas-exclamation-triangle");
-        icon404.setIconSize(80);
-        icon404.setIconColor(Paint.valueOf("#e53e3e"));
-
-        // 404 Title
-        Text title404 = new Text("۴۰۴");
-        title404.setStyle("-fx-font-size: 72px; -fx-font-weight: bold; -fx-fill: #2d3748;");
-
-        // 404 Message
-        Text message404 = new Text("آگهی مورد نظر یافت نشد");
-        message404.setStyle("-fx-font-size: 24px; -fx-fill: #4a5568;");
-
-        // Description
-        Text desc404 = new Text("متاسفانه آگهی که به دنبال آن هستید وجود ندارد یا حذف شده است");
-        desc404.setStyle("-fx-font-size: 14px; -fx-fill: #718096;");
-
-        // Back Button
-        Button backBtn = createBackBtn();
-
-        container404.getChildren().addAll(icon404, title404, message404, desc404, backBtn);
-
-        rootPan.setCenter(container404);
-    }
-
-    private Button createBackBtn() {
-        Button backBtn = new Button("بازگشت به صفحه اصلی");
-        backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-size: 14px; " +
-                "-fx-padding: 10 25; -fx-background-radius: 8; -fx-cursor: hand;");
-        backBtn.setOnAction(e -> goBack());
-
-        // Hover effect
-        backBtn.setOnMouseEntered(e -> backBtn.setStyle("-fx-background-color: #2c5282; -fx-text-fill: white; " +
-                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
-        backBtn.setOnMouseExited(e -> backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; " +
-                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
-
-        FontIcon backIcon = new FontIcon("fas-arrow-right");
-        backIcon.setIconSize(16);
-        backBtn.setGraphic(backIcon);
-        return backBtn;
-    }
 
     /**
-     * Displays images in a horizontal gallery.
-     * If no images, shows a placeholder label.
+     * Displays advertisement images in a horizontal gallery.
+     * Shows a placeholder label if no images are available.
      */
     private void displayImages() {
         if (imagesContainer == null) return;
@@ -323,6 +277,13 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Creates an ImageView for the given image response DTO.
+     * Attempts to load from local file first, then falls back to server URL.
+     *
+     * @param imageDto the image data transfer object containing the image path
+     * @return an ImageView configured with the loaded image
+     */
     private static ImageView getImage(ImageResponseDto imageDto) {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(120);
@@ -336,7 +297,7 @@ public class AdDetailController implements DataReceiver {
             if (file.exists()) {
                 imageView.setImage(new Image(file.toURI().toString()));
             } else {
-                String serverUrl = "http://localhost:8080/" + imagePath;
+                String serverUrl = Utils.BASE_IMAGE_URL + imagePath;
                 imageView.setImage(new Image(serverUrl));
             }
         } catch (Exception e) {
@@ -347,7 +308,7 @@ public class AdDetailController implements DataReceiver {
 
     /**
      * Displays key-value options/attributes of the advertisement.
-     * Shows a placeholder if no options exist.
+     * Shows a placeholder message if no options are available.
      */
     private void displayOptions() {
         if (optionsContainer == null) return;
@@ -374,41 +335,40 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Opens a full-screen modal window to display the image at full resolution.
+     * Supports closing with the Escape key.
+     *
+     * @param thumbnailView the ImageView containing the image to display in full screen
+     */
     private void showFullImage(ImageView thumbnailView) {
         if (thumbnailView == null || thumbnailView.getImage() == null) {
             AlertUtil.showError("تصویر در دسترس نیست.");
             return;
         }
 
-        // ساخت Stage جدید برای نمایش تمام صفحه
         Stage fullScreenStage = new Stage();
         fullScreenStage.initModality(Modality.APPLICATION_MODAL);
         fullScreenStage.setFullScreen(true);
 
-        // ImageView برای عکس
         ImageView fullImageView = new ImageView();
         fullImageView.setPreserveRatio(true);
         fullImageView.setSmooth(true);
         fullImageView.setImage(thumbnailView.getImage());
 
-        // fit to screen
         fullImageView.fitWidthProperty().bind(fullScreenStage.widthProperty());
-        fullImageView.fitHeightProperty().bind(fullScreenStage.heightProperty().subtract(80)); // فضا برای دکمه‌ها
+        fullImageView.fitHeightProperty().bind(fullScreenStage.heightProperty().subtract(80));
 
-        // دکمه بستن
         Button closeBtn = createCloseBtnForImageViewer(fullScreenStage);
 
-        // Layout
         VBox fullScreenLayout = new VBox(20);
         fullScreenLayout.setAlignment(Pos.CENTER);
         fullScreenLayout.setStyle("-fx-background-color: black; -fx-padding: 20;");
         fullScreenLayout.getChildren().addAll(fullImageView, closeBtn);
 
-        // Scene
         Scene scene = new Scene(fullScreenLayout);
         fullScreenStage.setScene(scene);
 
-        // بستن با Escape
         scene.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
                 fullScreenStage.close();
@@ -418,8 +378,14 @@ public class AdDetailController implements DataReceiver {
         fullScreenStage.show();
     }
 
+    /**
+     * Creates a styled close button for the full-screen image viewer.
+     *
+     * @param fullScreenStage the stage to close when the button is clicked
+     * @return a Button configured with hover effects and close action
+     */
     private static Button createCloseBtnForImageViewer(Stage fullScreenStage) {
-        Button closeBtn = new Button("✕ بستن");
+        Button closeBtn = new Button("بستن");
         closeBtn.setStyle(
                 "-fx-background-color: #e53e3e; " +
                         "-fx-text-fill: white; " +
@@ -430,7 +396,6 @@ public class AdDetailController implements DataReceiver {
         );
         closeBtn.setOnAction(e -> fullScreenStage.close());
 
-        // Hover effect
         closeBtn.setOnMouseEntered(e ->
                 closeBtn.setStyle(
                         "-fx-background-color: #c53030; " +
@@ -455,8 +420,8 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Shows product-specific or service-specific fields.
-     * Hides both sections first, then shows the appropriate one.
+     * Shows product-specific or service-specific fields based on advertisement type.
+     * Hides both sections first, then shows only the appropriate one.
      */
     private void displayTypeSpecificFields() {
         if (productFields != null) {
@@ -510,7 +475,8 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * بارگذاری اطلاعات امتیاز (میانگین و تعداد) از سرور.
+     * Loads rating information (average rating and total count) from the server.
+     * Falls back to default values on error.
      */
     private void loadRatingInfo() {
         try {
@@ -523,17 +489,16 @@ public class AdDetailController implements DataReceiver {
                 ratingCountText.setText("(" + count + " نظر)");
             }
         } catch (Exception e) {
-            // در صورت خطا، مقدار پیش‌فرض نمایش داده شود
             if (ratingValueText != null) ratingValueText.setText("۰");
             if (ratingCountText != null) ratingCountText.setText("(۰ نظر)");
         }
     }
 
     /**
-     * Updates action buttons based on ownership and admin status.
-     * - Chat, Favorite, and Rating are visible only for non-owners.
-     * - Edit, Delete are visible for owner or admin.
-     * - Sold button is visible for owner if status is ACTIVE.
+     * Updates action button visibility based on ownership and admin status.
+     * Chat, Favorite, and Rating are visible only for non-owners.
+     * Edit, Delete are visible for owner or admin.
+     * Sold button is visible for owner only if status is ACTIVE.
      */
     private void updateActionButtons() {
         UUID currentUserId = SessionManager.getUserId();
@@ -562,6 +527,10 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Checks whether the current advertisement is in the user's favorites list
+     * and updates the favorite button accordingly.
+     */
     private void checkFavoriteStatus() {
         if (!SessionManager.isLoggedIn() || advId == null) {
             isFavorite = false;
@@ -579,22 +548,22 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Updates the favorite button text and style based on favorite status.
+     * Updates the favorite button text and style based on the current favorite status.
      */
     private void updateFavoriteButton() {
         if (favBtn == null) return;
         if (isFavorite) {
-            favBtn.setText("❤️ حذف از علاقه مندی");
+            favBtn.setText("حذف از علاقه مندی");
             favBtn.setStyle("-fx-text-fill: #e53e3e; -fx-font-weight: bold;");
         } else {
-            favBtn.setText("🤍 افزودن به علاقه مندی");
+            favBtn.setText("افزودن به علاقه مندی");
             favBtn.setStyle("-fx-text-fill: #2d3748;");
         }
     }
 
     /**
-     * Displays comments for the advertisement.
-     * Shows a placeholder if no comments exist.
+     * Displays the list of comments for the current advertisement.
+     * Shows a placeholder message if no comments exist.
      */
     private void displayComments() {
         if (commentsContainer == null) return;
@@ -607,7 +576,7 @@ public class AdDetailController implements DataReceiver {
             return;
         }
 
-        for (var comment : currentAd.getComments()) {
+        for (CommentResponseDto comment : currentAd.getComments()) {
             VBox commentBox = new VBox(4);
             commentBox.setPadding(new Insets(10));
             commentBox.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;");
@@ -642,8 +611,8 @@ public class AdDetailController implements DataReceiver {
     // ==================== Action Methods ====================
 
     /**
-     * Opens the chat page with the advertisement ID.
-     * Shows an error if advId is null.
+     * Opens the chat page with the current advertisement ID.
+     * Shows an error if the advertisement ID is invalid.
      */
     @FXML
     public void onChat() {
@@ -651,10 +620,14 @@ public class AdDetailController implements DataReceiver {
             AlertUtil.showError("شناسه آگهی نامعتبر است.");
             return;
         }
-        // TODO check owner or not
         SceneManager.showPage(Pages.CHAT, null, advId);
     }
 
+    /**
+     * Toggles the advertisement in the user's favorites list.
+     * Adds the ad to favorites if not already favorited, removes it otherwise.
+     * Requires the user to be logged in.
+     */
     @FXML
     public void onAddFavorite() {
         if (!SessionManager.isLoggedIn()) {
@@ -670,15 +643,14 @@ public class AdDetailController implements DataReceiver {
             if (isFavorite) {
                 FavoriteService.removeFavorite(advId.toString());
                 isFavorite = false;
-                AlertUtil.showSuccess("آگهی از علاقه مندی‌ها حذف شد.");
+                AlertUtil.showSuccess("آگهی از علاقه مندی ها حذف شد.");
             } else {
                 FavoriteService.addFavorite(advId.toString());
                 isFavorite = true;
-                AlertUtil.showSuccess("آگهی به علاقه مندی‌ها اضافه شد.");
+                AlertUtil.showSuccess("آگهی به علاقه مندی ها اضافه شد.");
             }
             updateFavoriteButton();
         } catch (Exception e) {
-            // اگر خطای 400 به خاطر تکراری بودن آگهی بود، وضعیت را اصلاح کن
             if (e.getMessage().contains("پیش از این ثبت شده است")) {
                 isFavorite = true;
                 updateFavoriteButton();
@@ -688,7 +660,9 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * ثبت نظر جدید برای آگهی.
+     * Submits a new comment with rating for the current advertisement.
+     * Validates that the user is logged in and has entered both comment text and rating.
+     * Reloads rating info after successful submission.
      */
     @FXML
     public void onSubmitComment() {
@@ -716,7 +690,7 @@ public class AdDetailController implements DataReceiver {
             if (currentAd.getComments() == null) {
                 currentAd.setComments(new java.util.ArrayList<>());
             }
-            currentAd.getComments().addFirst(comment); // قرار دادن در ابتدا
+            currentAd.getComments().addFirst(comment);
             displayComments();
             commentArea.clear();
             AlertUtil.showSuccess("نظر شما با موفقیت ثبت شد.");
@@ -727,6 +701,11 @@ public class AdDetailController implements DataReceiver {
         }
     }
 
+    /**
+     * Opens a rating dialog allowing the user to rate the advertisement from 1 to 5.
+     *
+     * @return the selected rating value, or null if the dialog was canceled
+     */
     private Integer onRate() {
         if (!SessionManager.isLoggedIn()) {
             AlertUtil.showWarning("لطفاً ابتدا وارد حساب خود شوید.");
@@ -747,7 +726,7 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Navigates to the edit advertisement page with the current advId.
+     * Navigates to the edit advertisement page with the current advertisement ID.
      */
     @FXML
     public void onEdit() {
@@ -757,8 +736,8 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Deletes the advertisement after confirmation.
-     * Uses AdvService.deleteAdv and navigates back on success.
+     * Deletes the current advertisement after user confirmation.
+     * Navigates back to the dashboard on successful deletion.
      */
     @FXML
     public void onDelete() {
@@ -778,20 +757,20 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Marks the advertisement as sold after confirmation.
-     * Reloads the ad detail after successful update.
+     * Marks the current advertisement as sold after user confirmation.
+     * Reloads the advertisement details to reflect the updated status.
      */
     @FXML
     public void onMarkAsSold() {
         boolean confirm = AlertUtil.showConfirmation(
-                "تغییر وضعیت به فروخته‌شده",
-                "آیا از تغییر وضعیت این آگهی به فروخته‌شده اطمینان دارید؟"
+                "تغییر وضعیت به فروخته شده",
+                "آیا از تغییر وضعیت این آگهی به فروخته شده اطمینان دارید؟"
         );
         if (!confirm) return;
 
         try {
             AdvService.markAsSold(advId.toString());
-            AlertUtil.showSuccess("وضعیت آگهی به فروخته‌شده تغییر کرد.");
+            AlertUtil.showSuccess("وضعیت آگهی به فروخته شده تغییر کرد.");
             loadAdDetail();
         } catch (Exception e) {
             ExceptionHandler.handle(e);
@@ -799,7 +778,7 @@ public class AdDetailController implements DataReceiver {
     }
 
     /**
-     * Navigates back to the dashboard.
+     * Navigates back to the main dashboard page.
      */
     @FXML
     public void goBack() {

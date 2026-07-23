@@ -8,7 +8,7 @@ public class LoginResponse {
     private String token;
     private UUID userId;
     private String fullName;
-    private UserType role;  // در Backend به‌عنوان userType هم هست
+    private UserType role;
 
     public LoginResponse() {}
 

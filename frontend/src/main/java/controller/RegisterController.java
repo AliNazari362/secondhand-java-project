@@ -13,6 +13,10 @@ import utils.Pages;
 import utils.SceneManager;
 import utils.ValidationUtil;
 
+/**
+ * Controller for the user registration page.
+ * Handles new user account creation with input validation.
+ */
 public class RegisterController {
 
     @FXML
@@ -24,6 +28,11 @@ public class RegisterController {
     @FXML
     private TextField phoneField;
 
+    /**
+     * Handles the registration form submission.
+     * Validates all input fields, sends a registration request to the server,
+     * and navigates to the login page on success.
+     */
     @FXML
     public void handleRegister() {
         try {
@@ -47,6 +56,9 @@ public class RegisterController {
         }
     }
 
+    /**
+     * Navigates to the login page.
+     */
     @FXML
     public void goToLogin() {
         SceneManager.showPage(Pages.LOGIN, null);

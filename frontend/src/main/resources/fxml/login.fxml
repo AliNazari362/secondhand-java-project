@@ -10,30 +10,36 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Login form view -->
 <VBox alignment="CENTER" spacing="20" styleClass="login-container" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
     <padding>
         <Insets top="40" right="40" bottom="40" left="40" />
     </padding>
 
+    <!-- Store icon -->
     <FontIcon iconLiteral="fas-store" iconSize="48" iconColor="#2d3748" />
     <Text text="خوش آمدید" styleClass="title" />
     <Text text="وارد حساب کاربری خود شوید" styleClass="subtitle" />
 
+    <!-- Email input -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="far-envelope" iconSize="16" iconColor="#718096" />
         <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Password input -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
         <PasswordField fx:id="passwordField" promptText="رمز عبور" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Login button -->
     <Button text="ورود به حساب" styleClass="primary-btn" onAction="#handleLogin">
         <graphic>
             <FontIcon iconLiteral="fas-sign-in-alt" iconSize="16" />
         </graphic>
     </Button>
 
+    <!-- Navigate to register -->
     <Hyperlink text="ثبت نام نکرده اید؟ همین حالا ثبت نام کنید" onAction="#goToRegister" styleClass="link" />
 </VBox>

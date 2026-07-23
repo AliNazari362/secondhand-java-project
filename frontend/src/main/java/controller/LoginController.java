@@ -10,6 +10,11 @@ import model.response.LoginResponse;
 import service.AuthService;
 import utils.*;
 
+/**
+ * Controller for the login page.
+ * Handles user authentication by validating credentials,
+ * establishing a session, and navigating to the dashboard on success.
+ */
 public class LoginController {
 
     @FXML
@@ -17,6 +22,11 @@ public class LoginController {
     @FXML
     private PasswordField passwordField;
 
+    /**
+     * Handles the login form submission.
+     * Validates email and password, sends a login request to the server,
+     * stores the session on success, and navigates to the dashboard.
+     */
     @FXML
     public void handleLogin() {
         try {
@@ -35,15 +45,16 @@ public class LoginController {
                     response.getRole().name()
             );
 
-            // ✅ تغییر اصلی: به صفحه داشبورد بروید که هدر را دارد
-            SceneManager.showPage(Pages.DASHBOARD, null);
-
+            SceneManager.showPage(Pages.DASHBOARD, response.getFullName());
             Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز خوش آمدید"));
         } catch (Exception e) {
             ExceptionHandler.handle(e);
         }
     }
 
+    /**
+     * Navigates to the registration page.
+     */
     @FXML
     public void goToRegister() {
         SceneManager.showPage(Pages.REGISTER, null);

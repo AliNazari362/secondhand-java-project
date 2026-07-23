@@ -26,11 +26,7 @@ import java.util.Map;
 /**
  * Controller for the main dashboard page.
  * Handles search functionality with filters:
- * - Keyword search (title/description)
- * - Category filter (hierarchical categories)
- * - City filter
- * - Price range (min/max)
- * - Sorting
+ * keyword search, category filter, city filter, price range, and sorting.
  */
 public class DashboardController {
 
@@ -54,19 +50,17 @@ public class DashboardController {
 
 
     /**
-     * Initializes the controller.
-     * Sets up combo boxes, loads categories, and performs initial search.
+     * Initializes the dashboard controller.
+     * Sets up city and sort combo boxes, loads categories, and performs an initial search.
      */
     @FXML
     public void initialize() {
-        // ===== City ComboBox =====
         cityCombo.getItems().add("همه شهرها");
         for (City city : City.values()) {
             cityCombo.getItems().add(city.getPersianName());
         }
         cityCombo.getSelectionModel().selectFirst();
 
-        // ===== Sort ComboBox =====
         sortCombo.getItems().addAll(
                 "جدید ترین",
                 "قدیمی ترین",
@@ -76,16 +70,14 @@ public class DashboardController {
         );
         sortCombo.getSelectionModel().selectFirst();
 
-        // ===== Load categories =====
         loadCategories();
 
-        // ===== Initial search =====
         performSearch();
     }
 
     /**
-     * بارگذاری دسته‌بندی‌ها از سرور و پر کردن کامبوباکس با برگ‌ها (leaf nodes).
-     * هر آیتم به صورت "نام دسته‌بندی (نوع)" نمایش داده می‌شود.
+     * Loads leaf categories from the server and populates the category combo box.
+     * Each item is displayed with its name and type.
      */
     private void loadCategories() {
         try {
@@ -112,7 +104,7 @@ public class DashboardController {
     }
 
     /**
-     * Handles the search button click.
+     * Handles the search button click event.
      */
     @FXML
     public void onSearch() {
@@ -120,32 +112,29 @@ public class DashboardController {
     }
 
     /**
-     * Performs the actual search with all filters.
+     * Performs the actual search with all currently selected filters.
+     * Gathers keyword, city, category, sort order, and price range,
+     * then queries the server and displays results.
      */
     private void performSearch() {
         try {
-            // ===== Keyword =====
             String keyword = searchField.getText().trim();
             if (keyword.isEmpty()) keyword = null;
 
-            // ===== City =====
             String cityPersian = cityCombo.getSelectionModel().getSelectedItem();
             City cityEnum = null;
             if (cityPersian != null && !cityPersian.equals("همه شهرها")) {
                 cityEnum = City.fromPersianName(cityPersian);
             }
 
-            // ===== Category =====
             String categoryDisplay = categoryCombo.getSelectionModel().getSelectedItem();
             Long categoryId = null;
             if (categoryDisplay != null && !categoryDisplay.equals("همه دسته بندی ها")) {
                 categoryId = categoryNameToIdMap.get(categoryDisplay);
             }
 
-            // ===== Sort =====
             String sortBy = getSort();
 
-            // ===== Price Range =====
             BigDecimal minPrice = null;
             BigDecimal maxPrice = null;
             if (!minPriceField.getText().trim().isEmpty()) {
@@ -154,8 +143,6 @@ public class DashboardController {
             if (!maxPriceField.getText().trim().isEmpty()) {
                 maxPrice = new BigDecimal(maxPriceField.getText().trim());
             }
-
-            // ===== Execute Search =====
 
             List<AdvertisementSummaryDto> ads = AdvService.getActiveAds(
                     keyword,
@@ -166,7 +153,6 @@ public class DashboardController {
                     maxPrice
             );
 
-            // ===== Display Results =====
             displayAds(ads);
 
         } catch (NumberFormatException e) {
@@ -176,6 +162,11 @@ public class DashboardController {
         }
     }
 
+    /**
+     * Maps the Persian sort option to the corresponding API sort parameter.
+     *
+     * @return the sort parameter string for the API call
+     */
     private String getSort() {
         String sortPersian = sortCombo.getSelectionModel().getSelectedItem();
         String sortBy = "newest";
@@ -193,6 +184,9 @@ public class DashboardController {
 
     /**
      * Displays the search results as ad cards in the FlowPane.
+     * Shows an empty state message if no results are found.
+     *
+     * @param ads the list of advertisement summaries to display
      */
     private void displayAds(List<AdvertisementSummaryDto> ads) {
         adFlowPane.getChildren().clear();

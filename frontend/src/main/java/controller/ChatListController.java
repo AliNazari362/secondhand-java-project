@@ -33,15 +33,19 @@ public class ChatListController {
     // ===== State =====
     private List<ChatroomSummaryDto> chatRooms;
 
+    /**
+     * Initializes the chat list view after FXML loading.
+     * Loads all chat rooms for the current user.
+     */
     @FXML
     public void initialize() {
         loadChatRooms();
     }
 
-    // ================================
-    //  Load Chat Rooms
-    // ================================
-
+    /**
+     * Loads chat rooms from the server for the current user.
+     * Displays them on the JavaFX application thread.
+     */
     private void loadChatRooms() {
         try {
             chatRooms = ChatService.getUserChatRooms();
@@ -51,6 +55,11 @@ public class ChatListController {
         }
     }
 
+    /**
+     * Displays all loaded chat rooms in the chat list container.
+     * Shows an empty state view if no chat rooms exist.
+     * Updates summary text labels with total chat and unread counts.
+     */
     private void displayChatRooms() {
         if (chatListContainer == null) return;
         chatListContainer.getChildren().clear();
@@ -60,26 +69,28 @@ public class ChatListController {
             return;
         }
 
-        // Update summary texts
         int totalChats = chatRooms.size();
         long totalUnread = chatRooms.stream()
                 .mapToLong(ChatroomSummaryDto::getUnreadCount)
                 .sum();
 
         if (totalChatsText != null) {
-            totalChatsText.setText("تعداد چت‌ها: " + totalChats);
+            totalChatsText.setText("تعداد چت ها: " + totalChats);
         }
         if (unreadTotalText != null) {
-            unreadTotalText.setText("پیام‌های خوانده نشده: " + totalUnread);
+            unreadTotalText.setText("پیام های خوانده نشده: " + totalUnread);
         }
 
-        // Display each chat room
         for (ChatroomSummaryDto chatroom : chatRooms) {
             VBox chatCard = createChatCard(chatroom);
             chatListContainer.getChildren().add(chatCard);
         }
     }
 
+    /**
+     * Displays an empty state view when no chat rooms are available.
+     * Includes a button to navigate back to the dashboard.
+     */
     private void displayEmptyState() {
         VBox emptyBox = new VBox(20);
         emptyBox.setAlignment(Pos.CENTER);
@@ -92,10 +103,10 @@ public class ChatListController {
         Text emptyTitle = new Text("هیچ چتی وجود ندارد");
         emptyTitle.setStyle("-fx-font-size: 18px; -fx-fill: #4a5568; -fx-font-weight: bold;");
 
-        Text emptyDesc = new Text("شما هنوز هیچ گفتگویی را شروع نکرده‌اید");
+        Text emptyDesc = new Text("شما هنوز هیچ گفتگویی را شروع نکرده اید");
         emptyDesc.setStyle("-fx-font-size: 14px; -fx-fill: #a0aec0;");
 
-        Button browseAdsBtn = new Button("مشاهده آگهی‌ها");
+        Button browseAdsBtn = new Button("مشاهده آگهی ها");
         browseAdsBtn.setStyle("-fx-background-color: #4299e1; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;");
         browseAdsBtn.setOnAction(e -> goBack());
 
@@ -103,10 +114,13 @@ public class ChatListController {
         chatListContainer.getChildren().add(emptyBox);
     }
 
-    // ================================
-    //  Create Chat Card
-    // ================================
-
+    /**
+     * Creates a styled chat card for the given chat room summary.
+     * Displays advertisement title, message count, unread badge, and an open button.
+     *
+     * @param chatroom the chat room summary data
+     * @return a Vbox representing the chat room card
+     */
     private VBox createChatCard(ChatroomSummaryDto chatroom) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(15));
@@ -114,7 +128,6 @@ public class ChatListController {
                 "-fx-border-color: #e2e8f0; -fx-border-radius: 10; " +
                 "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);");
 
-        // Add hover effect
         card.setOnMouseEntered(e ->
                 card.setStyle("-fx-background-color: #f7fafc; -fx-background-radius: 10; " +
                         "-fx-border-color: #cbd5e0; -fx-border-radius: 10; " +
@@ -126,7 +139,6 @@ public class ChatListController {
                         "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);")
         );
 
-        // Top row: Ad title + Unread badge
         HBox topRow = new HBox(10);
         topRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -138,7 +150,6 @@ public class ChatListController {
         adTitle.setStyle("-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;");
         HBox.setHgrow(adTitle, Priority.ALWAYS);
 
-        // Unread badge
         HBox unreadBadge = null;
         if (chatroom.getUnreadCount() > 0) {
             unreadBadge = new HBox(5);
@@ -161,11 +172,9 @@ public class ChatListController {
             topRow.getChildren().add(unreadBadge);
         }
 
-        // Bottom row: Stats + Action button
         HBox bottomRow = new HBox(15);
         bottomRow.setAlignment(Pos.CENTER_LEFT);
 
-        // Message count
         HBox messageCountBox = new HBox(5);
         messageCountBox.setAlignment(Pos.CENTER_LEFT);
         Text messageIcon = new Text("✉️");
@@ -174,11 +183,9 @@ public class ChatListController {
         messageCount.setStyle("-fx-font-size: 13px; -fx-fill: #718096;");
         messageCountBox.getChildren().addAll(messageIcon, messageCount);
 
-        // Spacer
         HBox spacer = new HBox();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Open chat button
         Button openChatBtn = new Button("مشاهده چت");
         openChatBtn.setStyle("-fx-background-color: #4299e1; -fx-text-fill: white; " +
                 "-fx-font-size: 13px; -fx-padding: 8 16; -fx-background-radius: 8; " +
@@ -189,16 +196,16 @@ public class ChatListController {
 
         card.getChildren().addAll(topRow, bottomRow);
 
-        // Make entire card clickable
         card.setOnMouseClicked(e -> openChat(chatroom.getId()));
 
         return card;
     }
 
-    // ================================
-    //  Actions
-    // ================================
-
+    /**
+     * Opens the chat page for the given chat room ID.
+     *
+     * @param chatroomId the UUID of the chat room to open
+     */
     private void openChat(UUID chatroomId) {
         if (chatroomId == null) {
             AlertUtil.showError("شناسه چت نامعتبر است.");
@@ -207,11 +214,17 @@ public class ChatListController {
         SceneManager.showPage(Pages.CHAT, null, chatroomId);
     }
 
+    /**
+     * Refreshes the chat room list by reloading data from the server.
+     */
     @FXML
     public void onRefresh() {
         loadChatRooms();
     }
 
+    /**
+     * Navigates back to the main dashboard page.
+     */
     @FXML
     public void goBack() {
         SceneManager.showPage(Pages.DASHBOARD, null);

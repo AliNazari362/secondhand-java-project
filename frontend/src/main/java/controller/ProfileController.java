@@ -26,10 +26,8 @@ public class ProfileController {
     @FXML private PasswordField currentPasswordField;
     @FXML private PasswordField newPasswordField;
 
-    private final UserService userService = new UserService();
-
     /**
-     * Initializes the controller – loads user profile data from the server.
+     * Initializes the controller and loads the current user's profile data.
      */
     @FXML
     public void initialize() {
@@ -37,11 +35,11 @@ public class ProfileController {
     }
 
     /**
-     * Fetches the current user's profile from the backend and populates the fields.
+     * Fetches the current user's profile from the backend and populates the form fields.
      */
     private void loadProfile() {
         try {
-            UserDto user = userService.getProfile();
+            UserDto user = UserService.getProfile();
             Platform.runLater(() -> {
                 fullNameField.setText(user.getFullName());
                 emailField.setText(user.getEmail());
@@ -54,6 +52,8 @@ public class ProfileController {
 
     /**
      * Updates the user's profile with the values entered in the form.
+     * Validates that full name and email are not empty.
+     * Updates the session with the new profile information on success.
      */
     @FXML
     public void onUpdateProfile() {
@@ -63,7 +63,7 @@ public class ProfileController {
             String phone = phoneField.getText().trim();
 
             if (fullName.isEmpty() || email.isEmpty()) {
-                AlertUtil.showError("نام کامل و ایمیل نمی‌توانند خالی باشند.");
+                AlertUtil.showError("نام کامل و ایمیل نمی توانند خالی باشند.");
                 return;
             }
 
@@ -72,9 +72,8 @@ public class ProfileController {
             request.setEmail(email);
             request.setPhoneNumber(phone.isEmpty() ? null : phone);
 
-            UserDto updated = userService.updateProfile(request);
+            UserDto updated = UserService.updateProfile(request);
 
-            // Update session information
             SessionManager.setSession(
                     SessionManager.getToken(),
                     updated.getId(),
@@ -83,8 +82,7 @@ public class ProfileController {
             );
 
             Platform.runLater(() -> {
-                AlertUtil.showSuccess("پروفایل با موفقیت به‌روزرسانی شد.");
-                // Refresh fields with updated values
+                AlertUtil.showSuccess("پروفایل با موفقیت به روزرسانی شد.");
                 fullNameField.setText(updated.getFullName());
                 emailField.setText(updated.getEmail());
                 phoneField.setText(updated.getPhoneNumber() != null ? updated.getPhoneNumber() : "");
@@ -97,6 +95,7 @@ public class ProfileController {
 
     /**
      * Changes the user's password after validating the current password.
+     * Requires both fields to be filled and the new password to be at least 8 characters.
      */
     @FXML
     public void onChangePassword() {
@@ -115,8 +114,7 @@ public class ProfileController {
             }
 
             UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword);
-            // No need to store result – just call the service
-            userService.changePassword(request);
+            UserService.changePassword(request);
 
             Platform.runLater(() -> {
                 AlertUtil.showSuccess("رمز عبور با موفقیت تغییر کرد.");
@@ -131,13 +129,13 @@ public class ProfileController {
 
     /**
      * Deletes the user's account after confirmation.
-     * This is a soft delete – the user is marked as DELETED.
+     * This is a soft delete operation. Clears the session and navigates to login on success.
      */
     @FXML
     public void onDeleteAccount() {
         boolean confirm = AlertUtil.showConfirmation(
                 "آیا از حذف حساب کاربری خود اطمینان دارید؟",
-                "این عمل غیرقابل بازگشت است و تمام داده‌های شما حذف خواهد شد."
+                "این عمل غیرقابل بازگشت است و تمام داده های شما حذف خواهد شد."
         );
 
         if (!confirm) {
@@ -145,7 +143,7 @@ public class ProfileController {
         }
 
         try {
-            userService.deleteAccount();
+            UserService.deleteAccount();
             SessionManager.clear();
             Platform.runLater(() -> {
                 AlertUtil.showSuccess("حساب کاربری شما با موفقیت حذف شد.");
@@ -157,7 +155,7 @@ public class ProfileController {
     }
 
     /**
-     * Navigates back to the advertisement list.
+     * Navigates back to the main dashboard page.
      */
     @FXML
     public void goBack() {

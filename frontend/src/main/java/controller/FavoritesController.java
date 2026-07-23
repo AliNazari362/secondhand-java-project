@@ -5,6 +5,7 @@ import exception.ExceptionHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -25,7 +26,7 @@ public class FavoritesController {
     private FlowPane favoritesFlowPane;
 
     /**
-     * Initializes the controller. Loads and displays favorite advertisements.
+     * Initializes the controller and loads favorite advertisements.
      */
     @FXML
     public void initialize() {
@@ -33,7 +34,8 @@ public class FavoritesController {
     }
 
     /**
-     * Loads favorite advertisements from the backend and displays them.
+     * Loads favorite advertisements from the backend and displays them as ad cards.
+     * Shows an empty state message if the user has no favorites.
      */
     private void loadFavorites() {
         try {
@@ -59,20 +61,20 @@ public class FavoritesController {
     }
 
     /**
-     * Shows an empty state message when there are no favorites.
+     * Displays an empty state message when the favorites list is empty.
      */
     private void showEmptyMessage() {
         VBox emptyMessage = new VBox();
-        emptyMessage.setAlignment(javafx.geometry.Pos.CENTER);
+        emptyMessage.setAlignment(Pos.CENTER);
         emptyMessage.setPadding(new Insets(50));
-        Text message = new Text("هیچ آگهی در لیست علاقه‌مندی‌های شما وجود ندارد.");
+        Text message = new Text("هیچ آگهی در لیست علاقه مندی های شما وجود ندارد.");
         message.setStyle("-fx-font-size: 18px; -fx-fill: #a0aec0;");
         emptyMessage.getChildren().add(message);
         favoritesFlowPane.getChildren().add(emptyMessage);
     }
 
     /**
-     * Navigates back to the advertisement list.
+     * Navigates back to the main dashboard page.
      */
     @FXML
     public void goBack() {

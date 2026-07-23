@@ -11,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import model.enums.AdvType;
 import model.enums.City;
@@ -24,7 +23,6 @@ import model.response.AdvertisementDetailDto;
 import service.AdvService;
 import utils.*;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -32,7 +30,7 @@ import java.util.*;
  * Controller for editing an existing advertisement.
  * <p>
  * Loads the current advertisement data, allows updating fields,
- * adding/removing images, and submitting changes to the backend.
+ * and submitting changes to the backend.
  * Supports hierarchical category display with indentation.
  * </p>
  */
@@ -64,8 +62,6 @@ public class EditAdController implements DataReceiver {
     @FXML
     private VBox optionsContainer;
     @FXML
-    private FlowPane imagePreviewContainer;
-    @FXML
     private VBox productFields;
     @FXML
     private VBox serviceFields;
@@ -75,11 +71,8 @@ public class EditAdController implements DataReceiver {
     private AdvertisementDetailDto currentAd;
     private final List<OptionRequest> options = new ArrayList<>();
 
-    // ===== Image Management =====
-    private final List<File> newImageFiles = new ArrayList<>();
-
     /**
-     * Sets the advertisement ID and loads data.
+     * Sets the advertisement ID and triggers data loading from the server.
      *
      * @param adId the UUID of the advertisement to edit
      */
@@ -88,6 +81,9 @@ public class EditAdController implements DataReceiver {
         loadAdData();
     }
 
+    /**
+     * Loads the full advertisement detail from the server and populates the form.
+     */
     private void loadAdData() {
         try {
             currentAd = AdvService.getAdvDetail(adId.toString());
@@ -100,6 +96,9 @@ public class EditAdController implements DataReceiver {
         }
     }
 
+    /**
+     * Initializes the city combo box with all available cities.
+     */
     private void initializeComboBoxes() {
         cityCombo.getItems().clear();
         for (City city : City.values()) {
@@ -107,6 +106,11 @@ public class EditAdController implements DataReceiver {
         }
     }
 
+    /**
+     * Receives the advertisement UUID from the previous page.
+     *
+     * @param data the advertisement UUID to edit
+     */
     @Override
     public void receiveData(Object data) {
         if (data instanceof UUID) {
@@ -114,15 +118,9 @@ public class EditAdController implements DataReceiver {
         }
     }
 
-    @FXML
-    public void onChooseImages() {
-        Utils.chooseImage(newImageFiles, imagePreviewContainer);
-    }
-
-    // ================================
-    //  Add Feature (Option)
-    // ================================
-
+    /**
+     * Adds a new key-value feature row to the options' container.
+     */
     @FXML
     public void onAddOption() {
         HBox featureBox = new HBox(10);
@@ -146,14 +144,14 @@ public class EditAdController implements DataReceiver {
         optionsContainer.getChildren().add(featureBox);
     }
 
-    // ================================
-    //  Populate Form
-    // ================================
-
+    /**
+     * Populates the edit form with the current advertisement's data.
+     * Shows the appropriate type-specific fields (product or service)
+     * and restores any existing custom options.
+     */
     private void populateForm() {
         if (currentAd == null) return;
 
-        // ===== اطلاعات مشترک =====
         titleField.setText(currentAd.getFullName());
         descArea.setText(currentAd.getDescription());
         addressField.setText(currentAd.getAddress());
@@ -162,9 +160,7 @@ public class EditAdController implements DataReceiver {
             cityCombo.getSelectionModel().select(currentAd.getCity().getPersianName());
         }
 
-        // ===== مدیریت نوع آگهی و نمایش بخش مربوطه =====
         if (currentAd.getAdvType() == AdvType.PRODUCT) {
-            // نمایش بخش کالا، مخفی کردن بخش خدمت
             productFields.setVisible(true);
             productFields.setManaged(true);
             serviceFields.setVisible(false);
@@ -182,7 +178,6 @@ public class EditAdController implements DataReceiver {
                 manufacturerField.setText(detail.getConstructor());
             }
         } else if (currentAd.getAdvType() == AdvType.SERVICE) {
-            // نمایش بخش خدمت، مخفی کردن بخش کالا
             serviceFields.setVisible(true);
             serviceFields.setManaged(true);
             productFields.setVisible(false);
@@ -197,7 +192,6 @@ public class EditAdController implements DataReceiver {
             }
         }
 
-        // ===== ویژگی‌های اضافی =====
         if (currentAd.getOptions() != null) {
             for (var opt : currentAd.getOptions()) {
                 addExistingOption(opt.getOption(), opt.getValue());
@@ -205,6 +199,12 @@ public class EditAdController implements DataReceiver {
         }
     }
 
+    /**
+     * Adds an existing key-value option row to the options' container.
+     *
+     * @param key   the option key
+     * @param value the option value
+     */
     private void addExistingOption(String key, String value) {
         HBox featureBox = new HBox(10);
         featureBox.setAlignment(Pos.CENTER_LEFT);
@@ -225,10 +225,10 @@ public class EditAdController implements DataReceiver {
         optionsContainer.getChildren().add(featureBox);
     }
 
-    // ================================
-    //  Update Ad
-    // ================================
-
+    /**
+     * Validates the form and submits the updated advertisement to the server.
+     * Routes to the appropriate update method based on advertisement type.
+     */
     @FXML
     public void onUpdate() {
         try {
@@ -244,7 +244,7 @@ public class EditAdController implements DataReceiver {
 
             if (currentAd.getAdvType() == AdvType.PRODUCT) updateProduct(city);
             else if (currentAd.getAdvType() == AdvType.SERVICE) updateService(city);
-            AlertUtil.showSuccess("آگهی با موفقیت به‌روزرسانی شد.");
+            AlertUtil.showSuccess("آگهی با موفقیت به روزرسانی شد.");
             SceneManager.showPage(Pages.AD_DETAIL, null, adId);
 
         } catch (NumberFormatException e) {
@@ -254,6 +254,12 @@ public class EditAdController implements DataReceiver {
         }
     }
 
+    /**
+     * Builds and sends a service advertisement update request to the server.
+     *
+     * @param city the selected city for the advertisement
+     * @throws Exception if validation fails or the server request errors
+     */
     private void updateService(City city) throws Exception {
         if (servicePriceField.getText().trim().isEmpty()) {
             AlertUtil.showError("لطفاً هزینه خدمت را وارد کنید.");
@@ -264,7 +270,6 @@ public class EditAdController implements DataReceiver {
             return;
         }
 
-        // ساخت درخواست به‌روزرسانی خدمت
         ServiceUpdateRequest request = new ServiceUpdateRequest();
         request.setFullName(titleField.getText().trim());
         request.setDescription(descArea.getText().trim());
@@ -273,17 +278,20 @@ public class EditAdController implements DataReceiver {
         request.setCategoryId(null);
         request.setOptions(options);
 
-        // فیلدهای اختصاصی خدمت
         request.setCostOfPart(new BigDecimal(servicePriceField.getText().trim()));
         request.setTypeOfPart(ServiceType.fromPersianName(serviceCalcTypeCombo.getValue()));
 
-        // ارسال به سرور
         AdvService.updateService(adId.toString(), request);
     }
 
+    /**
+     * Builds and sends a product advertisement update request to the server.
+     *
+     * @param city the selected city for the advertisement
+     * @throws Exception if validation fails or the server request errors
+     */
     private void updateProduct(City city) throws Exception {
 
-        // اعتبارسنجی فیلدهای خدمت
         if (productPriceField.getText().trim().isEmpty()) {
             AlertUtil.showError("لطفاً قیمت کالا را وارد کنید.");
             return;
@@ -293,7 +301,6 @@ public class EditAdController implements DataReceiver {
             return;
         }
 
-        // ساخت درخواست به‌روزرسانی کالا
         ProductUpdateRequest request = new ProductUpdateRequest();
         request.setFullName(titleField.getText().trim());
         request.setDescription(descArea.getText().trim());
@@ -302,17 +309,18 @@ public class EditAdController implements DataReceiver {
         request.setCategoryId(null);
         request.setOptions(options);
 
-        // فیلدهای اختصاصی کالا
         request.setPrice(new BigDecimal(productPriceField.getText().trim()));
         request.setStateOfProduct(ProductState.fromPersianName(productConditionCombo.getValue()));
         request.setBrand(brandField.getText().trim());
         request.setModel(modelField.getText().trim());
         request.setConstructor(manufacturerField.getText().trim());
 
-        // ارسال به سرور
         AdvService.updateProduct(adId.toString(), request);
     }
 
+    /**
+     * Cancels editing and navigates back to the advertisement detail page.
+     */
     @FXML
     public void onCancel() {
         SceneManager.showPage(Pages.AD_DETAIL, null, adId);

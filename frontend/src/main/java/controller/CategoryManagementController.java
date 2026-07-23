@@ -12,9 +12,15 @@ import service.CategoryService;
 import utils.AlertUtil;
 import utils.Pages;
 import utils.SceneManager;
+import utils.Utils;
 
 import java.util.*;
 
+/**
+ * Controller for the category management page.
+ * Provides a tree view for browsing categories and a form for creating,
+ * editing, and deleting categories. Supports hierarchical category structures.
+ */
 public class CategoryManagementController {
 
     @FXML
@@ -36,6 +42,10 @@ public class CategoryManagementController {
     private List<Category> allCategories;
     private boolean isUpdating = false;
 
+    /**
+     * Initializes the category management view after FXML loading.
+     * Sets up combo boxes, tree cell factory, selection listeners, and loads initial data.
+     */
     @FXML
     public void initialize() {
         typeComboBox.getItems().addAll("PRODUCT", "SERVICE");
@@ -72,6 +82,10 @@ public class CategoryManagementController {
         saveButton.setDisable(true);
     }
 
+    /**
+     * Loads all categories from the server and builds the category tree.
+     * Reconstructs parent-child relationships and sorts the tree alphabetically.
+     */
     private void loadCategories() {
         try {
             allCategories = CategoryService.getAllCategories();
@@ -83,19 +97,7 @@ public class CategoryManagementController {
                 }
             }
 
-            for (Category cat : allCategories) {
-                Long pid = cat.getParentId();
-                if (pid != null) {
-                    Category parent = categoryMap.get(pid);
-                    if (parent != null) {
-                        cat.setParent(parent);
-                        if (!parent.getSubCategories().contains(cat)) {
-                            parent.getSubCategories().add(cat);
-                        }
-                    }
-                }
-            }
-
+            Utils.loadAllCategories(allCategories, categoryMap);
             Platform.runLater(() -> {
                 isUpdating = true;
                 TreeItem<Category> rootNode = buildTree(allCategories);
@@ -110,6 +112,12 @@ public class CategoryManagementController {
         }
     }
 
+    /**
+     * Builds a hierarchical TreeItem structure from a flat list of categories.
+     *
+     * @param categories the flat list of all categories
+     * @return the root TreeItem containing the full category tree
+     */
     private TreeItem<Category> buildTree(List<Category> categories) {
         TreeItem<Category> root = new TreeItem<>(new Category(null, "ریشه", AdvType.PRODUCT, null));
         Map<Long, TreeItem<Category>> itemMap = new HashMap<>();
@@ -138,6 +146,11 @@ public class CategoryManagementController {
         return root;
     }
 
+    /**
+     * Recursively sorts tree items alphabetically by category name.
+     *
+     * @param item the root tree item to sort
+     */
     private void sortTreeItems(TreeItem<Category> item) {
         if (item.getChildren().isEmpty()) return;
         item.getChildren().sort(Comparator.comparing(o -> o.getValue().getName()));
@@ -146,9 +159,14 @@ public class CategoryManagementController {
         }
     }
 
+    /**
+     * Populates the edit form with the selected category's data.
+     *
+     * @param category the category selected in the tree view
+     */
     private void selectCategory(Category category) {
         this.selectedCategory = category;
-        selectedCategoryLabel.setText("دسته‌بندی انتخاب‌شده: " + category.getName());
+        selectedCategoryLabel.setText("دسته بندی انتخاب شده: " + category.getName());
         nameField.setText(category.getName());
         typeComboBox.getSelectionModel().select(category.getType().name());
 
@@ -166,6 +184,10 @@ public class CategoryManagementController {
         saveButton.setDisable(false);
     }
 
+    /**
+     * Populates the parent category combo box with all categories except the selected one.
+     * Selects the current parent of the selected category if available.
+     */
     private void populateParentComboBox() {
         parentComboBox.getItems().clear();
         parentComboBox.getItems().add(null);
@@ -186,9 +208,12 @@ public class CategoryManagementController {
         }
     }
 
+    /**
+     * Clears the category edit form and resets selection state.
+     */
     private void clearForm() {
         selectedCategory = null;
-        selectedCategoryLabel.setText("هیچ دسته‌بندی انتخاب نشده است.");
+        selectedCategoryLabel.setText("هیچ دسته بندی انتخاب نشده است.");
         nameField.clear();
         typeComboBox.getSelectionModel().selectFirst();
         parentComboBox.getItems().clear();
@@ -196,9 +221,10 @@ public class CategoryManagementController {
         saveButton.setDisable(true);
     }
 
-    // ============================================================
-    // ✅ متد onSave اصلاح‌شده (رفع StackOverflow)
-    // ============================================================
+    /**
+     * Saves the category form data, creating a new category or updating the selected one.
+     * Uses a shallow parent reference to prevent circular references and stack overflow.
+     */
     @FXML
     public void onSave() {
         try {
@@ -207,11 +233,11 @@ public class CategoryManagementController {
             Category parent = parentComboBox.getSelectionModel().getSelectedItem();
 
             if (name.isEmpty()) {
-                AlertUtil.showError("لطفاً نام دسته‌بندی را وارد کنید.");
+                AlertUtil.showError("لطفاً نام دسته بندی را وارد کنید.");
                 return;
             }
             if (typeStr == null || typeStr.isEmpty()) {
-                AlertUtil.showError("لطفاً نوع دسته‌بندی را انتخاب کنید.");
+                AlertUtil.showError("لطفاً نوع دسته بندی را انتخاب کنید.");
                 return;
             }
 
@@ -220,7 +246,6 @@ public class CategoryManagementController {
             category.setName(name);
             category.setType(type);
 
-            // ---------- ایجاد والد سبک (فقط با id) برای جلوگیری از حلقه ----------
             if (parent != null) {
                 Category shallowParent = new Category();
                 shallowParent.setId(parent.getId());
@@ -229,16 +254,15 @@ public class CategoryManagementController {
                 category.setParent(null);
             }
 
-            // برای اطمینان، `subCategories` را خالی بگذارید (یا null)
             category.setSubCategories(null);
 
             if (selectedCategory == null) {
                 CategoryService.createCategory(category);
-                AlertUtil.showSuccess("دسته‌بندی با موفقیت ایجاد شد.");
+                AlertUtil.showSuccess("دسته بندی با موفقیت ایجاد شد.");
             } else {
                 category.setId(selectedCategory.getId());
                 CategoryService.updateCategory(selectedCategory.getId(), category);
-                AlertUtil.showSuccess("دسته‌بندی با موفقیت ویرایش شد.");
+                AlertUtil.showSuccess("دسته بندی با موفقیت ویرایش شد.");
             }
 
             loadCategories();
@@ -248,25 +272,28 @@ public class CategoryManagementController {
         }
     }
 
-    // ============================================================
-
+    /**
+     * Deletes the selected category after user confirmation.
+     * Shows a warning if the category may have subcategories.
+     * Reloads the category tree on success.
+     */
     @FXML
     public void onDelete() {
         if (selectedCategory == null) {
-            AlertUtil.showError("لطفاً یک دسته‌بندی را انتخاب کنید.");
+            AlertUtil.showError("لطفاً یک دسته بندی را انتخاب کنید.");
             return;
         }
 
         boolean confirm = AlertUtil.showConfirmation(
-                "حذف دسته‌بندی",
-                "آیا از حذف دسته‌بندی '" + selectedCategory.getName() + "' اطمینان دارید؟\n" +
-                        "توجه: اگر این دسته‌بندی زیردسته داشته باشد، عملیات با خطا مواجه می‌شود."
+                "حذف دسته بندی",
+                "آیا از حذف دسته بندی '" + selectedCategory.getName() + "' اطمینان دارید؟\n" +
+                        "توجه: اگر این دسته بندی زیردسته داشته باشد، عملیات با خطا مواجه می شود."
         );
         if (!confirm) return;
 
         try {
             CategoryService.deleteCategory(selectedCategory.getId());
-            AlertUtil.showSuccess("دسته‌بندی با موفقیت حذف شد.");
+            AlertUtil.showSuccess("دسته بندی با موفقیت حذف شد.");
             clearForm();
             loadCategories();
         } catch (Exception e) {
@@ -274,16 +301,22 @@ public class CategoryManagementController {
         }
     }
 
+    /**
+     * Clears the form and deselects the current tree selection.
+     */
     @FXML
     public void onClear() {
         clearForm();
         categoryTreeView.getSelectionModel().clearSelection();
     }
 
+    /**
+     * Prepares the form for creating a new root-level category.
+     */
     @FXML
     public void onAddRoot() {
         clearForm();
-        selectedCategoryLabel.setText("ایجاد دسته‌بندی جدید (ریشه)");
+        selectedCategoryLabel.setText("ایجاد دسته بندی جدید (ریشه)");
         nameField.clear();
         typeComboBox.getSelectionModel().selectFirst();
         populateParentComboBox();
@@ -291,6 +324,9 @@ public class CategoryManagementController {
         deleteButton.setDisable(true);
     }
 
+    /**
+     * Navigates back to the admin panel page.
+     */
     @FXML
     public void goBack() {
         SceneManager.showPage(Pages.ADMIN, null);

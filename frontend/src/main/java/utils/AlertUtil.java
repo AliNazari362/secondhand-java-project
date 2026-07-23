@@ -27,7 +27,7 @@ public class AlertUtil {
             alert.setHeaderText(null);
             alert.setContentText(message);
             applyRTL(alert);
-            alert.showAndWait();
+            alert.show();
         });
     }
 
@@ -43,7 +43,7 @@ public class AlertUtil {
             alert.setHeaderText(null);
             alert.setContentText(message);
             applyRTL(alert);
-            alert.showAndWait();
+            alert.show();
         });
     }
 
@@ -59,7 +59,7 @@ public class AlertUtil {
             alert.setHeaderText(null);
             alert.setContentText(message);
             applyRTL(alert);
-            alert.showAndWait();
+            alert.show();
         });
     }
 

@@ -42,8 +42,11 @@ public class AdCardController {
 
     private AdvertisementSummaryDto adv;
 
-    private static final String BASE_IMAGE_URL = "http://localhost:8080/";
-
+    /**
+     * Populates the card with advertisement data including fields, status, and image.
+     *
+     * @param ad the advertisement summary data to display
+     */
     private void setData(AdvertisementSummaryDto ad) {
         this.adv = ad;
         fillElement(ad);
@@ -51,13 +54,18 @@ public class AdCardController {
         setImage(ad);
     }
 
+    /**
+     * Loads and sets the advertisement image, falling back to a placeholder if unavailable.
+     *
+     * @param ad the advertisement summary containing the image path
+     */
     private void setImage(AdvertisementSummaryDto ad) {
         String imagePath;
         if (ad.getFirstImagePath() != null && !ad.getFirstImagePath().isEmpty()) {
             imagePath = ad.getFirstImagePath();
             if (!Files.exists(Path.of(imagePath))) {
                 String serverPath = imagePath.startsWith("uploads/") ? imagePath : "uploads/" + imagePath;
-                imagePath = BASE_IMAGE_URL + serverPath;
+                imagePath = Utils.BASE_IMAGE_URL + serverPath;
             }
         } else imagePath = ("/images/placeholder.png");
 
@@ -68,6 +76,11 @@ public class AdCardController {
         } else imageView.setVisible(false);
     }
 
+    /**
+     * Fills the card's text fields with advertisement details.
+     *
+     * @param ad the advertisement summary containing title, price, city, date, and category
+     */
     private void fillElement(AdvertisementSummaryDto ad) {
         titleText.setText(ad.getFullName() != null ? ad.getFullName() : "بدون عنوان");
         priceLabel.setText(ad.getPrice() != null ? Utils.formatPrice(ad.getPrice()) : "قیمت: توافقی");
@@ -83,6 +96,11 @@ public class AdCardController {
 
     }
 
+    /**
+     * Sets the status label visibility and text based on the advertisement status.
+     *
+     * @param ad the advertisement summary containing the status
+     */
     private void setStatus(AdvertisementSummaryDto ad) {
         boolean isStatusExist = ad.getStatus() != null;
         statusLabel.setVisible(isStatusExist);
@@ -98,6 +116,12 @@ public class AdCardController {
         }
     }
 
+    /**
+     * Creates a new advertisement card component from the FXML layout.
+     *
+     * @param ad the advertisement summary data to populate the card with
+     * @return the Vbox containing the rendered ad card, or a fallback error card on failure
+     */
     public static VBox createAdCard(AdvertisementSummaryDto ad) {
         try {
             FXMLLoader loader = new FXMLLoader(AdCardController.class.getResource("/fxml/components/ad-card.fxml"));
@@ -122,6 +146,10 @@ public class AdCardController {
         }
     }
 
+    /**
+     * Handles the card click event by navigating to the advertisement detail page.
+     * Shows an error alert if the advertisement ID is not available.
+     */
     @FXML
     public void handleCardClick() {
         if (adv != null) {

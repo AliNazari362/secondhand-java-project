@@ -1,7 +1,6 @@
 package app;
 
 import javafx.application.Application;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import atlantafx.base.theme.PrimerLight;
 import utils.Pages;

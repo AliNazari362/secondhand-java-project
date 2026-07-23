@@ -6,6 +6,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Sidebar navigation component -->
 <VBox spacing="10" styleClass="sidebar" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.SidebarController">
     <padding>
         <Insets top="20" right="15" bottom="20" left="15" />
@@ -13,22 +14,28 @@
 
     <Text text="منو" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;" />
 
+    <!-- Dashboard navigation button -->
     <Button onAction="#onDashboard">
         <graphic><FontIcon iconLiteral="fas-home" iconSize="16" /></graphic>
     </Button>
+    <!-- New ad navigation button -->
     <Button onAction="#onNewAd">
         <graphic><FontIcon iconLiteral="fas-plus" iconSize="16" /></graphic>
     </Button>
+    <!-- Favorites navigation button -->
     <Button onAction="#onFavorites">
         <graphic><FontIcon iconLiteral="fas-heart" iconSize="16" /></graphic>
     </Button>
+    <!-- Chat navigation button -->
     <Button onAction="#onChat">
         <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
     </Button>
+    <!-- Profile navigation button -->
     <Button onAction="#onProfile">
         <graphic><FontIcon iconLiteral="fas-user" iconSize="16" /></graphic>
     </Button>
 
+    <!-- Logout button (pushed to bottom) -->
     <Button onAction="#onLogout" styleClass="danger-btn" VBox.vgrow="ALWAYS">
         <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
     </Button>

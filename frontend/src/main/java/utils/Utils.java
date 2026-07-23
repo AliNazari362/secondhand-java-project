@@ -2,18 +2,20 @@ package utils;
 
 import exception.ExceptionHandler;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import model.Category;
 import model.request.OptionRequest;
+import org.kordamp.ikonli.javafx.FontIcon;
 import service.AuthService;
 
 import java.io.File;
@@ -22,14 +24,16 @@ import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class Utils {
 
+    public static final String BASE_IMAGE_URL = "http://localhost:8080/";
     public static final int MAX_IMAGES = 5;
     public static final int MAX_IMAGE_SIZE_MB = 5;
-
-    public static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("d MMMM HH:mm").withLocale(Locale.forLanguageTag("fa-IR"));
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter
+            .ofPattern("d MMMM HH:mm")
+            .withLocale(Locale.forLanguageTag("fa-IR"));
 
     public static void logout() {
         boolean confirm = AlertUtil.showConfirmation("خروج از حساب", "آیا از خروج از حساب کاربری خود اطمینان دارید؟");
@@ -152,6 +156,65 @@ public class Utils {
             imagePreviewContainer.getChildren().add(previewBox);
         } catch (Exception e) {
             ExceptionHandler.handle(e);
+        }
+    }
+
+    public static void show404Page(BorderPane rootPan, String text, String desc) {
+        rootPan.getChildren().clear();
+
+        VBox container404 = new VBox(30);
+        container404.setAlignment(Pos.CENTER);
+        container404.setStyle("-fx-background-color: #f0f4f8; -fx-padding: 50;");
+
+        FontIcon icon404 = new FontIcon("fas-exclamation-triangle");
+        icon404.setIconSize(80);
+        icon404.setIconColor(Paint.valueOf("#e53e3e"));
+
+        Text title404 = new Text("۴۰۴");
+        title404.setStyle("-fx-font-size: 72px; -fx-font-weight: bold; -fx-fill: #2d3748;");
+
+        Text message404 = new Text();
+        message404.setStyle("-fx-font-size: 24px; -fx-fill: #4a5568;");
+
+        Text desc404 = new Text();
+        desc404.setStyle("-fx-font-size: 14px; -fx-fill: #718096;");
+
+        Button backBtn = createBackBtn();
+
+        container404.getChildren().addAll(icon404, title404, message404, desc404, backBtn);
+
+        rootPan.setCenter(container404);
+    }
+
+    private static Button createBackBtn() {
+        Button backBtn = new Button("بازگشت به صفحه اصلی");
+        backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; -fx-font-size: 14px; " +
+                "-fx-padding: 10 25; -fx-background-radius: 8; -fx-cursor: hand;");
+        backBtn.setOnAction(e -> SceneManager.showPage(Pages.DASHBOARD, null));
+
+        backBtn.setOnMouseEntered(e -> backBtn.setStyle("-fx-background-color: #2c5282; -fx-text-fill: white; " +
+                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
+        backBtn.setOnMouseExited(e -> backBtn.setStyle("-fx-background-color: #3182ce; -fx-text-fill: white; " +
+                "-fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8;"));
+
+        FontIcon backIcon = new FontIcon("fas-arrow-right");
+        backIcon.setIconSize(16);
+        backBtn.setGraphic(backIcon);
+        return backBtn;
+    }
+
+    public static void loadAllCategories(List<Category> allCategories, Map<Long, Category> categoryMap){
+        for (Category cat : allCategories) {
+            Long pid = cat.getParentId();
+            if (pid != null) {
+                Category parent = categoryMap.get(pid);
+                if (parent != null) {
+                    cat.setParent(parent);
+                    if (!parent.getSubCategories().contains(cat)) {
+                        parent.getSubCategories().add(cat);
+                    }
+                }
+            }
         }
     }
 }

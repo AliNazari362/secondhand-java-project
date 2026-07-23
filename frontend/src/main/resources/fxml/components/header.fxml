@@ -6,6 +6,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Shared header component -->
 <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.HeaderController">
     <padding>
         <Insets top="15" right="25" bottom="15" left="25" />
@@ -14,24 +15,31 @@
     <Text text="لیست آگهی ها" styleClass="header-title" />
     <Text fx:id="userInfoText" text="خوش آمدید، کاربر" styleClass="header-subtitle" />
 
+    <!-- Right-aligned action buttons -->
     <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+        <!-- New ad button -->
         <Button onAction="#onNewAd">
             <graphic><FontIcon iconLiteral="fas-plus" iconSize="16" /></graphic>
         </Button>
+        <!-- Favorites button -->
         <Button onAction="#onFavorites">
             <graphic><FontIcon iconLiteral="fas-heart" iconSize="16" /></graphic>
         </Button>
+        <!-- Chat button -->
         <Button onAction="#onChat">
             <graphic><FontIcon iconLiteral="fas-comment" iconSize="16" /></graphic>
         </Button>
 
+        <!-- Profile button -->
         <Button onAction="#onProfile">
             <graphic><FontIcon iconLiteral="fas-user-circle" iconSize="16" /></graphic>
         </Button>
 
+        <!-- Admin panel button (hidden for non-admin users) -->
         <Button fx:id="adminBtn" onAction="#onAdmin" visible="false">
             <graphic><FontIcon iconLiteral="fas-cog" iconSize="16" /></graphic>
         </Button>
+        <!-- Logout button -->
         <Button onAction="#onLogout">
             <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" /></graphic>
         </Button>

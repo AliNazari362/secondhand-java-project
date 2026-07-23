@@ -8,7 +8,7 @@ import java.util.List;
  * Service class for managing categories.
  * <p>
  * Provides methods for CRUD operations on categories via the backend API.
- * All methods require admin privileges.
+ * All write operations require admin privileges.
  * </p>
  *
  * @see Category
@@ -24,10 +24,11 @@ public class CategoryService {
      * @throws Exception if the request fails
      */
     public static List<Category> getAllCategories() throws Exception {
-        String response = api.get("/categories/public");  // مسیر عمومی
+        String response = api.get("/categories/public");
         Category[] categories = api.fromJson(response, Category[].class);
         return Arrays.asList(categories);
     }
+
     /**
      * Retrieves a category by its ID.
      *

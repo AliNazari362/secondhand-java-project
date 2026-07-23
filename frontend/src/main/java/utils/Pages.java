@@ -134,8 +134,6 @@ public enum Pages {
         }
     },
 
-    // ================== New Page ==================
-
     CATEGORY_MANAGEMENT {
         @Override
         public String getTitle() {
