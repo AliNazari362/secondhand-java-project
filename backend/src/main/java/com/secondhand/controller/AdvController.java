@@ -78,6 +78,7 @@ public class AdvController {
      * Retrieves the full details of a single advertisement by its unique identifier.
      *
      * @param advId the UUID of the advertisement to retrieve
+     * @param token the JWT bearer token from the {@code Authorization} request header
      * @return the {@link AdvDetailResponse} containing all details of the advertisement
      */
     @GetMapping("{advId}")

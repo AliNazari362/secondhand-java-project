@@ -11,6 +11,6 @@ public enum AdvType {
     /** Advertisement offering a physical product for sale. */
     PRODUCT,
 
-    /** Advertisement offering a com.secondhand.service (hourly, daily, fixed-price, etc.). */
+    /** Advertisement offering a service (hourly, daily, fixed-price, etc.). */
     SERVICE
 }

@@ -65,7 +65,7 @@ public class JwtUtil {
                     .encodeToString(header.getBytes(StandardCharsets.UTF_8));
 
             long now = System.currentTimeMillis();
-            long exp = now + (24 * 60 * 60 * 1000); // 24 hours
+            long exp = now + (24 * 60 * 60 * 1000);
             String payload = String.format(
                     "{\"userId\":\"%s\",\"email\":\"%s\",\"role\":\"%s\",\"iat\":%d,\"exp\":%d,\"jti\":\"%s\"}",
                     userId, email, role, now, exp, UUID.randomUUID());
@@ -125,7 +125,6 @@ public class JwtUtil {
 
     /**
      * Extracts the expiry timestamp (in milliseconds) from the token payload.
-     * This method handles numeric values.
      *
      * @param token the raw JWT token (without "Bearer " prefix)
      * @return the expiry timestamp as a {@code long}
@@ -238,7 +237,6 @@ public class JwtUtil {
             throw new RuntimeException("Key not found in token: " + key);
         }
         startIndex += searchKey.length();
-        // Find the end of the number (comma, brace, or whitespace)
         int endIndex = startIndex;
         while (endIndex < json.length() && (Character.isDigit(json.charAt(endIndex)) || json.charAt(endIndex) == '-')) {
             endIndex++;

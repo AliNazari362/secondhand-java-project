@@ -71,7 +71,6 @@ public class CategoryService {
     public Category updateCategory(Long id, Category categoryDetails) {
         Category existing = getCategoryById(id);
 
-        // بررسی تکراری نبودن نام (در صورت تغییر نام)
         if (!existing.getName().equals(categoryDetails.getName()) &&
                 categoryRepository.existsByName(categoryDetails.getName())) {
             throw new BadRequestException("دسته‌بندی با این نام قبلاً ثبت شده است");
@@ -91,7 +90,6 @@ public class CategoryService {
      */
     public void deleteCategory(Long id) {
         Category category = getCategoryById(id);
-        // (اختیاری) می‌توانید بررسی کنید که این دسته‌بندی زیردسته یا آگهی نداشته باشد
         categoryRepository.delete(category);
     }
 }

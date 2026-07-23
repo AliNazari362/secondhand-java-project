@@ -16,7 +16,7 @@ import java.util.Objects;
  *
  * <p>Comments form the social-proof layer of the platform: buyers can leave feedback
  * after interacting with a seller, helping future buyers assess the seller's reliability
- * and the quality of the advertised item or com.secondhand.service.</p>
+ * and the quality of the advertised item or service.</p>
  *
  * <p>Each comment carries a 1–5 star rating that contributes to the advertisement's
  * aggregate score.</p>
@@ -25,9 +25,9 @@ import java.util.Objects;
 @Table(
         name = "comments",
         indexes = {
-                @Index(name = "idx_comment_adv_id",  columnList = "adv_id"),
+                @Index(name = "idx_comment_adv_id", columnList = "adv_id"),
                 @Index(name = "idx_comment_user_id", columnList = "user_id"),
-                @Index(name = "idx_comment_date",    columnList = "date")
+                @Index(name = "idx_comment_date", columnList = "date")
         }
 )
 public class Comment {
@@ -46,7 +46,7 @@ public class Comment {
      * Must not be blank; limited to 2000 characters to prevent abuse.
      */
     @NotBlank(message = "متن نظر نمی‌تواند خالی باشد")
-        @Size(max = 2000, message = "متن نظر نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
+    @Size(max = 2000, message = "متن نظر نباید از ۲۰۰۰ کاراکتر بیشتر باشد")
     @Column(name = "text", columnDefinition = "TEXT", nullable = false)
     private String text;
 
@@ -55,7 +55,7 @@ public class Comment {
      * Contributes to the advertisement's overall average rating score.
      */
     @Min(value = 1, message = "امتیاز حداقل باید ۱ باشد")
-        @Max(value = 5, message = "امتیاز حداکثر می‌تواند ۵ باشد")
+    @Max(value = 5, message = "امتیاز حداکثر می‌تواند ۵ باشد")
     @Column(name = "rate", nullable = false)
     private int rate;
 
@@ -66,7 +66,7 @@ public class Comment {
     @NotNull(message = "نویسنده نظر نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_comment_user"))
+            foreignKey = @ForeignKey(name = "fk_comment_user"))
     private User user;
 
     /**
@@ -84,17 +84,14 @@ public class Comment {
     @NotNull(message = "آگهی مرتبط با نظر نمی‌تواند خالی باشد")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "adv_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_comment_adv"))
+            foreignKey = @ForeignKey(name = "fk_comment_adv"))
     private Adv adv;
-
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
 
     /**
      * JPA-required no-argument constructor.
      */
-    public Comment() {}
+    public Comment() {
+    }
 
     /**
      * Convenience constructor for creating a fully initialised comment.
@@ -111,35 +108,50 @@ public class Comment {
         this.adv = adv;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
+    // ---------- Getters and Setters ----------
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
+    public String getText() {
+        return text;
+    }
 
-    public String getText() { return text; }
+    public void setText(String text) {
+        this.text = text;
+    }
 
-    public void setText(String text) { this.text = text; }
+    public int getRate() {
+        return rate;
+    }
 
-    public int getRate() { return rate; }
+    public void setRate(int rate) {
+        this.rate = rate;
+    }
 
-    public void setRate(int rate) { this.rate = rate; }
+    public User getUser() {
+        return user;
+    }
 
-    public User getUser() { return user; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public void setUser(User user) { this.user = user; }
+    public LocalDateTime getDate() {
+        return date;
+    }
 
-    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
 
-    public void setDate(LocalDateTime date) { this.date = date; }
+    public Adv getAdv() {
+        return adv;
+    }
 
-    public Adv getAdv() { return adv; }
-
-    public void setAdv(Adv adv) { this.adv = adv; }
-
-    // -------------------------------------------------------------------------
-    // equals / hashCode — based on surrogate identity key
-    // -------------------------------------------------------------------------
+    public void setAdv(Adv adv) {
+        this.adv = adv;
+    }
 
     @Override
     public boolean equals(Object o) {

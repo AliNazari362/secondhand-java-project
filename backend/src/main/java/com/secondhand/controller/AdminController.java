@@ -157,14 +157,11 @@ public class AdminController {
         return ResponseEntity.ok("آگهی با موفقیت حذف شد");
     }
 
-    // ==================== جدید: داشبورد آماری ====================
-
     /**
      * Retrieves comprehensive system statistics for the admin dashboard.
-     * <p>
-     * This endpoint returns aggregated data including user counts (total, active, banned, deleted),
-     * advertisement distribution by status (pending, active, sold, rejected), and total message/comment counts.
-     * </p>
+     *
+     * <p>This endpoint returns aggregated data including user counts (total, active, banned, deleted),
+     * advertisement distribution by status (pending, active, sold, rejected), and total message/comment counts.</p>
      *
      * @param token the JWT bearer token from the {@code Authorization} request header (admin required)
      * @return a {@link DashboardStatsResponse} containing all system statistics
@@ -174,8 +171,6 @@ public class AdminController {
         checkAdmin(token);
         return adminService.getDashboardStats();
     }
-
-    // ============================================================
 
     /**
      * Verifies that the token belongs to a user with {@link UserType#ADMIN} role.

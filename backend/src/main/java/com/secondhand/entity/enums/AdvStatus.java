@@ -15,7 +15,7 @@ public enum AdvStatus {
     /** Advertisement rejected by an admin; rejection explanation should be provided. */
     REJECTED,
 
-    /** The advertised product or com.secondhand.service has been sold/fulfilled; no longer available. */
+    /** The advertised product or service has been sold/fulfilled; no longer available. */
     SOLD,
 
     /** Advertisement was removed by the owner or an admin; hidden from public listings. */

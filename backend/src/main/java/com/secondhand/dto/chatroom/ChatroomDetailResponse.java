@@ -10,7 +10,7 @@ import java.util.UUID;
  *
  * <p>Returned by GET /api/chatrooms/{chatroomId}. Messages are ordered chronologically
  * (oldest first) so the client can render the conversation in natural reading order.
- * To prevent circular references the associated advertisement is referenced by ID and
+ * To prevent circular references, the associated advertisement is referenced by ID and
  * title only.</p>
  *
  * @param id       the unique identifier of this chatroom
@@ -20,16 +20,12 @@ import java.util.UUID;
  */
 public record ChatroomDetailResponse(
 
-        /** Unique identifier of this chatroom. */
         UUID id,
 
-        /** Unique identifier of the advertisement this conversation is about. */
         UUID advId,
 
-        /** Headline/title of the advertisement, shown as the conversation subject. */
         String advTitle,
 
-        /** Chronologically ordered (oldest first) list of all messages in this chatroom. */
         List<MessageResponse> messages
 
 ) {}

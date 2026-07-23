@@ -1,4 +1,4 @@
-package com.secondhand.dto.category;
+package com.secondhand.dto.adv;
 
 import com.secondhand.entity.enums.AdvType;
 
@@ -7,12 +7,12 @@ import com.secondhand.entity.enums.AdvType;
  * Used in admin management endpoints to display full category details
  * including its hierarchical structure.
  *
- * @param id              the unique identifier of the category
- * @param name            the display name of the category
- * @param type            the type of the category (PRODUCT or SERVICE)
- * @param parentId        the ID of the parent category, or {@code null} if root
- * @param parentName      the name of the parent category, or {@code null} if root
- * @param subCategoryCount the number of direct sub-categories under this category
+ * @param id                the unique identifier of the category
+ * @param name              the display name of the category
+ * @param type              the type of the category (PRODUCT or SERVICE)
+ * @param parentId          the ID of the parent category, or {@code null} if root
+ * @param parentName        the name of the parent category, or {@code null} if root
+ * @param subCategoryCount  the number of direct sub-categories under this category
  */
 public record CategoryResponse(
         Long id,

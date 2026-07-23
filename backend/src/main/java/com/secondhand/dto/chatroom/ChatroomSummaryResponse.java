@@ -16,19 +16,14 @@ import java.util.UUID;
  */
 public record ChatroomSummaryResponse(
 
-        /** Unique identifier of this chatroom. */
         UUID id,
 
-        /** Unique identifier of the advertisement this conversation is about. */
         UUID advId,
 
-        /** Headline/title of the advertisement, shown as the chatroom subject. */
         String advTitle,
 
-        /** Total number of messages exchanged in this chatroom. */
         int messageCount,
 
-        /** Number of messages the current user has not yet read. */
         long unreadCount
 
 ) {}

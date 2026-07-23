@@ -21,9 +21,9 @@ import java.util.Objects;
         name = "messages",
         indexes = {
                 @Index(name = "idx_message_chatroom_id", columnList = "chatroom_id"),
-                @Index(name = "idx_message_sender_id",   columnList = "sender_id"),
-                @Index(name = "idx_message_date",        columnList = "date"),
-                @Index(name = "idx_message_seen",        columnList = "seen")
+                @Index(name = "idx_message_sender_id", columnList = "sender_id"),
+                @Index(name = "idx_message_date", columnList = "date"),
+                @Index(name = "idx_message_seen", columnList = "seen")
         }
 )
 public class Message {
@@ -76,7 +76,6 @@ public class Message {
      * This is the owning side of the {@code Message ↔ Chatroom} relationship;
      * the foreign key {@code chatroom_id} lives in the {@code messages} table.
      */
-    // ✅ فقط این رابطه – هیچ فیلد جداگانه‌ای برای chatroom_id وجود ندارد
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "chatroom_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_message_chatroom"))
@@ -104,27 +103,62 @@ public class Message {
         this.chatroom = chatroom;
     }
 
-    // ---------- Getters & Setters ----------
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ---------- Getters and Setters ----------
+    public Long getId() {
+        return id;
+    }
 
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public User getSender() { return sender; }
-    public void setSender(User sender) { this.sender = sender; }
+    public String getText() {
+        return text;
+    }
 
-    public LocalDateTime getDate() { return date; }
-    public void setDate(LocalDateTime date) { this.date = date; }
+    public void setText(String text) {
+        this.text = text;
+    }
 
-    public boolean isSeen() { return seen; }
-    public void setSeen(boolean seen) { this.seen = seen; }
-    public void markAsSeen() { this.seen = true; }
+    public User getSender() {
+        return sender;
+    }
 
-    public Chatroom getChatroom() { return chatroom; }
-    public void setChatroom(Chatroom chatroom) { this.chatroom = chatroom; }
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
 
-    // ---------- equals & hashCode ----------
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
+
+    /**
+     * Marks this message as seen by the recipient.
+     */
+    public void markAsSeen() {
+        this.seen = true;
+    }
+
+    public Chatroom getChatroom() {
+        return chatroom;
+    }
+
+    public void setChatroom(Chatroom chatroom) {
+        this.chatroom = chatroom;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

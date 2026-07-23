@@ -78,13 +78,13 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
      * the price of products. For service advertisements (which have no price),
      * the price conditions are ignored (treated as NULL).</p>
      *
-     * @param keyword    optional text to match against the title or description (case-insensitive)
-     * @param city       optional city to restrict results to
-     * @param status     optional lifecycle status to restrict results to
-     * @param categoryIds </categoryId> optional category ID to restrict results to
-     * @param sortBy     sorting criterion (default: "newest")
-     * @param minPrice   optional minimum price filter (inclusive, only for products)
-     * @param maxPrice   optional maximum price filter (inclusive, only for products)
+     * @param keyword     optional text to match against the title or description (case-insensitive)
+     * @param city        optional city to restrict results to
+     * @param status      optional lifecycle status to restrict results to
+     * @param categoryIds optional list of category IDs to restrict results to (including subcategories)
+     * @param sortBy      sorting criterion (default: "newest")
+     * @param minPrice    optional minimum price filter (inclusive, only for products)
+     * @param maxPrice    optional maximum price filter (inclusive, only for products)
      * @return list of matching advertisements; empty list if none found
      */
     @Query("SELECT a FROM Adv a WHERE " +
@@ -108,4 +108,5 @@ public interface AdvRepository extends JpaRepository<Adv, UUID> {
                      @Param("categoryIds") List<Long> categoryIds,
                      @Param("sortBy") String sortBy,
                      @Param("minPrice") BigDecimal minPrice,
-                     @Param("maxPrice") BigDecimal maxPrice);}
+                     @Param("maxPrice") BigDecimal maxPrice);
+}

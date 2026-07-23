@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
  * Request DTO for updating an existing user's profile information.
  *
  * <p>Submitted via PUT /api/users/{id}. All fields are optional; only non-null
- * fields provided by the client should be applied by the com.secondhand.service layer (partial update).</p>
+ * fields provided by the client should be applied by the service layer (partial update).</p>
  *
  * @param fullName    new display name; null means no change
  * @param email       new email address; null means no change

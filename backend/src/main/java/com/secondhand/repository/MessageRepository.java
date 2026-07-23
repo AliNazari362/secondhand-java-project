@@ -27,7 +27,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      * @param chatroomId the UUID of the chatroom
      * @return list of messages sorted from oldest to newest; empty list if none found
      */
-    // ✅ استفاده از Query به‌جای Derived Query
     @Query("SELECT m FROM Message m WHERE m.chatroom.id = :chatroomId ORDER BY m.date ASC")
     List<Message> findByChatroomIdOrderByDateAsc(@Param("chatroomId") UUID chatroomId);
 

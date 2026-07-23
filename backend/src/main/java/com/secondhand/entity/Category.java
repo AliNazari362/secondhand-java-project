@@ -69,7 +69,7 @@ public class Category {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(name = "fk_category_parent"))
-    @JsonBackReference  // <-- این خط مانع از حلقه بی‌نهایت می‌شود
+    @JsonBackReference
     private Category parent;
 
     /**
@@ -82,7 +82,7 @@ public class Category {
      * child list without causing infinite recursion.</p>
      */
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference  // <-- این خط باعث می‌شود زیردسته‌ها نمایش داده شوند
+    @JsonManagedReference
     private List<Category> subCategories = new ArrayList<>();
 
     /**
@@ -115,46 +115,20 @@ public class Category {
     }
 
     // ---------- Getters and Setters ----------
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Category getParent() { return parent; }
+    public void setParent(Category parent) { this.parent = parent; }
 
-    public String getName() {
-        return name;
-    }
+    public List<Category> getSubCategories() { return subCategories; }
+    public void setSubCategories(List<Category> subCategories) { this.subCategories = subCategories; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Category getParent() {
-        return parent;
-    }
-
-    public void setParent(Category parent) {
-        this.parent = parent;
-    }
-
-    public List<Category> getSubCategories() {
-        return subCategories;
-    }
-
-    public void setSubCategories(List<Category> subCategories) {
-        this.subCategories = subCategories;
-    }
-
-    public AdvType getType() {
-        return type;
-    }
-
-    public void setType(AdvType type) {
-        this.type = type;
-    }
+    public AdvType getType() { return type; }
+    public void setType(AdvType type) { this.type = type; }
 
     // ---------- Utility Methods ----------
 
@@ -190,8 +164,6 @@ public class Category {
     public boolean isRoot() {
         return parent == null;
     }
-
-    // ---------- equals, hashCode, toString ----------
 
     @Override
     public boolean equals(Object o) {

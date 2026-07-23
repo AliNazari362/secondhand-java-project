@@ -87,10 +87,6 @@ public class User extends Person {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Adv> userAdv = new ArrayList<>();
 
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
-
     /**
      * JPA-required no-argument constructor.
      */
@@ -115,33 +111,48 @@ public class User extends Person {
         this.fullName = fullName;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
+    // ---------- Getters and Setters ----------
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
 
-    public UserStatus getUserStatus() { return userStatus; }
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+    }
 
-    public void setUserStatus(UserStatus userStatus) { this.userStatus = userStatus; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public List<Adv> getFavorites() {
+        return favorites;
+    }
 
-    public List<Adv> getFavorites() { return favorites; }
+    public void setFavorites(List<Adv> favorites) {
+        this.favorites = favorites;
+    }
 
-    public void setFavorites(List<Adv> favorites) { this.favorites = favorites; }
+    public List<Chatroom> getRooms() {
+        return rooms;
+    }
 
-    public List<Chatroom> getRooms() { return rooms; }
+    public void setRooms(List<Chatroom> rooms) {
+        this.rooms = rooms;
+    }
 
-    public void setRooms(List<Chatroom> rooms) { this.rooms = rooms; }
+    public List<Adv> getUserAdv() {
+        return userAdv;
+    }
 
-    public List<Adv> getUserAdv() { return userAdv; }
+    public void setUserAdv(List<Adv> userAdv) {
+        this.userAdv = userAdv;
+    }
 
-    public void setUserAdv(List<Adv> userAdv) { this.userAdv = userAdv; }
-
-    // -------------------------------------------------------------------------
-    // Helper methods — always synchronise both sides of bidirectional relationships
-    // -------------------------------------------------------------------------
+    // ---------- Helper Methods ----------
 
     /**
      * Adds an advertisement to the user's favourites list.
@@ -223,10 +234,6 @@ public class User extends Person {
     public String getUsername() {
         return getEmail();
     }
-
-    // -------------------------------------------------------------------------
-    // equals / hashCode — inherited from Person (based on email)
-    // -------------------------------------------------------------------------
 
     @Override
     public boolean equals(Object o) {

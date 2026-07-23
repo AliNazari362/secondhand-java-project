@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 @Table(
         name = "products",
         indexes = {
-                // ایندکس مربوط به category حذف شد چون این ستون دیگر در جدول products وجود ندارد
                 @Index(name = "idx_product_price", columnList = "price"),
                 @Index(name = "idx_product_brand", columnList = "brand")
         }
@@ -93,8 +92,6 @@ public class Product extends Adv {
     @Column(name = "price", nullable = false, precision = 15, scale = 0)
     private BigDecimal price = BigDecimal.ZERO;
 
-    // فیلد category که قبلاً اینجا بود، به کلاس پدر (Adv) منتقل شده است.
-
     /**
      * JPA-required no-argument constructor.
      * Sets the advertisement type discriminator to PRODUCT and price to zero.
@@ -107,7 +104,6 @@ public class Product extends Adv {
 
     /**
      * Convenience constructor for creating a fully initialised product advertisement.
-     * (پارامتر category از این سازنده حذف شده است)
      *
      * @param description    free-text product description
      * @param user           the owner posting the advertisement
@@ -130,6 +126,7 @@ public class Product extends Adv {
         this.price = price != null ? price : BigDecimal.ZERO;
     }
 
+    // ---------- Getters and Setters ----------
     public ProductState getStateOfProduct() {
         return stateOfProduct;
     }
@@ -169,8 +166,6 @@ public class Product extends Adv {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-
-    // متدهای getCategory و setCategory حذف شدند چون از کلاس پدر به ارث می‌روند.
 
     /**
      * Safe toString that never accesses lazy associations.

@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Abstract base com.secondhand.entity representing any authenticated principal in the system.
+ * Abstract base entity representing any authenticated principal in the system.
  *
  * <p>Uses a JOINED inheritance strategy so that concrete subtypes ({@link User})
  * are stored in their own tables while sharing the common columns defined here.</p>
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Table(
         name = "persons",
         indexes = {
-                @Index(name = "idx_person_email",        columnList = "email",        unique = true),
+                @Index(name = "idx_person_email", columnList = "email", unique = true),
                 @Index(name = "idx_person_phone_number", columnList = "phone_number", unique = true)
         }
 )
@@ -45,7 +45,7 @@ public abstract class Person {
      * Never stored or transmitted in plain text.
      */
     @NotBlank(message = "رمز عبور نمی‌تواند خالی باشد")
-        @Size(min = 8, max = 255, message = "رمز عبور باید بین ۸ تا ۲۵۵ کاراکتر باشد")
+    @Size(min = 8, max = 255, message = "رمز عبور باید بین ۸ تا ۲۵۵ کاراکتر باشد")
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
@@ -54,8 +54,8 @@ public abstract class Person {
      * Must be unique across all persons in the system.
      */
     @NotBlank(message = "ایمیل نمی‌تواند خالی باشد")
-        @Email(message = "ایمیل وارد شده معتبر نیست")
-        @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
+    @Email(message = "ایمیل وارد شده معتبر نیست")
+    @Size(max = 254, message = "ایمیل نباید از ۲۵۴ کاراکتر بیشتر باشد")
     @Column(name = "email", nullable = false, unique = true, length = 254)
     private String email;
 
@@ -81,7 +81,7 @@ public abstract class Person {
 
     /**
      * JPA-required no-argument constructor.
-     * Initialises the UUID so the com.secondhand.entity has an identity before it is persisted.
+     * Initialises the UUID so the entity has an identity before it is persisted.
      */
     protected Person() {
         this.id = UUID.randomUUID();
@@ -103,34 +103,46 @@ public abstract class Person {
         this.userType = userType;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
+    // ---------- Getters and Setters ----------
+    public UUID getId() {
+        return id;
+    }
 
-    public UUID getId() { return id; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public void setId(UUID id) { this.id = id; }
+    public String getPassword() {
+        return password;
+    }
 
-    public String getPassword() { return password; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public void setPassword(String password) { this.password = password; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getEmail() { return email; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public void setEmail(String email) { this.email = email; }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public UserType getUserType() {
+        return userType;
+    }
 
-    public UserType getUserType() { return userType; }
-
-    public void setUserType(UserType userType) { this.userType = userType; }
-
-    // -------------------------------------------------------------------------
-    // equals / hashCode — based on natural business key (email)
-    // Using the database-assigned id is dangerous before first flush.
-    // -------------------------------------------------------------------------
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -141,7 +153,6 @@ public abstract class Person {
 
     @Override
     public int hashCode() {
-        // Constant hash until email is set; safe for Hibernate proxies.
         return Objects.hashCode(email);
     }
 

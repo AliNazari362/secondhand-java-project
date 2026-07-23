@@ -7,13 +7,12 @@ import jakarta.validation.constraints.Size;
  * Request DTO for sending a new message in a chatroom.
  *
  * <p>Submitted via POST /api/chatrooms/{chatroomId}/messages. The sender identity
- * is derived from the security context by the com.secondhand.service layer.</p>
+ * is derived from the security context by the service layer.</p>
  *
  * @param text the textual body of the message to send
  */
 public record MessageRequest(
 
-        /** The body of the message; must not be blank and must not exceed 5000 characters. */
         @NotBlank(message = "متن پیام نمی‌تواند خالی باشد")
         @Size(max = 5000, message = "متن پیام نباید از ۵۰۰۰ کاراکتر بیشتر باشد")
         String text
