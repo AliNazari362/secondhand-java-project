@@ -2,9 +2,7 @@ package service;
 
 import model.response.AdvertisementSummaryDto;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service class for managing user favorites.
@@ -38,24 +36,15 @@ public class FavoriteService {
         api.post("/favorites/add-favorite", jsonBody);
     }
 
+    /**
+     * Removes an advertisement from the user's favorites.
+     * Sends a JSON object with key "advId" using DELETE with body.
+     *
+     * @param advId the ID of the advertisement to remove
+     * @throws Exception if the API call fails
+     */
     public static void removeFavorite(String advId) throws Exception {
         String jsonBody = "\"" + advId + "\"";
         api.deleteWithBody("/favorites/delete-favorite", jsonBody);
     }
-//    /**
-//     * Checks if an advertisement is in the user's favorites.
-//     * If the API endpoint is not available (e.g., returns 404/500), it returns false.
-//     *
-//     * @param advId the ID of the advertisement
-//     * @return true if the advertisement is in favorites, false otherwise
-//     */
-//    public boolean isFavorite(String advId) {
-//        try {
-//            String response = api.get("/favorites/is-favorite/" + advId);
-//            return Boolean.parseBoolean(response);
-//        } catch (Exception e) {
-//            System.err.println("⚠️ isFavorite API failed, returning false: " + e.getMessage());
-//            return false;
-//        }
-//    }
 }

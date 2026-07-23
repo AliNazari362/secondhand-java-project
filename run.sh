@@ -16,7 +16,7 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 
 # بررسی وجود Maven
-if ! command -v mvn &> /dev/null; then
+if ! command -v mvn > /dev/null 2>&1; then
     echo -e "${RED}[ERROR] Maven not found.${NC}"
     echo "Please install Maven first:"
     echo "  - Ubuntu/Debian: sudo apt install maven"

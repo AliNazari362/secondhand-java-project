@@ -14,11 +14,10 @@ public class ProductUpdateRequest {
     private String brand;
     private String model;
     private String constructor;
-    private Long categoryId;  // <-- تغییر: از Category به Long
+    private Long categoryId;
     private BigDecimal price;
     private List<OptionRequest> options;
 
-    // Getters and Setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 
@@ -43,8 +42,8 @@ public class ProductUpdateRequest {
     public String getConstructor() { return constructor; }
     public void setConstructor(String constructor) { this.constructor = constructor; }
 
-    public Long getCategoryId() { return categoryId; }  // <-- تغییر
-    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }  // <-- تغییر
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }

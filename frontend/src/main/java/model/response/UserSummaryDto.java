@@ -19,7 +19,6 @@ public class UserSummaryDto {
         this.userType = userType;
     }
 
-    // Getters & Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

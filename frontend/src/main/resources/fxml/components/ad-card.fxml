@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
+<!-- Reusable advertisement card component -->
 <VBox styleClass="ad-card" spacing="5" stylesheets="@../../css/app.css"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="component.AdCardController"
@@ -14,15 +15,22 @@
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>
 
+    <!-- Ad thumbnail image -->
     <ImageView fx:id="imageView" fitWidth="180" fitHeight="120" preserveRatio="true"
                style="-fx-background-color: #f7fafc; -fx-background-radius: 8;"/>
 
+    <!-- Ad title -->
     <Text fx:id="titleText" styleClass="ad-title" wrappingWidth="170"/>
+    <!-- Ad price -->
     <Label fx:id="priceLabel" styleClass="ad-price"/>
+    <!-- Ad city -->
     <Label fx:id="cityLabel" styleClass="ad-city"/>
+    <!-- Ad category badge -->
     <Label fx:id="categoryLabel"
            style="-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold; -fx-padding: 0 8; -fx-background-color: #edf2f7; -fx-background-radius: 10;"/>
+    <!-- Ad status badge -->
     <Label fx:id="statusLabel"
            style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 8; -fx-background-radius: 10;"/>
+    <!-- Ad date -->
     <Label fx:id="dateLabel" styleClass="ad-date"/>
 </VBox>

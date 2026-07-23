@@ -1,9 +1,5 @@
 package model;
 
-/**
- * Response DTO for admin dashboard statistics.
- * Matches the backend DashboardStatsResponse record.
- */
 public class DashboardStats {
     private long totalUsers;
     private long activeUsers;
@@ -19,7 +15,6 @@ public class DashboardStats {
 
     public DashboardStats() {}
 
-    // Getters and Setters
     public long getTotalUsers() { return totalUsers; }
     public void setTotalUsers(long totalUsers) { this.totalUsers = totalUsers; }
 

@@ -11,14 +11,16 @@ import model.response.AdvertisementSummaryDto;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Service class for advertisement-related API operations.
+ * Provides methods for searching, creating, updating, and deleting advertisements.
+ */
 public class AdvService {
 
     private static final ApiClient api = ApiClient.getInstance();
 
-    // ==================== SEARCH ====================
-
     /**
-     * Searches for active advertisements with filters.
+     * Searches for active advertisements with optional filters.
      *
      * @param keyword    optional keyword for title/description search
      * @param city       optional city filter
@@ -76,50 +78,99 @@ public class AdvService {
         return List.of(ads);
     }
 
-    // ==================== DETAIL ====================
-
+    /**
+     * Retrieves the full detail of an advertisement by its ID.
+     *
+     * @param advId the advertisement ID
+     * @return the advertisement detail DTO
+     * @throws Exception if the API call fails
+     */
     public static AdvertisementDetailDto getAdvDetail(String advId) throws Exception {
-        System.out.println("🌐 AdvService.getAdvDetail: advId = " + advId);
         String response = api.get("/advs/" + advId);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
+    /**
+     * Retrieves all advertisements belonging to a specific user.
+     *
+     * @param userId the user ID
+     * @return list of advertisement summaries for the user
+     * @throws Exception if the API call fails
+     */
     public static List<AdvertisementSummaryDto> getUserAds(String userId) throws Exception {
         String response = api.get("/advs/user/" + userId);
         AdvertisementSummaryDto[] ads = api.fromJson(response, AdvertisementSummaryDto[].class);
         return List.of(ads);
     }
 
-    // ==================== CREATE ====================
-
+    /**
+     * Creates a new product advertisement.
+     *
+     * @param request the product creation request
+     * @return the created advertisement detail
+     * @throws Exception if the API call fails
+     */
     public static AdvertisementDetailDto createProduct(ProductCreateRequest request) throws Exception {
         String response = api.post("/advs/create-product", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
+    /**
+     * Creates a new service advertisement.
+     *
+     * @param request the service creation request
+     * @return the created advertisement detail
+     * @throws Exception if the API call fails
+     */
     public static AdvertisementDetailDto createService(ServiceCreateRequest request) throws Exception {
         String response = api.post("/advs/create-service", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    // ==================== UPDATE (با advId به عنوان پارامتر) ====================
-
+    /**
+     * Updates an existing product advertisement.
+     *
+     * @param advId   the advertisement ID to update
+     * @param request the product update request
+     * @return the updated advertisement detail
+     * @throws Exception if the API call fails
+     */
     public static AdvertisementDetailDto updateProduct(String advId, ProductUpdateRequest request) throws Exception {
         String response = api.put("/advs/" + advId + "/update-product", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
+    /**
+     * Updates an existing service advertisement.
+     *
+     * @param advId   the advertisement ID to update
+     * @param request the service update request
+     * @return the updated advertisement detail
+     * @throws Exception if the API call fails
+     */
     public static AdvertisementDetailDto updateService(String advId, ServiceUpdateRequest request) throws Exception {
         String response = api.put("/advs/" + advId + "/update-service", request);
         return api.fromJson(response, AdvertisementDetailDto.class);
     }
 
-    // ==================== STATUS & DELETE ====================
-
+    /**
+     * Marks an advertisement as sold.
+     *
+     * @param advId the advertisement ID
+     * @return the API response string
+     * @throws Exception if the API call fails
+     */
     public static String markAsSold(String advId) throws Exception {
         return api.put("/advs/" + advId + "/mark-as-sold", null);
     }
 
+    /**
+     * Deletes an advertisement by its ID.
+     *
+     * @param advId the advertisement ID
+     * @return the API response string
+     * @throws Exception if the API call fails
+     */
     public static String deleteAdv(String advId) throws Exception {
         return api.delete("/advs/" + advId + "/delete-adv");
     }

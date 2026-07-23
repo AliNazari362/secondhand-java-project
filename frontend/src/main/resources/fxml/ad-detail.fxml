@@ -12,10 +12,12 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Advertisement detail view -->
 <BorderPane fx:id="rootPan" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdDetailController"
             nodeOrientation="RIGHT_TO_LEFT">
     <top>
+        <!-- Top header bar -->
         <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
             <padding>
                 <Insets top="15" right="25" bottom="15" left="25"/>
@@ -23,7 +25,7 @@
             <FontIcon iconLiteral="fas-file-alt" iconSize="20" iconColor="#2d3748"/>
             <Text fx:id="titleText" styleClass="header-title"/>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="15">
-                <!-- Views and Rating Info -->
+                <!-- Views and rating info badges -->
                 <HBox spacing="20" alignment="CENTER" style="-fx-padding: 0 10 0 0;">
                     <HBox spacing="5" alignment="CENTER"
                           style="-fx-padding: 5 12; -fx-background-color: #fffaf0; -fx-background-radius: 20;">
@@ -34,6 +36,7 @@
                               style="-fx-font-size: 12px; -fx-fill: #d69e2e; -fx-font-weight: bold;"/>
                     </HBox>
                 </HBox>
+                <!-- Back navigation button -->
                 <Button onAction="#goBack">
                     <graphic>
                         <FontIcon iconLiteral="fas-arrow-right" iconSize="16"/>
@@ -43,18 +46,20 @@
         </HBox>
     </top>
     <center>
+        <!-- Scrollable detail content -->
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
             <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
+                <!-- Main detail card -->
                 <VBox styleClass="card" spacing="20" prefWidth="700.0">
 
-                    <!-- Status and Type Badges Row -->
+                    <!-- Status and type badges row -->
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Label fx:id="statusLabel" styleClass="status-badge"/>
                         <Label fx:id="typeLabel"
                                style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2b6cb0; -fx-padding: 5 12; -fx-background-color: #bee3f8; -fx-background-radius: 15;"/>
                     </HBox>
 
-                    <!-- Image Gallery -->
+                    <!-- Image gallery -->
                     <ScrollPane fitToHeight="true" fitToWidth="true"
                                 style="-fx-background: transparent; -fx-background-color: transparent;">
                         <FlowPane fx:id="imagesContainer"
@@ -64,24 +69,27 @@
                                   style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8;"/>
                     </ScrollPane>
 
-                    <!-- Product Fields (Visible for Product Ads) -->
+                    <!-- Product-specific fields (visible for product ads) -->
                     <VBox fx:id="productFields" spacing="12" visible="false" managed="false"
                           style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات کالا"
                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>
                         <HBox spacing="15">
+                            <!-- Price -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="قیمت" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                                 <Text fx:id="priceText"
                                       style="-fx-font-size: 20px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
+                            <!-- Condition -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="وضعیت" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                                 <Text fx:id="productStateText"
                                       style="-fx-font-size: 16px; -fx-fill: #38a169; -fx-font-weight: bold;"/>
                             </VBox>
+                            <!-- Brand -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="برند" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
@@ -90,16 +98,19 @@
                             </VBox>
                         </HBox>
                         <HBox spacing="15">
+                            <!-- Model -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="مدل" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                                 <Text fx:id="productModelText" style="-fx-font-size: 16px; -fx-fill: #2d3748;"/>
                             </VBox>
+                            <!-- Category -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="دسته بندی" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                                 <Text fx:id="categoryText" style="-fx-font-size: 16px; -fx-fill: #2d3748;"/>
                             </VBox>
+                            <!-- Manufacturer -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="سازنده" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
@@ -108,18 +119,20 @@
                         </HBox>
                     </VBox>
 
-                    <!-- Service Fields (Visible for Service Ads) -->
+                    <!-- Service-specific fields (visible for service ads) -->
                     <VBox fx:id="serviceFields" spacing="12" visible="false" managed="false"
                           style="-fx-padding: 15; -fx-background-color: #f7fafc; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                         <Text text="مشخصات خدمت"
                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748; -fx-padding: 0 0 5 0;"/>
                         <HBox spacing="15">
+                            <!-- Calculation type -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="نوع محاسبه" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
                                 <Text fx:id="serviceTypeText"
                                       style="-fx-font-size: 16px; -fx-fill: #2d3748; -fx-font-weight: bold;"/>
                             </VBox>
+                            <!-- Cost -->
                             <VBox spacing="3" HBox.hgrow="ALWAYS"
                                   style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 6;">
                                 <Text text="هزینه" style="-fx-font-size: 12px; -fx-fill: #718096;"/>
@@ -129,8 +142,9 @@
                         </HBox>
                     </VBox>
 
-                    <!-- Location and Date Info -->
+                    <!-- Location and date info -->
                     <HBox spacing="15">
+                        <!-- City -->
                         <VBox spacing="3" HBox.hgrow="ALWAYS"
                               style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
@@ -139,6 +153,7 @@
                             </HBox>
                             <Text fx:id="cityText" style="-fx-font-size: 15px; -fx-fill: #2d3748;"/>
                         </VBox>
+                        <!-- Registration date -->
                         <VBox spacing="3" HBox.hgrow="ALWAYS"
                               style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
@@ -147,6 +162,7 @@
                             </HBox>
                             <Text fx:id="dateText" style="-fx-font-size: 15px; -fx-fill: #2d3748;"/>
                         </VBox>
+                        <!-- Owner -->
                         <VBox spacing="3" HBox.hgrow="ALWAYS"
                               style="-fx-padding: 10; -fx-background-color: #f7fafc; -fx-background-radius: 6;">
                             <HBox spacing="5" alignment="CENTER_LEFT">
@@ -178,7 +194,7 @@
                               style="-fx-font-size: 14px; -fx-fill: #2d3748;"/>
                     </VBox>
 
-                    <!-- Additional Options / Features -->
+                    <!-- Additional options / custom features -->
                     <VBox spacing="10">
                         <HBox spacing="5" alignment="CENTER_LEFT">
                             <FontIcon iconLiteral="fas-tags" iconSize="14" iconColor="#718096"/>
@@ -188,33 +204,38 @@
                         <FlowPane fx:id="optionsContainer" hgap="8" vgap="8"/>
                     </VBox>
 
-                    <!-- Action Buttons -->
+                    <!-- Action buttons -->
                     <HBox spacing="10" alignment="CENTER">
-                        <Button fx:id="chatBtn" onAction="#onChat" styleClass="primary-btn" text="💬 چت">
+                        <!-- Chat button -->
+                        <Button fx:id="chatBtn" onAction="#onChat" styleClass="primary-btn" text="چت">
                             <graphic>
                                 <FontIcon iconLiteral="fas-comment" iconSize="16"/>
                             </graphic>
                         </Button>
+                        <!-- Add to favorites button -->
                         <Button fx:id="favBtn" onAction="#onAddFavorite" styleClass="primary-btn">
                             <graphic>
                                 <FontIcon iconLiteral="fas-heart" iconSize="16" iconColor="#e53e3e"/>
                             </graphic>
                         </Button>
-                        <Button fx:id="editBtn" onAction="#onEdit" styleClass="primary-btn" text="✏️ ویرایش">
+                        <!-- Edit ad button -->
+                        <Button fx:id="editBtn" onAction="#onEdit" styleClass="primary-btn" text="ویرایش">
                             <graphic>
                                 <FontIcon iconLiteral="fas-edit" iconSize="16"/>
                             </graphic>
                         </Button>
-                        <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="danger-btn" text="🗑️ حذف">
+                        <!-- Delete ad button -->
+                        <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="danger-btn" text="حذف">
                             <graphic>
                                 <FontIcon iconLiteral="fas-trash" iconSize="16"/>
                             </graphic>
                         </Button>
+                        <!-- Mark as sold button -->
                         <Button fx:id="soldBtn" onAction="#onMarkAsSold" styleClass="success-btn" text="✅ فروخته شد"/>
                     </HBox>
                 </VBox>
 
-                <!-- Submit Comment Section -->
+                <!-- Submit comment section -->
                 <VBox styleClass="card" spacing="15" prefWidth="700.0">
                     <Text text="ثبت نظر" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
                     <VBox spacing="5">
@@ -223,6 +244,7 @@
                         <TextArea fx:id="commentArea" promptText="نظر خود را اینجا بنویسید..."
                                   styleClass="text-area-field" prefHeight="80.0" wrapText="true"/>
                     </VBox>
+                    <!-- Submit comment button -->
                     <Button text="ثبت نظر" styleClass="success-btn" maxWidth="150" onAction="#onSubmitComment">
                         <graphic>
                             <FontIcon iconLiteral="fas-paper-plane" iconSize="16"/>
@@ -230,9 +252,10 @@
                     </Button>
                 </VBox>
 
-                <!-- Comments Section -->
+                <!-- Comments section -->
                 <VBox styleClass="card" spacing="15" prefWidth="700.0">
                     <Text text="نظرات کاربران" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-fill: #2d3748;"/>
+                    <!-- Container for dynamically added comments -->
                     <VBox fx:id="commentsContainer" spacing="10"/>
                 </VBox>
             </VBox>

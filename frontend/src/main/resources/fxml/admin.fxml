@@ -12,8 +12,10 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Admin panel view -->
 <VBox stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controller.AdminController" nodeOrientation="RIGHT_TO_LEFT">
+    <!-- Top header bar -->
     <HBox spacing="15" alignment="CENTER_LEFT" styleClass="header">
         <padding>
             <Insets top="15" right="25" bottom="15" left="25"/>
@@ -21,11 +23,13 @@
         <FontIcon iconLiteral="fas-cog" iconSize="20" iconColor="#2d3748"/>
         <Text text="پنل مدیریت" styleClass="header-title"/>
         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="10">
+            <!-- Manage categories button -->
             <Button onAction="#onManageCategories" styleClass="primary-btn">
                 <graphic>
                     <FontIcon iconLiteral="fas-tags" iconSize="16"/>
                 </graphic>
             </Button>
+            <!-- Back navigation button -->
             <Button onAction="#goBack">
                 <graphic>
                     <FontIcon iconLiteral="fas-arrow-left" iconSize="16"/>
@@ -33,18 +37,23 @@
             </Button>
         </HBox>
     </HBox>
+    <!-- Main admin content -->
     <VBox spacing="15" alignment="TOP_CENTER" style="-fx-padding: 25; -fx-background-color: #f0f4f8;">
         <VBox styleClass="card" spacing="15" prefWidth="800">
+            <!-- Tabbed admin sections -->
             <TabPane fx:id="tabPane" styleClass="tab-pane">
+                <!-- Pending ads tab -->
                 <Tab text="آگهی های در انتظار" closable="false">
                     <VBox spacing="10" style="-fx-padding: 15;">
                         <ListView fx:id="pendingListView" styleClass="list-view" prefHeight="350"/>
                         <HBox spacing="10" alignment="CENTER">
+                            <!-- Approve ad button -->
                             <Button onAction="#onApproveAd">
                                 <graphic>
                                     <FontIcon iconLiteral="fas-check" iconSize="16"/>
                                 </graphic>
                             </Button>
+                            <!-- Reject ad button -->
                             <Button onAction="#onRejectAd" styleClass="danger-btn">
                                 <graphic>
                                     <FontIcon iconLiteral="fas-times" iconSize="16"/>
@@ -53,15 +62,18 @@
                         </HBox>
                     </VBox>
                 </Tab>
+                <!-- Users management tab -->
                 <Tab text="کاربران" closable="false">
                     <VBox spacing="10" style="-fx-padding: 15;">
                         <ListView fx:id="usersListView" styleClass="list-view" prefHeight="350"/>
                         <HBox spacing="10" alignment="CENTER">
+                            <!-- Ban user button -->
                             <Button onAction="#onBanUser" styleClass="danger-btn">
                                 <graphic>
                                     <FontIcon iconLiteral="fas-ban" iconSize="16"/>
                                 </graphic>
                             </Button>
+                            <!-- Unban user button -->
                             <Button onAction="#onUnbanUser">
                                 <graphic>
                                     <FontIcon iconLiteral="fas-check-circle" iconSize="16"/>
@@ -70,8 +82,10 @@
                         </HBox>
                     </VBox>
                 </Tab>
+                <!-- Statistics tab -->
                 <Tab text="آمار" closable="false">
                     <VBox spacing="15" style="-fx-padding: 20;">
+                        <!-- Statistics grid -->
                         <GridPane hgap="20" vgap="15">
                             <columnConstraints>
                                 <ColumnConstraints halignment="RIGHT"/>
@@ -79,51 +93,63 @@
                                 <ColumnConstraints halignment="RIGHT"/>
                                 <ColumnConstraints halignment="LEFT"/>
                             </columnConstraints>
+                            <!-- Total users -->
                             <Label text="کل کاربران:" GridPane.columnIndex="0" GridPane.rowIndex="0"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="totalUsersLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Active users -->
                             <Label text="کاربران فعال:" GridPane.columnIndex="2" GridPane.rowIndex="0"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="activeUsersLabel" text="0" GridPane.columnIndex="3" GridPane.rowIndex="0"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Banned users -->
                             <Label text="کاربران بن شده:" GridPane.columnIndex="0" GridPane.rowIndex="1"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="bannedUsersLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Deleted users -->
                             <Label text="کاربران حذف شده:" GridPane.columnIndex="2" GridPane.rowIndex="1"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="deletedUsersLabel" text="0" GridPane.columnIndex="3" GridPane.rowIndex="1"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Total ads -->
                             <Label text="کل آگهی ها:" GridPane.columnIndex="0" GridPane.rowIndex="2"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="totalAdsLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Pending ads -->
                             <Label text="در انتظار بررسی:" GridPane.columnIndex="2" GridPane.rowIndex="2"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="pendingAdsLabel" text="0" GridPane.columnIndex="3" GridPane.rowIndex="2"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Active ads -->
                             <Label text="آگهی های فعال:" GridPane.columnIndex="0" GridPane.rowIndex="3"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="activeAdsLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Sold ads -->
                             <Label text="فروخته شده:" GridPane.columnIndex="2" GridPane.rowIndex="3"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="soldAdsLabel" text="0" GridPane.columnIndex="3" GridPane.rowIndex="3"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Rejected ads -->
                             <Label text="آگهی های رد شده:" GridPane.columnIndex="0" GridPane.rowIndex="4"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="rejectedAdsLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Total messages -->
                             <Label text="تعداد پیام ها:" GridPane.columnIndex="2" GridPane.rowIndex="4"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="totalMessagesLabel" text="0" GridPane.columnIndex="3" GridPane.rowIndex="4"
                                    style="-fx-font-size: 14px;"/>
+                            <!-- Total comments -->
                             <Label text="تعداد نظرات:" GridPane.columnIndex="0" GridPane.rowIndex="5"
                                    style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                             <Label fx:id="totalCommentsLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5"
                                    style="-fx-font-size: 14px;"/>
                         </GridPane>
+                        <!-- Refresh statistics button -->
                         <Button text="بروزرسانی آمار" onAction="#onStateClicked" styleClass="primary-btn"
                                 maxWidth="200"/>
                     </VBox>

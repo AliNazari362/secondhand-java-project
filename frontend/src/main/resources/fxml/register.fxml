@@ -10,40 +10,48 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Registration form view -->
 <VBox alignment="CENTER" spacing="15" styleClass="login-container" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RegisterController">
     <padding>
         <Insets top="30" right="40" bottom="30" left="40" />
     </padding>
 
+    <!-- User plus icon -->
     <FontIcon iconLiteral="fas-user-plus" iconSize="48" iconColor="#2d3748" />
     <Text text="ثبت نام" styleClass="title" />
     <Text text="ایجاد حساب کاربری جدید" styleClass="subtitle" />
 
+    <!-- Full name input -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-user" iconSize="16" iconColor="#718096" />
         <TextField fx:id="fullNameField" promptText="نام کامل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Email input -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#718096" />
         <TextField fx:id="emailField" promptText="آدرس ایمیل" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Password input -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-lock" iconSize="16" iconColor="#718096" />
         <PasswordField fx:id="passwordField" promptText="رمز عبور (حداقل ۸ کاراکتر)" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Phone number input (optional) -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container">
         <FontIcon iconLiteral="fas-phone" iconSize="16" iconColor="#718096" />
         <TextField fx:id="phoneField" promptText="شماره تماس (اختیاری)" styleClass="input-no-border-field" HBox.hgrow="ALWAYS" />
     </HBox>
 
+    <!-- Register button -->
     <Button text="ثبت نام" styleClass="success-btn" onAction="#handleRegister">
         <graphic>
             <FontIcon iconLiteral="fas-check" iconSize="16" />
         </graphic>
     </Button>
 
+    <!-- Navigate to login -->
     <Hyperlink text="قبلاً ثبت نام کرده اید؟ وارد شوید" onAction="#goToLogin" styleClass="link" />
 </VBox>

@@ -8,18 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Lightweight DTO for displaying advertisement summaries in list/search views.
- *
- * <p>This DTO is used in the main dashboard and search results to render ad cards.
- * It contains only the essential fields needed for a card view; full details are
- * fetched separately via the detail endpoint.</p>
- *
- * <p><strong>Price Handling:</strong> The {@code price} field is populated only for
- * product advertisements. For service advertisements, it will be {@code null}.</p>
- *
- * @see model.response.AdvertisementDetailDto
- */
 public class AdvertisementSummaryDto {
 
     private UUID id;
@@ -32,14 +20,9 @@ public class AdvertisementSummaryDto {
     private LocalDateTime creationDate;
     private String firstImagePath;
     private String categoryName;
-    private BigDecimal price; // <-- فیلد جدید برای نمایش قیمت در کارت
+    private BigDecimal price;
 
-    /**
-     * Default constructor required for JSON deserialization.
-     */
     public AdvertisementSummaryDto() {}
-
-    // ==================== Getters and Setters ====================
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -71,6 +54,6 @@ public class AdvertisementSummaryDto {
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
-    public BigDecimal getPrice() { return price; }  // <-- جدید
-    public void setPrice(BigDecimal price) { this.price = price; }  // <-- جدید
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
 }

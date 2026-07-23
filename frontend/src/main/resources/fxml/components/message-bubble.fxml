@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<VBox fx:id="bubbleContainer" spacing="2" styleClass="message-bubble" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="component.MessageBubbleController">
-    <padding>
-        <Insets top="5" right="10" bottom="5" left="10" />
-    </padding>
-    <Label fx:id="senderLabel" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #718096;" />
-    <Label fx:id="messageLabel" style="-fx-font-size: 14px; -fx-wrap-text: true;" />
-    <Label fx:id="timeLabel" style="-fx-font-size: 10px; -fx-text-fill: #a0aec0;" />
-</VBox>
+<?import javafx.scene.control.Label?>
+<!-- Individual message bubble component for chat view -->
+<HBox fx:id="messageRow" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="component.MessageBubbleController">
+    <VBox fx:id="messageBubble" spacing="2">
+        <!-- Message content container -->
+        <VBox fx:id="bubbleContent" spacing="2" maxWidth="300">
+            <Label fx:id="messageText" maxWidth="350"
+                   style="-fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 0; -fx-font-size: 13px; -fx-text-fill: #2d3748;"/>
+        </VBox>
+        <!-- Timestamp and seen status row -->
+        <HBox fx:id="bottomRow" spacing="5">
+            <Text fx:id="timeText" />
+            <Text fx:id="statusTicks" />
+        </HBox>
+    </VBox>
+</HBox>

@@ -13,6 +13,10 @@ import utils.Pages;
 import utils.SceneManager;
 import utils.ValidationUtil;
 
+/**
+ * Controller for the user registration page.
+ * Handles new user account creation with input validation.
+ */
 public class RegisterController {
 
     @FXML
@@ -24,6 +28,11 @@ public class RegisterController {
     @FXML
     private TextField phoneField;
 
+    /**
+     * Handles the registration form submission.
+     * Validates all input fields, sends a registration request to the server,
+     * and navigates to the login page on success.
+     */
     @FXML
     public void handleRegister() {
         try {
@@ -41,12 +50,15 @@ public class RegisterController {
             UserDto response = AuthService.register(request);
             SceneManager.showPage(Pages.LOGIN, null);
 
-            Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز ثبت نام با موفقیت انجام شد، حالا وارد شوید"));
+            AlertUtil.showSuccess(response.getFullName() + " عزیز ثبت نام با موفقیت انجام شد، حالا وارد شوید");
         } catch (Exception e) {
             ExceptionHandler.handle(e);
         }
     }
 
+    /**
+     * Navigates to the login page.
+     */
     @FXML
     public void goToLogin() {
         SceneManager.showPage(Pages.LOGIN, null);

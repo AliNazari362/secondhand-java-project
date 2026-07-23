@@ -11,12 +11,11 @@ public class ServiceUpdateRequest {
     private City city;
     private String address;
     private String specialCategory;
-    private Long categoryId;  // <-- جدید
+    private Long categoryId;
     private BigDecimal costOfPart;
     private ServiceType typeOfPart;
     private List<OptionRequest> options;
 
-    // Getters and Setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
 
@@ -32,8 +31,8 @@ public class ServiceUpdateRequest {
     public String getSpecialCategory() { return specialCategory; }
     public void setSpecialCategory(String specialCategory) { this.specialCategory = specialCategory; }
 
-    public Long getCategoryId() { return categoryId; }  // <-- جدید
-    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }  // <-- جدید
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 
     public BigDecimal getCostOfPart() { return costOfPart; }
     public void setCostOfPart(BigDecimal costOfPart) { this.costOfPart = costOfPart; }

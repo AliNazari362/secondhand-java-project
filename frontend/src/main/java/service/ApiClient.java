@@ -49,7 +49,7 @@ public class ApiClient {
     }
 
     /** The base URL of the backend server. */
-    private final String BASE_URL = "http://localhost:8080/api";
+    public static final String BASE_URL = "http://localhost:8080/api";
 
     /** The HTTP client with a 10-second connection timeout. */
     private final HttpClient client = HttpClient.newBuilder()
@@ -66,8 +66,13 @@ public class ApiClient {
                             LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .create();
 
-    // ===== متدهای GET, POST, PUT, DELETE =====
-
+    /**
+     * Sends a GET request to the specified endpoint.
+     *
+     * @param endpoint the API endpoint path (appended to BASE_URL)
+     * @return the response body as a string
+     * @throws Exception if the request fails or the server returns an error
+     */
     public String get(String endpoint) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint))
@@ -77,6 +82,14 @@ public class ApiClient {
         return sendRequest(request);
     }
 
+    /**
+     * Sends a POST request with a JSON body to the specified endpoint.
+     *
+     * @param endpoint the API endpoint path (appended to BASE_URL)
+     * @param body     the request body object to serialize as JSON
+     * @return the response body as a string
+     * @throws Exception if the request fails or the server returns an error
+     */
     public String post(String endpoint, Object body) throws Exception {
         String jsonBody = (body instanceof String) ? (String) body : gson.toJson(body);
         HttpRequest request = HttpRequest.newBuilder()
@@ -88,6 +101,14 @@ public class ApiClient {
         return sendRequest(request);
     }
 
+    /**
+     * Sends a PUT request with a JSON body to the specified endpoint.
+     *
+     * @param endpoint the API endpoint path (appended to BASE_URL)
+     * @param body     the request body object to serialize as JSON
+     * @return the response body as a string
+     * @throws Exception if the request fails or the server returns an error
+     */
     public String put(String endpoint, Object body) throws Exception {
         String jsonBody = (body instanceof String) ? (String) body : gson.toJson(body);
         HttpRequest request = HttpRequest.newBuilder()
@@ -99,6 +120,13 @@ public class ApiClient {
         return sendRequest(request);
     }
 
+    /**
+     * Sends a DELETE request to the specified endpoint.
+     *
+     * @param endpoint the API endpoint path (appended to BASE_URL)
+     * @return the response body as a string
+     * @throws Exception if the request fails or the server returns an error
+     */
     public String delete(String endpoint) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + endpoint))
@@ -150,10 +178,6 @@ public class ApiClient {
         return "";
     }
 
-    // ============================================================
-    //  متد آپلود فایل (تصویر) با multipart/form-data
-    // ============================================================
-
     /**
      * Uploads a file (image) to the server using multipart/form-data.
      * <p>
@@ -170,13 +194,11 @@ public class ApiClient {
     public String uploadFile(byte[] imageBytes, String fileName) throws Exception {
         String boundary = "----JavaFXUploadBoundary" + System.currentTimeMillis();
 
-        // ساخت بدنه multipart/form-data
         String header = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n" +
                 "Content-Type: " + getContentType(fileName) + "\r\n\r\n";
         String footer = "\r\n--" + boundary + "--\r\n";
 
-        // ترکیب هدر، داده‌های باینری و فوتر
         byte[] headerBytes = header.getBytes();
         byte[] footerBytes = footer.getBytes();
         byte[] body = new byte[headerBytes.length + imageBytes.length + footerBytes.length];
@@ -185,7 +207,6 @@ public class ApiClient {
         System.arraycopy(imageBytes, 0, body, headerBytes.length, imageBytes.length);
         System.arraycopy(footerBytes, 0, body, headerBytes.length + imageBytes.length, footerBytes.length);
 
-        // ساخت درخواست
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/images/upload"))
                 .header("Authorization", getAuthHeader())
@@ -194,12 +215,11 @@ public class ApiClient {
                 .build();
 
         String response = sendRequest(request);
-        // پاسخ شامل مسیر ذخیره‌شده است (با کوتیشن)
         return response.replace("\"", "").trim();
     }
 
     /**
-     * Determines the MIME type of a file based on its extension.
+     * Determines the MIME type of file based on its extension.
      *
      * @param fileName the name of the file
      * @return the MIME type string
@@ -221,6 +241,14 @@ public class ApiClient {
         }
     }
 
+    /**
+     * Sends a DELETE request with a JSON body to the specified endpoint.
+     *
+     * @param endpoint the API endpoint path (appended to BASE_URL)
+     * @param body     the request body object to serialize as JSON
+     * @return the response body as a string
+     * @throws Exception if the request fails or the server returns an error
+     */
     public String deleteWithBody(String endpoint, Object body) throws Exception {
         String jsonBody = (body instanceof String) ? (String) body : gson.toJson(body);
         HttpRequest request = HttpRequest.newBuilder()

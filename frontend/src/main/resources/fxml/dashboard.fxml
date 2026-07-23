@@ -9,13 +9,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Main dashboard/ad listing view -->
 <BorderPane stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controller.DashboardController" nodeOrientation="RIGHT_TO_LEFT">
     <top>
+        <!-- Include shared header component -->
         <fx:include source="components/header.fxml"/>
     </top>
     <center>
         <VBox spacing="15" alignment="TOP_CENTER" style="-fx-background-color: #f0f4f8; -fx-padding: 20;">
+            <!-- Filter controls row -->
             <HBox spacing="10" alignment="CENTER">
                 <ComboBox fx:id="categoryCombo" promptText="دسته بندی" styleClass="input-field" HBox.hgrow="ALWAYS"/>
                 <ComboBox fx:id="sortCombo" promptText="مرتب سازی" styleClass="input-field" HBox.hgrow="ALWAYS"/>
@@ -24,12 +27,14 @@
                 <ComboBox fx:id="cityCombo" promptText="شهر" styleClass="input-field" HBox.hgrow="ALWAYS"/>
             </HBox>
 
+            <!-- Search bar row -->
             <HBox spacing="10" alignment="CENTER">
                 <HBox alignment="CENTER_LEFT" spacing="10" styleClass="input-no-border-container" HBox.hgrow="ALWAYS">
                     <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#718096"/>
                     <TextField fx:id="searchField" promptText="جستجوی آگهی..." styleClass="input-no-border-field"
                                HBox.hgrow="ALWAYS"/>
                 </HBox>
+                <!-- Search button -->
                 <Button styleClass="primary-btn" onAction="#onSearch">
                     <graphic>
                         <FontIcon iconLiteral="fas-search" iconSize="16"/>
@@ -37,6 +42,7 @@
                 </Button>
             </HBox>
 
+            <!-- Scrollable ad cards grid -->
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
                 <FlowPane fx:id="adFlowPane" hgap="15" vgap="15"/>
             </ScrollPane>

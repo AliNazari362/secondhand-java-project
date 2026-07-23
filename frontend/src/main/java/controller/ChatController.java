@@ -1,16 +1,17 @@
 package controller;
 
+import component.MessageBubbleController;
 import config.DataReceiver;
 import exception.ApiException;
 import exception.ExceptionHandler;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.request.ChatroomCreateRequest;
 import model.request.MessageRequest;
@@ -18,25 +19,33 @@ import model.response.*;
 import service.*;
 import utils.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * Controller for the individual chat conversation view.
+ * Manages real-time messaging with polling, message display via ListView,
+ * and seen status updates for sent messages.
+ */
 public class ChatController implements DataReceiver {
 
-    @FXML
-    private ScrollPane chatScrollPane;
-    @FXML
-    private VBox messagesContainer;
-    @FXML
-    private TextField messageField;
-    @FXML
-    private Text chatTitle;
-    @FXML
-    private Button submitBtn;
+    @FXML private ListView<MessageResponseDto> messageListView;
+    @FXML private TextField messageField;
+    @FXML private Text chatTitle;
+    @FXML private Button submitBtn;
 
     private AdvertisementDetailDto adv;
     private String chatId;
+    private Timer timer;
 
+    private final ObservableList<MessageResponseDto> cachedMessages = FXCollections.observableArrayList();
+    private boolean isFirstLoad = true;
+
+    /**
+     * Receives data from the previous page. Accepts either a UUID to start/retrieve
+     * a chat room or handles the advertisement ID for chat initialization.
+     *
+     * @param data the data object passed from the previous page
+     */
     @Override
     public void receiveData(Object data) {
         if (data instanceof UUID id) {
@@ -44,6 +53,12 @@ public class ChatController implements DataReceiver {
         }
     }
 
+    /**
+     * Handles the advertisement ID by attempting to start or retrieve a chat room.
+     * Falls back to fetching the chat room directly if the start request returns a 404.
+     *
+     * @param id the advertisement UUID
+     */
     private void handleAdvId(UUID id) {
         try {
             AdvService.getAdvDetail(id.toString());
@@ -64,13 +79,24 @@ public class ChatController implements DataReceiver {
         }
     }
 
+    /**
+     * Initializes the chat UI with the given chat room data.
+     * Sets up the ListView, loads initial messages, starts polling, and configures UI elements.
+     *
+     * @param chat the chat room detail data
+     */
     private void localChatData(ChatroomDetailDto chat) {
         Platform.runLater(() -> {
             try {
                 adv = AdvService.getAdvDetail(chat.getAdvId().toString());
                 chatId = chat.getId().toString();
-                // Run interval for checking any messages
+
+                setupListView();
+
+                loadInitialMessages();
+
                 onlineCheck();
+
                 messageField.setOnKeyPressed(e -> {
                     if (e.getCode() == KeyCode.ENTER) onSendMessage();
                 });
@@ -81,107 +107,200 @@ public class ChatController implements DataReceiver {
         });
     }
 
-    private void handleMessages() {
-        List<MessageResponseDto> messages = null;
+    /**
+     * Configures the ListView with a custom cell factory for message bubbles,
+     * transparent styling, and auto-scroll behavior when new messages arrive.
+     */
+    private void setupListView() {
+        messageListView.setItems(cachedMessages);
+
+        messageListView.setStyle(
+                "-fx-background-color: transparent; " +
+                        "-fx-control-inner-background: transparent; " +
+                        "-fx-border-width: 0; " +
+                        "-fx-padding: 15; " +
+                        "-fx-selection-bar: transparent; " +
+                        "-fx-selection-bar-non-focused: transparent; " +
+                        "-fx-focus-color: transparent; " +
+                        "-fx-faint-focus-color: transparent; " +
+                        "-fx-cell-size: -1; " +
+                        "-fx-vertical-cell-spacing: 0;"
+        );
+        messageListView.setFocusTraversable(false);
+
+        messageListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(MessageResponseDto message, boolean empty) {
+                super.updateItem(message, empty);
+
+                if (empty || message == null) {
+                    setGraphic(null);
+                    setText(null);
+                    setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-border-width: 0;");
+                } else {
+                    HBox bubble = MessageBubbleController.createMessageBubble(message);
+                    setGraphic(bubble);
+                    setText(null);
+                    setStyle("-fx-background-color: transparent; -fx-padding: 4 0 4 0; -fx-border-width: 0;");
+                    setOpacity(1.0);
+                }
+            }
+        });
+
+        cachedMessages.addListener((ListChangeListener<MessageResponseDto>) change -> Platform.runLater(() -> {
+            if (!cachedMessages.isEmpty()) {
+                messageListView.scrollTo(cachedMessages.size() - 1);
+            }
+        }));
+    }
+
+    /**
+     * Loads the initial set of messages for the current chat room.
+     */
+    private void loadInitialMessages() {
         try {
-            messages = ChatService.getMessages(chatId);
+            List<MessageResponseDto> messages = ChatService.getMessages(chatId);
+            cachedMessages.clear();
+            cachedMessages.addAll(messages);
+            isFirstLoad = false;
         } catch (Exception e) {
             ExceptionHandler.handle(e);
         }
-        if (messages != null) {
-            messagesContainer.getChildren().clear();
-            for (MessageResponseDto message : messages) {
-                messagesContainer.getChildren().add(createMessageBubble(message));
+    }
+
+    /**
+     * Polls the server for new messages and updates the message list accordingly.
+     * Handles both new message additions and seen status updates for existing messages.
+     */
+    private void handleMessages() {
+        try {
+            List<MessageResponseDto> freshMessages = ChatService.getMessages(chatId);
+            if (freshMessages.isEmpty()) return;
+
+            if (isFirstLoad) {
+                Platform.runLater(() -> {
+                    cachedMessages.clear();
+                    cachedMessages.addAll(freshMessages);
+                    isFirstLoad = false;
+                });
+                return;
+            }
+
+            int lastCachedSize = cachedMessages.size();
+            int lastFreshSize = freshMessages.size();
+
+            if (lastFreshSize == lastCachedSize) {
+                checkSeenStatus(freshMessages);
+                return;
+            }
+
+            if (lastFreshSize > lastCachedSize) {
+                Platform.runLater(() -> {
+                    updateSeenStatus(freshMessages);
+
+                    for (int i = lastCachedSize; i < lastFreshSize; i++) {
+                        cachedMessages.add(freshMessages.get(i));
+                    }
+                });
+            }
+
+        } catch (Exception e) {
+            // Polling error, silently ignored to prevent log spam
+        }
+    }
+
+    /**
+     * Checks whether the seen status of any sent messages has changed.
+     *
+     * @param freshMessages the latest messages from the server
+     */
+    private void checkSeenStatus(List<MessageResponseDto> freshMessages) {
+        boolean needsUpdate = false;
+
+        for (int i = 0; i < cachedMessages.size(); i++) {
+            MessageResponseDto cached = cachedMessages.get(i);
+            MessageResponseDto fresh = freshMessages.get(i);
+
+            if (cached.getSender().getId().equals(SessionManager.getUserId())
+                    && cached.isSeen() != fresh.isSeen()) {
+                needsUpdate = true;
+                break;
+            }
+        }
+
+        if (needsUpdate) {
+            Platform.runLater(() -> updateSeenStatus(freshMessages));
+        }
+    }
+
+    /**
+     * Updates the seen status of cached messages with fresh data from the server.
+     * Replaces messages in the ObservableList to trigger UI refresh.
+     *
+     * @param freshMessages the latest messages from the server
+     */
+    private void updateSeenStatus(List<MessageResponseDto> freshMessages) {
+        for (int i = 0; i < cachedMessages.size(); i++) {
+            MessageResponseDto cached = cachedMessages.get(i);
+            MessageResponseDto fresh = freshMessages.get(i);
+
+            if (cached.getSender().getId().equals(SessionManager.getUserId())
+                    && cached.isSeen() != fresh.isSeen()) {
+
+                cachedMessages.set(i, fresh);
             }
         }
     }
 
-    private HBox createMessageBubble(MessageResponseDto message) {
-        boolean isMine = message.getSender().getId().equals(SessionManager.getUserId());
-
-        HBox messageRow = new HBox();
-        messageRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-        messageRow.setStyle(isMine ? "-fx-padding: 0 40 0 0;" : "-fx-padding: 0 0 0 40;");
-
-        VBox messageBubble = new VBox(2);
-        messageBubble.setAlignment(isMine ? Pos.TOP_LEFT : Pos.TOP_RIGHT);
-        messageBubble.setStyle("-fx-max-width: 320;");
-
-        // Bubble content
-        VBox bubbleContent = new VBox(2);
-        bubbleContent.setStyle(isMine ?
-                "-fx-padding: 8 12; -fx-background-color: #bee3f8; -fx-background-radius: 12 12 12 4;" :
-                "-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;");
-
-        Label messageText = new Label(message.getText());
-        messageText.setWrapText(true);
-        messageText.setMaxWidth(280);
-        messageText.setAlignment(Pos.CENTER_RIGHT);
-        messageText.setStyle("""
-                    -fx-font-size:13px;
-                    -fx-text-fill:#2d3748;
-                """);
-        bubbleContent.setMaxWidth(300);
-        bubbleContent.getChildren().add(messageText);
-
-        // Bottom row: Time + Status ticks
-        HBox bottomRow = new HBox(5);
-        bottomRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-
-        // Time label
-        Text timeText = new Text(message.getDate().format(Utils.FORMATTER));
-        timeText.setStyle("-fx-font-size: 9px; -fx-fill: #a0aec0;");
-
-        bottomRow.getChildren().add(timeText);
-
-        // Status ticks (only for my messages)
-        if (isMine) {
-            Text statusTicks = new Text(message.isSeen() ? "✓✓" : "✓");
-            statusTicks.setStyle(message.isSeen() ?
-                    "-fx-font-size: 11px; -fx-fill: #3182ce;" :  // آبی - دیده شد
-                    "-fx-font-size: 11px; -fx-fill: #a0aec0;");  // خاکستری - هنوز دیده نشده
-            bottomRow.getChildren().add(statusTicks);
-        }
-
-        messageBubble.getChildren().addAll(bubbleContent, bottomRow);
-        messageRow.getChildren().add(messageBubble);
-
-        return messageRow;
-    }
-
+    /**
+     * Starts a periodic polling timer to check for new messages every 1.5 seconds.
+     */
     private void onlineCheck() {
-        Timer timer = new Timer(true);
+        timer = new Timer(true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(() -> handleMessages());
+                handleMessages();
             }
-        }, 0, 1000);
+        }, 1500, 1500);
     }
 
-    @FXML
-    public void initialize() {
-        // Auto scroll to bottom when new messages arrive
-        messagesContainer.heightProperty()
-                .addListener((obs, old, newVal) -> chatScrollPane.setVvalue(1.0));
-    }
-
+    /**
+     * Sends the typed message to the current chat room.
+     * Disables the submit button during the request to prevent double-sending.
+     * Clears the input field and refocuses it on success.
+     */
     @FXML
     public void onSendMessage() {
         String message = messageField.getText().trim();
-        if (message.isBlank()) return;
+        if (message.isBlank() || submitBtn.isDisabled()) return;
+
+        submitBtn.setDisable(true);
+
         try {
             MessageResponseDto response = ChatService.sendMessage(chatId, new MessageRequest(message));
-            messagesContainer.getChildren().add(createMessageBubble(response));
+
+            cachedMessages.add(response);
+
             messageField.clear();
-            chatScrollPane.setVvalue(1.0);
+            messageField.requestFocus();
         } catch (Exception e) {
             ExceptionHandler.handle(e);
+        } finally {
+            submitBtn.setDisable(false);
         }
     }
 
+    /**
+     * Navigates back to the advertisement detail page.
+     * Stops the polling timer before leaving the chat view.
+     */
     @FXML
     public void goBack() {
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
         SceneManager.showPage(Pages.AD_DETAIL, adv.getFullName(), adv.getId());
     }
 }

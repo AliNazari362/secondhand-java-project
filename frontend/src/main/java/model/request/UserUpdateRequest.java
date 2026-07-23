@@ -1,9 +1,5 @@
 package model.request;
 
-/**
- * Request DTO for updating user profile information.
- * All fields are optional; only non-null fields will be updated.
- */
 public class UserUpdateRequest {
 
     private String fullName;

@@ -24,11 +24,10 @@ public class AdvertisementDetailDto {
     private List<CommentResponseDto> comments;
     private ProductDetailDto productDetail;
     private ServiceDetailDto serviceDetail;
-    private String categoryName;  // <-- جدید
+    private String categoryName;
 
     public AdvertisementDetailDto() {}
 
-    // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

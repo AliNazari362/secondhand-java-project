@@ -82,6 +82,10 @@ public class NewAdController {
     // ===== Image Management =====
     private final List<File> selectedImageFiles = new ArrayList<>();
 
+    /**
+     * Initializes the new advertisement form.
+     * Populates combo boxes with enum values and sets up type-based field visibility.
+     */
     @FXML
     public void initialize() {
         options = new ArrayList<>();
@@ -110,19 +114,14 @@ public class NewAdController {
         setupCategoryComboListener();
     }
 
-    // ================================
-    //  Category Management (با بازسازی parentId)
-    // ================================
-
     /**
-     * بارگذاری دسته‌بندی‌ها از سرور و بازسازی روابط والد-فرزند با استفاده از parentId.
+     * Loads all categories from the server and reconstructs parent-child relationships
+     * using the parentId field. Populates the category combo box with root-level categories.
      */
     private void loadCategories() {
         try {
             allCategories = CategoryService.getAllCategories();
-            System.out.println("🔍 [DEBUG] تعداد کل دسته‌بندی‌ها از سرور: " + allCategories.size());
 
-            // ===== مرحله 1: ساخت Map از شناسه به شیء =====
             Map<Long, Category> categoryMap = new HashMap<>();
             for (Category cat : allCategories) {
                 if (cat.getId() != null) {
@@ -130,41 +129,11 @@ public class NewAdController {
                 }
             }
 
-            // ===== مرحله 2: بازسازی روابط =====
-            // ابتدا همه subCategories را خالی کن
             for (Category cat : allCategories) {
                 cat.getSubCategories().clear();
             }
 
-            for (Category cat : allCategories) {
-                Long pid = cat.getParentId();
-                if (pid != null) {
-                    Category parent = categoryMap.get(pid);
-                    if (parent != null) {
-                        cat.setParent(parent);
-                        // اضافه کردن به زیردسته‌های والد
-                        if (!parent.getSubCategories().contains(cat)) {
-                            parent.getSubCategories().add(cat);
-                        }
-                        System.out.println("🔗 [DEBUG] " + cat.getName() + " ← " + parent.getName());
-                    } else {
-                        System.err.println("⚠️ [DEBUG] والد پیدا نشد برای: " + cat.getName() + " (parentId=" + pid + ")");
-                    }
-                }
-            }
-
-            // ===== مرحله 3: چاپ درخت برای دیباگ =====
-            for (Category cat : allCategories) {
-                if (cat.isRoot()) {
-                    System.out.println("📂 [DEBUG] ریشه: " + cat.getName() +
-                            " -> تعداد زیردسته‌ها: " + cat.getSubCategories().size());
-                    for (Category child : cat.getSubCategories()) {
-                        System.out.println("   └─ " + child.getName() +
-                                " (زیردسته‌های خود: " + child.getSubCategories().size() + ")");
-                    }
-                }
-            }
-
+            Utils.loadAllCategories(allCategories, categoryMap);
             Platform.runLater(() -> {
                 isUpdating = true;
                 populateCategoryComboBox();
@@ -177,18 +146,16 @@ public class NewAdController {
     }
 
     /**
-     * کامبوباکس را با ریشه‌ها (سطح اول) پر می‌کند.
+     * Populates the category combo box with root-level categories filtered by the selected ad type.
      */
     private void populateCategoryComboBox() {
         AdvType filterType = selectedAdvType;
-        System.out.println("🔍 [DEBUG] فیلتر نوع: " + filterType);
 
         List<Category> roots = allCategories.stream()
                 .filter(cat -> (filterType == null || cat.getType() == filterType) && cat.isRoot())
                 .sorted(Comparator.comparing(Category::getName))
                 .toList();
 
-        System.out.println("🌱 [DEBUG] تعداد ریشه‌ها: " + roots.size());
         currentSelectedCategory = null;
 
         categoryNameToIdMap = new LinkedHashMap<>();
@@ -206,47 +173,41 @@ public class NewAdController {
             categoryCombo.getItems().addAll(displayNames);
             categoryCombo.getSelectionModel().selectFirst();
             categoryCombo.setDisable(false);
-            System.out.println("✅ [DEBUG] کامبوباکس با " + roots.size() + " ریشه پر شد.");
         } else {
-            categoryCombo.getItems().add("هیچ دسته‌بندی موجود نیست");
+            categoryCombo.getItems().add("هیچ دسته بندی موجود نیست");
             categoryCombo.setDisable(true);
-            System.out.println("⚠️ [DEBUG] هیچ ریشه‌ای موجود نیست.");
         }
         isUpdating = false;
     }
 
     /**
-     * بارگذاری زیردسته‌های یک دسته‌بندی در کامبوباکس.
+     * Loads subcategories of the given parent category into the combo box.
+     * If the parent has no children, shows it as a leaf selection with a back option.
+     *
+     * @param parent the parent category whose subcategories should be displayed
      */
     private void loadSubCategories(Category parent) {
         if (parent == null) {
-            System.err.println("❌ [DEBUG] parent null است!");
             return;
         }
 
         List<Category> children = parent.getSubCategories();
-        System.out.println("🔽 [DEBUG] بارگذاری زیردسته‌های: " + parent.getName() +
-                " -> تعداد: " + (children != null ? children.size() : 0));
 
         if (children == null || children.isEmpty()) {
             isUpdating = true;
             categoryCombo.getItems().clear();
 
-            // گزینه بازگشت
             categoryCombo.getItems().add("← بازگشت");
             categoryNameToIdMap.put("← بازگشت", -1L);
 
-            // نام دسته‌بندی انتخاب‌شده
             categoryCombo.getItems().add(parent.getName() + " ✓");
             categoryNameToIdMap.put(parent.getName() + " ✓", parent.getId());
 
             categoryCombo.setDisable(false);
-            categoryCombo.getSelectionModel().selectLast(); // انتخاب برگ
+            categoryCombo.getSelectionModel().selectLast();
 
-            // ===== تنظیم currentSelectedCategory برای بازگشت =====
             currentSelectedCategory = parent;
 
-            System.out.println("🍃 [DEBUG] برگ انتخاب شد: " + parent.getName());
             isUpdating = false;
             return;
         }
@@ -260,7 +221,6 @@ public class NewAdController {
         isUpdating = true;
         categoryCombo.getItems().clear();
 
-        // گزینه بازگشت
         categoryCombo.getItems().add("← بازگشت");
         categoryNameToIdMap.put("← بازگشت", -1L);
 
@@ -271,78 +231,71 @@ public class NewAdController {
 
         categoryCombo.setDisable(false);
         categoryCombo.getSelectionModel().selectFirst();
-        System.out.println("✅ [DEBUG] " + children.size() + " زیردسته در کامبوباکس بارگذاری شد.");
         isUpdating = false;
     }
 
     /**
-     * شنونده برای تغییر انتخاب در کامبوباکس.
+     * Sets up the listener for category combo box selection changes.
+     * Handles back navigation and drills down into subcategories.
      */
     private void setupCategoryComboListener() {
         categoryCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            System.out.println("🔄 [DEBUG] انتخاب تغییر کرد: oldVal=" + oldVal + ", newVal=" + newVal);
-
             if (isUpdating) {
-                System.out.println("⏳ [DEBUG] در حال به‌روزرسانی، نادیده گرفته شد.");
                 return;
             }
             if (newVal == null) {
-                System.out.println("⚠️ [DEBUG] newVal null است.");
                 return;
             }
 
             if ("← بازگشت".equals(newVal)) {
-                System.out.println("🔙 [DEBUG] گزینه بازگشت انتخاب شد.");
                 goBackToParentLevel();
                 return;
             }
 
             Long categoryId = categoryNameToIdMap.get(newVal);
             if (categoryId == null) {
-                System.err.println("❌ [DEBUG] شناسه برای '" + newVal + "' یافت نشد.");
                 return;
             }
 
             Category selectedCat = findCategoryById(categoryId);
             if (selectedCat == null) {
-                System.err.println("❌ [DEBUG] دسته‌بندی با شناسه " + categoryId + " یافت نشد.");
                 return;
             }
-
-            System.out.println("🔍 [DEBUG] دسته‌بندی انتخاب‌شده: " + selectedCat.getName() +
-                    " (زیردسته‌ها: " + selectedCat.getSubCategories().size() + ")");
 
             if (!selectedCat.getSubCategories().isEmpty()) {
                 loadSubCategories(selectedCat);
             } else {
                 currentSelectedCategory = selectedCat;
-                System.out.println("✅ [DEBUG] دسته‌بندی نهایی انتخاب شد: " + selectedCat.getName());
             }
         });
     }
 
     /**
-     * بازگشت به سطح بالاتر.
+     * Navigates back to the parent level in the category hierarchy.
+     * If already at root level, reloads the root categories.
      */
     private void goBackToParentLevel() {
         if (isUpdating) return;
 
         if (currentSelectedCategory == null) {
-            System.out.println("↩️ [DEBUG] در سطح ریشه هستیم، بازگشت به ریشه‌ها.");
             populateCategoryComboBox();
             return;
         }
 
         Category parent = currentSelectedCategory.getParent();
         if (parent == null) {
-            System.out.println("↩️ [DEBUG] والد null است → بازگشت به ریشه‌ها.");
             populateCategoryComboBox();
         } else {
-            System.out.println("↩️ [DEBUG] بازگشت به والد: " + parent.getName());
             loadSubCategories(parent);
         }
     }
 
+    /**
+     * Finds a category by its ID from the loaded categories list.
+     *
+     * @param id the category ID to search for
+     * @return the matching Category, or null if not found
+     */
     private Category findCategoryById(Long id) {
         for (Category cat : allCategories) {
             if (cat.getId().equals(id)) {
@@ -352,16 +305,21 @@ public class NewAdController {
         return null;
     }
 
+    /**
+     * Returns the ID of the currently selected category in the combo box.
+     *
+     * @return the selected category ID, or null if no category is selected
+     */
     private Long getSelectedCategoryId() {
         String selected = categoryCombo.getSelectionModel().getSelectedItem();
         if (selected == null) return null;
         return categoryNameToIdMap.get(selected);
     }
 
-    // ================================
-    //  Ad Type Change Handler
-    // ================================
-
+    /**
+     * Handles the ad type selection change.
+     * Toggles visibility between product and service fields and refreshes categories.
+     */
     @FXML
     public void onChooseType() {
         String selected = typeCombo.getValue();
@@ -389,15 +347,20 @@ public class NewAdController {
         }
     }
 
-    // ================================
-    //  Image Upload
-    // ================================
-
+    /**
+     * Opens the image chooser dialog for selecting advertisement images.
+     */
     @FXML
     public void onChooseImages() {
         Utils.chooseImage(selectedImageFiles, imagePreviewContainer);
     }
 
+    /**
+     * Uploads all selected image files to the server.
+     *
+     * @return a list of ImageRequest objects with server paths
+     * @throws Exception if any image upload fails
+     */
     private List<ImageRequest> uploadAllImages() throws Exception {
         List<ImageRequest> results = new ArrayList<>();
         for (File file : selectedImageFiles) {
@@ -411,10 +374,9 @@ public class NewAdController {
         return results;
     }
 
-    // ================================
-    //  Add Feature (Option)
-    // ================================
-
+    /**
+     * Adds a new key-value feature input row to the options' container.
+     */
     @FXML
     public void handleAddFeature() {
         HBox featureBox = new HBox(10);
@@ -439,10 +401,10 @@ public class NewAdController {
         optionsContainer.getChildren().add(featureBox);
     }
 
-    // ================================
-    //  Submit Ad
-    // ================================
-
+    /**
+     * Validates the form and submits the new advertisement to the server.
+     * Routes to the appropriate create method based on the selected advertisement type.
+     */
     @FXML
     public void onSubmit() {
         try {
@@ -461,7 +423,7 @@ public class NewAdController {
 
             Long categoryId = getSelectedCategoryId();
             if (categoryId == null) {
-                AlertUtil.showError("لطفاً یک دسته‌بندی را انتخاب کنید.");
+                AlertUtil.showError("لطفاً یک دسته بندی را انتخاب کنید.");
                 return;
             }
 
@@ -490,10 +452,8 @@ public class NewAdController {
                 AdvService.createService(request);
             }
 
-            Platform.runLater(() -> {
-                AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد");
-                SceneManager.showPage(Pages.DASHBOARD, null);
-            });
+            AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد");
+            SceneManager.showPage(Pages.DASHBOARD, null);
 
         } catch (NumberFormatException e) {
             AlertUtil.showError("قیمت باید عدد باشد");
@@ -502,6 +462,14 @@ public class NewAdController {
         }
     }
 
+    /**
+     * Builds a ProductCreateRequest from the form fields.
+     *
+     * @param city       the selected city
+     * @param categoryId the selected category ID
+     * @param images     the list of uploaded image requests
+     * @return a populated ProductCreateRequest
+     */
     private ProductCreateRequest createProductRequest(City city, Long categoryId, List<ImageRequest> images) {
         ProductCreateRequest request = new ProductCreateRequest();
         request.setFullName(titleField.getText().trim());
@@ -519,6 +487,14 @@ public class NewAdController {
         return request;
     }
 
+    /**
+     * Builds a ServiceCreateRequest from the form fields.
+     *
+     * @param city       the selected city
+     * @param categoryId the selected category ID
+     * @param images     the list of uploaded image requests
+     * @return a populated ServiceCreateRequest
+     */
     private ServiceCreateRequest createServiceRequest(City city, Long categoryId, List<ImageRequest> images) {
         ServiceCreateRequest request = new ServiceCreateRequest();
         request.setFullName(titleField.getText().trim());
@@ -533,6 +509,9 @@ public class NewAdController {
         return request;
     }
 
+    /**
+     * Cancels ad creation and navigates back to the dashboard.
+     */
     @FXML
     public void onCancel() {
         SceneManager.showPage(Pages.DASHBOARD, null);

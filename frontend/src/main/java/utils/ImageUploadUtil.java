@@ -31,9 +31,6 @@ import java.nio.file.Path;
  * String serverPath = ImageUploadUtil.uploadImageFromStream(stream, "image.jpg");
  * }</pre>
  *
- * @author [Your Name]
- * @version 1.0
- * @see ApiClient
  */
 public class ImageUploadUtil {
 
