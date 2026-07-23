@@ -11,8 +11,8 @@
     <VBox fx:id="messageBubble" spacing="2">
         <!-- Message content container -->
         <VBox fx:id="bubbleContent" spacing="2" maxWidth="300">
-            <Label fx:id="messageText" maxWidth="350"
-                   style="-fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 0; -fx-font-size: 13px; -fx-text-fill: #2d3748;"/>
+            <Text fx:id="messageText"
+                  style="-fx-background-color: transparent; -fx-border-width: 0; -fx-padding: 0; -fx-font-size: 13px; -fx-text-fill: #2d3748;"/>
         </VBox>
         <!-- Timestamp and seen status row -->
         <HBox fx:id="bottomRow" spacing="5">

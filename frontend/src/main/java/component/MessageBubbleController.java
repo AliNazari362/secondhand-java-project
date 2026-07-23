@@ -26,7 +26,7 @@ public class MessageBubbleController {
     @FXML
     private VBox bubbleContent;
     @FXML
-    private Label messageText;
+    private Text messageText;
     @FXML
     private HBox bottomRow;
     @FXML
@@ -80,32 +80,36 @@ public class MessageBubbleController {
     private void initialize(MessageResponseDto message) {
         boolean isMine = message.getSender().getId().equals(SessionManager.getUserId());
 
+        // تنظیم alignment ها
         messageRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-        messageBubble.setAlignment(isMine ? Pos.TOP_LEFT : Pos.TOP_RIGHT);
-        bottomRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-
         messageRow.setStyle(isMine ? "-fx-padding: 0 40 0 0;" : "-fx-padding: 0 0 0 40;");
-        messageBubble.setStyle("-fx-max-width: 350;");
 
+        messageBubble.setAlignment(isMine ? Pos.TOP_LEFT : Pos.TOP_RIGHT);
+        messageBubble.setStyle("-fx-max-width: 320;");  // برگشت به 320 مثل کد قدیمی
+
+        // استایل حباب
         bubbleContent.setStyle(isMine ?
                 "-fx-padding: 8 12; -fx-background-color: #bee3f8; -fx-background-radius: 12 12 12 4;" :
                 "-fx-padding: 8 12; -fx-background-color: white; -fx-background-radius: 12 12 4 12;");
 
+        // تنظیم متن پیام با wrapping width
         messageText.setText(message.getText());
-        messageText.setStyle("""
-                    -fx-font-size:13px;
-                    -fx-text-fill:#2d3748;
-                """);
-        messageText.setAlignment(Pos.CENTER_RIGHT);
+        messageText.setStyle("-fx-font-size: 13px; -fx-fill: #2d3748;");
+        messageText.setWrappingWidth(280);  // قابلیت مهم Text که Label ندارد
 
+        // ردیف پایین: زمان + تیک وضعیت
+        bottomRow.setAlignment(isMine ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+
+        // زمان
         timeText.setText(message.getDate().format(Utils.FORMATTER));
         timeText.setStyle("-fx-font-size: 9px; -fx-fill: #a0aec0;");
 
+        // تیک وضعیت (فقط برای پیام‌های خودم)
         if (isMine) {
             statusTicks.setText(message.isSeen() ? "✓✓" : "✓");
             statusTicks.setStyle(message.isSeen() ?
-                    "-fx-font-size: 11px; -fx-fill: #3182ce;" :
-                    "-fx-font-size: 11px; -fx-fill: #a0aec0;");
+                    "-fx-font-size: 11px; -fx-fill: #3182ce;" :  // آبی - دیده شد
+                    "-fx-font-size: 11px; -fx-fill: #a0aec0;");  // خاکستری - هنوز دیده نشده
             statusTicks.setVisible(true);
         } else {
             statusTicks.setVisible(false);
