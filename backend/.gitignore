@@ -32,6 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 
-### DB and Uploads ###
-secondhand.db
-uploads/

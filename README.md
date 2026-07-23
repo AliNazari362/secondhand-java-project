@@ -228,6 +228,7 @@ To simplify the evaluation process, the following test accounts are included wit
 | **Administrator** | `admin@gmail.com` | `admin1234` |
 | **User** | `alavi@gmail.com` | `alavi1234` |
 | **User** | `hamid@gmail.com` | `hamid1234` |
+| **User** | `hadi@gmail.com` | `hadi12345` |
 
 The administrator account can be used to test administrative features such as user management, advertisement approval, and category management.
 
