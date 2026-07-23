@@ -29,8 +29,10 @@ A desktop client-server marketplace for buying and selling second-hand goods. De
 10. Test Accounts
 11. Screenshots
 12. Architecture
-13. Building
+13. Building the Project
 14. Responsibilities
+15. Contact
+16. Git & Commit Notes
 
 ## Overview
 Users can register, login, publish advertisements, edit or delete them, search products, save favourites, rate sellers, chat, and manage the system through an administrator panel.
@@ -224,7 +226,7 @@ To simplify the evaluation process, the following test accounts are included wit
 | Role | Email | Password |
 |------|-------|----------|
 | **Administrator** | `admin@gmail.com` | `admin1234` |
-| **User** | `ali@gmail.com` | `ali12345` |
+| **User** | `alavi@gmail.com` | `alavi1234` |
 | **User** | `hamid@gmail.com` | `hamid1234` |
 
 The administrator account can be used to test administrative features such as user management, advertisement approval, and category management.
@@ -324,21 +326,111 @@ Repository (Data Access)
    ↓
 Database (PostgreSQL / SQLite)
 ```
+| Layer	 | Responsibility |
+|------|-------|
+| **Controller** | `Handles HTTP requests, performs basic validation, and returns responses to the client` |
+| **Service** | `Implements business logic, advanced validation, and access control` |
+| **Repository** | `Manages database communication using Spring Data JPA` |
+| **Database** | `	Provides persistent storage (SQLite)` |
+
+This structure ensures separation of concerns and high testability across the project.
+
+
 
 ## Testing
-```bash
-cd backend
-mvn test
-```
+
+All backend unit tests are written using **JUnit 5** and located in the `backend/src/test/java` directory.
+
+You can run the tests directly from your IDE (such as IntelliJ IDEA or VS Code) by right-clicking on the `test` folder or individual test classes and selecting **Run** or **Run as JUnit**.
+
+> **Note:** The tests cover all core services including authentication, advertisements, chat, comments, ratings, favorites, and admin operations.
+
 
 ## Future Improvements
-- Docker
-- CI/CD
-- Email verification
-- Push notifications
-- Advanced filtering
-- Dark mode
 
+| Feature | Description | Priority |
+|---------|-------------|----------|
+| **Docker** | Full containerization with Docker Compose for easy deployment | High |
+| **CI/CD** | Automate build, test, and deployment using GitHub Actions | High |
+| **Email Verification** | Verify user emails during registration to prevent fake accounts | Medium |
+| **Push Notifications** | Real-time alerts for new messages and ad status changes | Medium |
+| **WebSocket / Real-time Chat** | Upgrade chat to real-time messaging | Medium |
+| **Advanced Filtering** | Add filters like exact price range, date, and condition | Low |
+| **Dark Mode** | Add a dark theme to the JavaFX UI | Low |
+| **Multi-language Support** | Support both Persian and English languages | Low |
+## Building the Project
+### Option 1 : Using the Provided Script (for Windows)
+A run.bat script is located in the root directory of the project. This script will start both the backend and frontend automatically.
+
+How to use:
+
+1. Double-click the run.bat file in the project root folder.
+
+2. Two terminal windows will open:
+
+    One for the Backend Server (Spring Boot)
+
+    One for the Frontend Application (JavaFX)
+
+3. Wait a few seconds for both services to start.
+### Option 2: Running on Linux / macOS
+A run.sh script is provided for Linux and macOS users.
+
+How to use:
+
+1. Make the script executable:
+
+```bash
+chmod +x run.sh
+```
+2. Run the script:
+
+```bash
+./run.sh
+```
+The script will:
+
+1. Start the backend server
+
+2. Wait 8 seconds for it to initialize
+
+3. Start the frontend application
+
+>Note: If you are using a different terminal emulator, you may need to modify the script to use your preferred terminal (e.g., konsole, termite, alacritty).
+### Option 3: Running Manually (Using Terminal)
+If you prefer to run the services manually, follow these steps:
+
+1. Start the Backend :
+Open a terminal (Command Prompt, PowerShell, or IntelliJ Terminal) 
+and run:
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+The backend will start on http://localhost:8080.
+
+2. Start the Frontend
+Once the backend is running, open a new terminal and run:
+
+```bash
+cd frontend
+mvn javafx:run
+```
+The JavaFX desktop application will open.
+
+>Important: Always start the backend before the frontend.
+
+### Option 4: Using IntelliJ IDEA Maven Tool Window
+If you are using IntelliJ IDEA:
+
+1. Open the Maven tool window (View → Tool Windows → Maven).
+
+2. Expand the backend module → Plugins → spring-boot → double-click spring-boot:run.
+
+3. Expand the frontend module → Plugins → javafx → double-click javafx:run.
+
+>Note: This method uses IntelliJ's built-in Maven and does not require any additional configuration.
 ## Responsibilities
 
 ### Ali Nazari
@@ -349,6 +441,25 @@ Frontend: Service, Exception, Utils, FXML, CSS
 Backend: Repository, Service, Exception, Debugging
 Frontend: App, Component, Controller, Model
 
+## Contact
+
+If you have any questions, suggestions, or feedback regarding this project, feel free to reach out to us:
+
+| Team Member | Role | Email |
+|-------------|------|-------|
+| **Ali Nazari** | Backend & Frontend Developer | ali.nazari86@aut.ac.ir|
+| **Mohammadreza Kheradmand** | Backend & Frontend Developer | mohammad.kherad@aut.ac.ir|
+
+**GitHub Repository:** [github.com/AliNazari362/secondhand-java-project](https://github.com/AliNazari362/secondhand-java-project)
+
+> We welcome any feedback or contributions to improve the project!
+
+## Git & Commit Notes
+
+- All commits made under the username **`student 62`** belong to **Mohammadreza Kheradmand**, one of the core developers of this project.
+- This username is used for academic/educational purposes and should not be confused with other contributors.
+
+ 
 ## License
 This project was developed for educational purposes as part of the Advanced Programming course.
 
