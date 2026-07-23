@@ -452,10 +452,8 @@ public class NewAdController {
                 AdvService.createService(request);
             }
 
-            Platform.runLater(() -> {
-                AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد");
-                SceneManager.showPage(Pages.DASHBOARD, null);
-            });
+            AlertUtil.showSuccess(advTypeStr + " با موفقیت ثبت شد");
+            SceneManager.showPage(Pages.DASHBOARD, null);
 
         } catch (NumberFormatException e) {
             AlertUtil.showError("قیمت باید عدد باشد");

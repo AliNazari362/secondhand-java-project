@@ -46,7 +46,7 @@ public class LoginController {
             );
 
             SceneManager.showPage(Pages.DASHBOARD, response.getFullName());
-            Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز خوش آمدید"));
+            AlertUtil.showSuccess(response.getFullName() + " عزیز خوش آمدید");
         } catch (Exception e) {
             ExceptionHandler.handle(e);
         }

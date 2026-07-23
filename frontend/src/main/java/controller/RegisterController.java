@@ -50,7 +50,7 @@ public class RegisterController {
             UserDto response = AuthService.register(request);
             SceneManager.showPage(Pages.LOGIN, null);
 
-            Platform.runLater(() -> AlertUtil.showSuccess(response.getFullName() + " عزیز ثبت نام با موفقیت انجام شد، حالا وارد شوید"));
+            AlertUtil.showSuccess(response.getFullName() + " عزیز ثبت نام با موفقیت انجام شد، حالا وارد شوید");
         } catch (Exception e) {
             ExceptionHandler.handle(e);
         }

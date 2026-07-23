@@ -333,7 +333,7 @@ public class AdminController {
     @FXML
     private void onStateClicked() {
         if (loadDashboardStats())
-            Platform.runLater(() -> AlertUtil.showSuccess("آمار با موفقیت بروز شد"));
+            AlertUtil.showSuccess("آمار با موفقیت بروز شد");
     }
 
     /**
